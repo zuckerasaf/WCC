@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button
+from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu
 from PIL import Image, ImageTk
 import os
+import json
 
 # Global variables
 current_image_path = None
@@ -32,7 +33,7 @@ def browse_image():
         combined_image_path = None  # Reset the combined image path
         # Open and display the image
         img = Image.open(file_path)
-        img = img.resize((250, 250), Image.LANCZOS)  # Resize image to fit the label
+        #img = img.resize((250, 250), Image.LANCZOS)  # Resize image to fit the label
         img_tk = ImageTk.PhotoImage(img)
         image_label.config(image=img_tk)
         image_label.image = img_tk  # Keep a reference to avoid garbage collection
@@ -147,14 +148,61 @@ def save_image():
 def open_alpha_form(picture):
     global image_position_entry
 
+    #def save_alpha_data():
+    #    image_name = image_name_entry.get()
+    #    image_size = image_size_entry.get()
+    #    image_position = image_position_entry.get()
+    #    level = level_entry.get()
+    #    trigger = trigger_entry.get()
+    #    with open("alpha_data.txt", "a") as file:
+    #        file.write(f"Image Name: {image_name}, Image Size: {image_size}, Image Position: {image_position}, Level: {level}, Trigger: {trigger}\n")
+    #    alpha_form.destroy()
+
     def save_alpha_data():
         image_name = image_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
-        level = level_entry.get()
-        trigger = trigger_entry.get()
-        with open("alpha_data.txt", "a") as file:
-            file.write(f"Image Name: {image_name}, Image Size: {image_size}, Image Position: {image_position}, Level: {level}, Trigger: {trigger}\n")
+        type_value = type_entry.get()
+        group_value = group_entry.get()
+        data = {
+            "type": type_value,
+            "group": group_value,
+            "backend_name": image_name,
+            "width": image_size.split('x')[0],
+            "height": image_size.split('x')[1],
+            "left": new_image_position[0],
+            "top": new_image_position[1],
+            "offset_on": "0",
+            "offset_off": "0",
+            "image_on": "/CMDSPanel/SWITCH_10_UP1.png",
+            "image_off": "/CMDSPanel/SWITCH_10_DOWN_1.png",
+            "debugMode": False,
+            "is_clickable": True,
+            "click_props": {
+                "click_bounds_height_factor": 2,
+                "click_bounds_width_factor": 1.5,
+                "grid_size": 2,
+                "grid_direction": "ud,lr,none"
+            },
+            "blinking": {
+                "color": "yellow"
+            },
+        }
+
+        # Read existing data from the JSON file
+        try:
+            with open("alpha_data.json", "r") as file:
+                existing_data = json.load(file)
+        except FileNotFoundError:
+            existing_data = []
+
+        # Append the new data
+        existing_data.append(data)
+
+        # Write the updated data back to the JSON file
+        with open("alpha_data.json", "w") as file:
+            json.dump(existing_data, file, indent=4)
+
         alpha_form.destroy()
 
     alpha_form = Toplevel(root)
@@ -175,15 +223,20 @@ def open_alpha_form(picture):
     image_position_entry.grid(row=2, column=1)
     image_position_entry.insert(0, str(new_image_position))
 
-    Label(alpha_form, text="Level:").grid(row=3, column=0)
-    level_entry = Entry(alpha_form)
-    level_entry.grid(row=3, column=1)
-    level_entry.insert(0, "1")  # Default level value
+    Label(alpha_form, text="Type:").grid(row=5, column=0)
+    type_var = StringVar(alpha_form)
+    type_var.set("boolean")  # Default type value
+    type_options = ["a", "b", "boolean"]
+    type_menu = OptionMenu(alpha_form, type_var, *type_options)
+    type_menu.grid(row=3, column=1)
 
-    Label(alpha_form, text="Trigger:").grid(row=4, column=0)
-    trigger_entry = Entry(alpha_form)
-    trigger_entry.grid(row=4, column=1)
-    trigger_entry.insert(0, "event1")  # Default trigger value
+    Label(alpha_form, text="Group:").grid(row=6, column=0)
+    group_var = StringVar(alpha_form)
+    group_var.set("state2")  # Default group value
+    group_options = ["a", "b", "state2"]
+    group_menu = OptionMenu(alpha_form, group_var, *group_options)
+    group_menu.grid(row=4, column=1)
+
 
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
     save_button.grid(row=5, columnspan=2)
