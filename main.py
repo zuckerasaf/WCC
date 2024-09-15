@@ -15,14 +15,21 @@ image_position_entry = None  # Reference to the image position entry field in th
 
 
 class Picture:
-    def __init__(self, image_id, file_path):
+    def __init__(self, image_id, file_path, width, height):
         self.image_id = image_id
         self.file_path = file_path
+        self.width = width
+        self.height = height
 
 def hello_world():
     print("Hello, World!")
 
 def browse_image():
+
+    # Create a new, empty alpha_data.json file
+    with open("alpha_data.json", "w") as file:
+        json.dump([], file)
+
     global current_image_path, image_id, new_image_path, new_image_position, combined_image_path
     # Open file dialog to select an image file
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
@@ -33,14 +40,16 @@ def browse_image():
         combined_image_path = None  # Reset the combined image path
         # Open and display the image
         img = Image.open(file_path)
-        #img = img.resize((250, 250), Image.LANCZOS)  # Resize image to fit the label
         img_tk = ImageTk.PhotoImage(img)
         image_label.config(image=img_tk)
         image_label.image = img_tk  # Keep a reference to avoid garbage collection
 
+        # Get the image size
+        width, height = img.width, img.height
+
         # Create a Picture instance with the image name as the ID
         image_id = os.path.basename(file_path)
-        picture = Picture(image_id=image_id, file_path=file_path)
+        picture = Picture(image_id=image_id, file_path=file_path, width=width, height=height)
         
         # Update the text label with image_id and file_path
         info_label.config(text=f"Image ID: {picture.image_id}\nFile Path: {picture.file_path}")
@@ -51,7 +60,7 @@ def browse_image():
             file.write(f"Image ID: {picture.image_id}, File Path: {picture.file_path}\n")
 
         # Open the alpha form
-        open_alpha_form(picture)
+        #open_alpha_form(picture)
 
 def add_image():
     global current_image_path, new_image_path, new_image_position, base_img
@@ -66,12 +75,17 @@ def add_image():
             combine_images()
             update_info_label()
 
-                    # Create a Picture instance with the image name as the ID
+
+
+             # Create a Picture instance with the image name as the ID
             image_id = os.path.basename(file_path)
-            picture = Picture(image_id=image_id, file_path=file_path)
+             # Get the image size
+            img = Image.open(file_path)        
+            width, height = img.width, img.height
+            picture = Picture(image_id=image_id, file_path=file_path, width=width, height=height)
 
             # Open the alpha form
-            open_alpha_form(picture)
+            open_alpha_form(picture, f"{width}x{height}")
 
 
 def move_image(event):
@@ -145,47 +159,52 @@ def save_image():
             img.save(save_path)
             print(f"Image saved to {save_path}")
 
-def open_alpha_form(picture):
+def open_alpha_form(picture,image_size):
     global image_position_entry
-
-    #def save_alpha_data():
-    #    image_name = image_name_entry.get()
-    #    image_size = image_size_entry.get()
-    #    image_position = image_position_entry.get()
-    #    level = level_entry.get()
-    #    trigger = trigger_entry.get()
-    #    with open("alpha_data.txt", "a") as file:
-    #        file.write(f"Image Name: {image_name}, Image Size: {image_size}, Image Position: {image_position}, Level: {level}, Trigger: {trigger}\n")
-    #    alpha_form.destroy()
 
     def save_alpha_data():
         image_name = image_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
-        type_value = type_entry.get()
-        group_value = group_entry.get()
+        type_value = type_var.get()
+        group_value = group_var.get()
+        offset_on_value = offset_on_var.get()
+        offset_off_value = offset_off_var.get()
+        debugMode_value = debugMode_var.get()
+        is_clickable_value = is_clickable_var.get()
+        click_bounds_height_factor_value = click_bounds_height_factor_var.get()
+        click_bounds_width_factor_value = click_bounds_width_factor_var.get()
+        grid_size_value = grid_size_var.get()
+        grid_direction_value = grid_direction_var.get()
+        color_value = color_var.get()
+
+        try:
+            width, height = image_size.split('x')
+        except ValueError:
+            width, height = "0", "0"  # Default values in case of error
+
         data = {
             "type": type_value,
             "group": group_value,
             "backend_name": image_name,
-            "width": image_size.split('x')[0],
-            "height": image_size.split('x')[1],
+            "width": width,
+            "height": height,
             "left": new_image_position[0],
             "top": new_image_position[1],
-            "offset_on": "0",
-            "offset_off": "0",
+            "offset_on": offset_on_value,
+            "offset_off": offset_off_value,
             "image_on": "/CMDSPanel/SWITCH_10_UP1.png",
             "image_off": "/CMDSPanel/SWITCH_10_DOWN_1.png",
-            "debugMode": False,
-            "is_clickable": True,
+            "debugMode": debugMode_value,
+            "is_clickable": is_clickable_value,
             "click_props": {
-                "click_bounds_height_factor": 2,
-                "click_bounds_width_factor": 1.5,
-                "grid_size": 2,
-                "grid_direction": "ud,lr,none"
+                "click_bounds_height_factor": click_bounds_height_factor_value,
+                "click_bounds_width_factor": click_bounds_width_factor_value,
+                "grid_size": grid_size_value,
+                "grid_direction": grid_direction_value,
             },
             "blinking": {
-                "color": "yellow"
+                "color": color_value
             },
         }
 
@@ -216,30 +235,78 @@ def open_alpha_form(picture):
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
     image_size_entry = Entry(alpha_form)
     image_size_entry.grid(row=1, column=1)
-    image_size_entry.insert(0, "250x250")  # Assuming the resized image size
+    image_size_entry.insert(0, str(picture.width)+" X "+str(picture.height))  # Assuming the resized image size
 
     Label(alpha_form, text="Image Position:").grid(row=2, column=0)
     image_position_entry = Entry(alpha_form)
     image_position_entry.grid(row=2, column=1)
     image_position_entry.insert(0, str(new_image_position))
 
-    Label(alpha_form, text="Type:").grid(row=5, column=0)
+    Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
     type_var.set("boolean")  # Default type value
     type_options = ["a", "b", "boolean"]
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
 
-    Label(alpha_form, text="Group:").grid(row=6, column=0)
+    Label(alpha_form, text="Group:").grid(row=4, column=0)
     group_var = StringVar(alpha_form)
     group_var.set("state2")  # Default group value
     group_options = ["a", "b", "state2"]
     group_menu = OptionMenu(alpha_form, group_var, *group_options)
     group_menu.grid(row=4, column=1)
 
+    Label(alpha_form, text="offset_on:").grid(row=5, column=0)
+    offset_on_var = Entry(alpha_form)
+    offset_on_var.grid(row=5, column=1)
+    offset_on_var.insert(0, "0")  # Assuming the offset_on_var = 0
+
+    Label(alpha_form, text="offset_off:").grid(row=6, column=0)
+    offset_off_var = Entry(alpha_form)
+    offset_off_var.grid(row=6, column=1)
+    offset_off_var.insert(0, "0")  # Assuming the offset_off_var = 0 
+
+    Label(alpha_form, text="debug Mode:").grid(row=7, column=0)
+    debugMode_var = Entry(alpha_form)
+    debugMode_var.grid(row=7, column=1)
+    debugMode_var.insert(0, "false")  
+
+    Label(alpha_form, text="is clickable:").grid(row=8, column=0)
+    is_clickable_var= Entry(alpha_form)
+    is_clickable_var.grid(row=8, column=1)
+    is_clickable_var.insert(0, "true")   
+
+    Label(alpha_form, text="click bounds height factor:").grid(row=9, column=0)
+    click_bounds_height_factor_var= Entry(alpha_form)
+    click_bounds_height_factor_var.grid(row=9, column=1)
+    click_bounds_height_factor_var.insert(0, "2")   
+
+    Label(alpha_form, text="click bounds width factor:").grid(row=10, column=0)
+    click_bounds_width_factor_var = Entry(alpha_form)
+    click_bounds_width_factor_var.grid(row=10, column=1)
+    click_bounds_width_factor_var.insert(0, "1.5")
+
+    Label(alpha_form, text="grid size:").grid(row=11, column=0)
+    grid_size_var = Entry(alpha_form)
+    grid_size_var.grid(row=11, column=1)
+    grid_size_var.insert(0, "2")
+
+    Label(alpha_form, text="grid direction:").grid(row=12, column=0)
+    grid_direction_var = StringVar(alpha_form)
+    grid_direction_var.set("UD")  # Default type value
+    grid_direction_options = ["UD", "LR", "Other"]
+    grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
+    grid_direction_menu.grid(row=12, column=1)
+
+    Label(alpha_form, text="Blinking color:").grid(row=13, column=0)
+    color_var= StringVar(alpha_form)
+    color_var.set("yellow")  # Default type value
+    color_options = ["yellow", "red", "blue"]
+    color_menu = OptionMenu(alpha_form, color_var, *color_options)
+    color_menu.grid(row=13, column=1)
 
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=5, columnspan=2)
+    save_button.grid(row=14, columnspan=2)
 
 # Create the main window
 root = tk.Tk()
