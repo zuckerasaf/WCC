@@ -3,6 +3,11 @@ from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, St
 from PIL import Image, ImageTk
 import os
 import json
+from Util import move_image, rotate_image, Bring_File_path  # Import the move_image function
+
+# Define rotation_angle and rotation_entry as global variables at the top of the script
+rotation_angle = 0
+#rotation_entry = None
 
 # Global variables
 current_image_path = None
@@ -12,7 +17,8 @@ combined_image_path = None
 base_img = None  # Add a global variable to store the base image
 move_pixels = 10  # Default number of pixels to move
 image_position_entry = None  # Reference to the image position entry field in the alpha form
-
+img = None  # Add a global variable to store the image
+image_label = None  # Add a global variable to store the image label
 
 class Picture:
     def __init__(self, image_id, file_path, width, height):
@@ -25,17 +31,18 @@ def hello_world():
     print("Hello, World!")
 
 def browse_image():
+    global img, img_tk, image_label, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
 
     # Create a new, empty alpha_data.json file
     with open("alpha_data.json", "w") as file:
         json.dump([], file)
 
-    global current_image_path, image_id, new_image_path, new_image_position, combined_image_path
     # Open file dialog to select an image file
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
     if file_path:
         current_image_path = os.path.normpath(file_path)
         new_image_path = None  # Reset the new image path
+        rotated_new_img = 0
         new_image_position = (0, 0)  # Reset the new image position
         combined_image_path = None  # Reset the combined image path
         # Open and display the image
@@ -62,25 +69,29 @@ def browse_image():
         # Open the alpha form
         #open_alpha_form(picture)
 
+    
+
 def add_image():
-    global current_image_path, new_image_path, new_image_position, base_img
+    global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id
+
     if current_image_path:
         # Open file dialog to select another image file
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
+
             new_image_path = file_path
             new_image_position = (0, 0)  # Start at the top-left corner
             base_img = Image.open(current_image_path)  # Open and store the base image
             image_id = os.path.basename(file_path)
+
+            # Combine images and update info label
             combine_images()
             update_info_label()
 
-
-
-             # Create a Picture instance with the image name as the ID
+            # Create a Picture instance with the image name as the ID
             image_id = os.path.basename(file_path)
              # Get the image size
-            img = Image.open(file_path)        
+            img = Image.open(file_path)
             width, height = img.width, img.height
             picture = Picture(image_id=image_id, file_path=file_path, width=width, height=height)
 
@@ -88,34 +99,31 @@ def add_image():
             open_alpha_form(picture, f"{width}x{height}")
 
 
-def move_image(event):
-    global new_image_position, move_pixels
-    if new_image_path:
-        if event.keysym == 'Right':
-            new_image_position = (new_image_position[0] + move_pixels, new_image_position[1])
-        elif event.keysym == 'Left':
-            new_image_position = (new_image_position[0] - move_pixels, new_image_position[1])
-        elif event.keysym == 'Up':
-            new_image_position = (new_image_position[0], new_image_position[1] - move_pixels)
-        elif event.keysym == 'Down':
-            new_image_position = (new_image_position[0], new_image_position[1] + move_pixels)
-        combine_images()
-        update_info_label()
-        if image_position_entry:
-            image_position_entry.delete(0, tk.END)
-            image_position_entry.insert(0, str(new_image_position))
+
 
 def combine_images():
-    global current_image_path, new_image_path, new_image_position, combined_image_path, base_img
+    global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, rotation_angle
     if base_img and new_image_path:
         # Open the new image
         new_img = Image.open(new_image_path)
 
+        # Rotate the new image
+        rotated_new_img = new_img.rotate(rotation_angle, expand=True)
+
+        # Calculate the new position to keep the rotated image centered
+        new_x = new_image_position[0] - (rotated_new_img.width - new_img.width) // 2
+        new_y = new_image_position[1] - (rotated_new_img.height - new_img.height) // 2
+        new_position = (new_x, new_y)
+
         # Create a copy of the base image to avoid modifying the original
         combined_img = base_img.copy()
 
-        # Paste the new image on top of the base image at the current position
-        combined_img.paste(new_img, new_image_position, new_img if new_img.mode == 'RGBA' else None)
+       # # Paste the new image on top of the base image at the current position
+       #combined_img.paste(new_img, new_image_position, new_img if new_img.mode == 'RGBA' else None)
+
+        # Paste the rotated new image on top of the base image at the current position
+        combined_img.paste(rotated_new_img, new_image_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
+
 
         # Save the combined image to a temporary file
         combined_image_path = os.path.join(os.path.dirname(current_image_path), "combined_image.png")
@@ -160,12 +168,32 @@ def save_image():
             print(f"Image saved to {save_path}")
 
 def open_alpha_form(picture,image_size):
-    global image_position_entry
+    global image_position_entry, rotation_entry,file_path
+    
+
+    def on_bring_file_path(var):
+        file_path = Bring_File_path()
+        if file_path:
+            var.set(file_path)
+
+    # Function to create label and entry pair
+    def create_label_entry_pair(parent, label_text, row, column, default_value=""):
+        label = Label(parent, text=label_text)
+        label.grid(row=row, column=column)
+        
+        entry_var = StringVar()
+        entry = Entry(parent, textvariable=entry_var)
+        entry.grid(row=row, column=column + 1)
+        entry_var.set(default_value)
+    
+        return entry_var
 
     def save_alpha_data():
+        image_key = image_key_entry.get()
         image_name = image_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
+        rotation = rotation_entry.get()
         type_value = type_var.get()
         group_value = group_var.get()
         offset_on_value = offset_on_var.get()
@@ -177,6 +205,47 @@ def open_alpha_form(picture,image_size):
         grid_size_value = grid_size_var.get()
         grid_direction_value = grid_direction_var.get()
         color_value = color_var.get()
+        rotation_1_Key = rotation_1_Key_Var.get()
+        rotation_1_angle = rotation_1_angle_Var.get()
+        rotation_2_Key = rotation_2_Key_Var.get()
+        rotation_2_angle = rotation_2_angle_Var.get()
+        rotation_3_Key = rotation_3_Key_Var.get()
+        rotation_3_angle = rotation_3_angle_Var.get()
+        rotation_4_Key = rotation_4_Key_Var.get()
+        rotation_4_angle = rotation_4_angle_Var.get()
+        rotation_5_Key = rotation_5_Key_Var.get()
+        rotation_5_angle = rotation_5_angle_Var.get()
+        rotation_6_Key = rotation_6_Key_Var.get()
+        rotation_6_angle = rotation_6_angle_Var.get()
+        rotation_7_Key = rotation_7_Key_Var.get()
+        rotation_7_angle = rotation_7_angle_Var.get()
+        rotation_8_Key = rotation_8_Key_Var.get()
+        rotation_8_angle = rotation_8_angle_Var.get()
+        rotation_9_Key = rotation_9_Key_Var.get()
+        rotation_9_angle = rotation_9_angle_Var.get()
+        rotation_10_Key = rotation_10_Key_Var.get()
+        rotation_10_angle = rotation_10_angle_Var.get()
+        conversion_1_Key = conversion_1_Key_Var.get()
+        conversion_1_file_path = conversion_1_file_path_Var.get()
+        conversion_2_Key = conversion_2_Key_Var.get()
+        conversion_2_file_path = conversion_2_file_path_Var.get()
+        conversion_3_Key = conversion_3_Key_Var.get()
+        conversion_3_file_path = conversion_3_file_path_Var.get()
+        conversion_4_Key = conversion_4_Key_Var.get()
+        conversion_4_file_path = conversion_4_file_path_Var.get()
+        conversion_5_Key = conversion_5_Key_Var.get()
+        conversion_5_file_path = conversion_5_file_path_Var.get()
+        conversion_6_Key = conversion_6_Key_Var.get()
+        conversion_6_file_path = conversion_6_file_path_Var.get()
+        conversion_7_Key = conversion_7_Key_Var.get()
+        conversion_7_file_path = conversion_7_file_path_Var.get()
+        conversion_8_Key = conversion_8_Key_Var.get()
+        conversion_8_file_path = conversion_8_file_path_Var.get()
+        conversion_9_Key = conversion_9_Key_Var.get()
+        conversion_9_file_path = conversion_9_file_path_Var.get()
+        conversion_10_Key = conversion_10_Key_Var.get()
+        conversion_10_file_path = conversion_10_file_path_Var.get()
+
 
         try:
             width, height = image_size.split('x')
@@ -184,6 +253,7 @@ def open_alpha_form(picture,image_size):
             width, height = "0", "0"  # Default values in case of error
 
         data = {
+            "key": image_key,
             "type": type_value,
             "group": group_value,
             "backend_name": image_name,
@@ -202,6 +272,34 @@ def open_alpha_form(picture,image_size):
                 "click_bounds_width_factor": click_bounds_width_factor_value,
                 "grid_size": grid_size_value,
                 "grid_direction": grid_direction_value,
+            },
+            "analog_props": {
+                    "rotation": {
+                    rotation_1_Key :  rotation_1_angle, 
+                    rotation_2_Key :  rotation_2_angle,
+                    rotation_3_Key :  rotation_3_angle, 
+                    rotation_4_Key :  rotation_4_angle,
+                    rotation_5_Key :  rotation_5_angle, 
+                    rotation_6_Key :  rotation_6_angle,
+                    rotation_7_Key :  rotation_7_angle, 
+                    rotation_8_Key :  rotation_8_angle,
+                    rotation_9_Key :  rotation_9_angle, 
+                    rotation_10_Key :  rotation_10_angle,
+                }
+            },
+            "knob_props": {
+                "conversion": {
+                    conversion_1_Key : conversion_1_file_path,
+                    conversion_2_Key : conversion_2_file_path,
+                    conversion_3_Key : conversion_3_file_path,
+                    conversion_4_Key : conversion_4_file_path,
+                    conversion_5_Key : conversion_5_file_path,
+                    conversion_6_Key : conversion_6_file_path,
+                    conversion_7_Key : conversion_7_file_path,
+                    conversion_8_Key : conversion_8_file_path,
+                    conversion_9_Key : conversion_9_file_path,
+                    conversion_10_Key : conversion_10_file_path,
+                 }
             },
             "blinking": {
                 "color": color_value
@@ -227,11 +325,20 @@ def open_alpha_form(picture,image_size):
     alpha_form = Toplevel(root)
     alpha_form.title("Alpha Data Form")
 
-    Label(alpha_form, text="Image Name:").grid(row=0, column=0)
-    image_name_entry = Entry(alpha_form)
-    image_name_entry.grid(row=0, column=1)
-    image_name_entry.insert(0, picture.image_id)
 
+    # Get the position and size of the Image Browser window
+    root.update_idletasks()
+    x = root.winfo_x()
+    y = root.winfo_y()
+    width = root.winfo_width()
+    height = root.winfo_height()
+
+    # Set the position of the alpha_form window to the right of the Image Browser window
+    alpha_form.geometry(f"+{x + width + 10}+{y}")
+
+    image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
+    image_name_entry = create_label_entry_pair(alpha_form, "Image Name:", 0, 0, picture.image_id)
+    
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
     image_size_entry = Entry(alpha_form)
     image_size_entry.grid(row=1, column=1)
@@ -241,6 +348,11 @@ def open_alpha_form(picture,image_size):
     image_position_entry = Entry(alpha_form)
     image_position_entry.grid(row=2, column=1)
     image_position_entry.insert(0, str(new_image_position))
+
+    Label(alpha_form, text="Rotation:").grid(row=3, column=2)
+    rotation_entry = Entry(alpha_form)
+    rotation_entry.grid(row=3, column=3)
+    rotation_entry.insert(0, str(rotation_angle))  # Initial rotation 
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
@@ -256,40 +368,16 @@ def open_alpha_form(picture,image_size):
     group_menu = OptionMenu(alpha_form, group_var, *group_options)
     group_menu.grid(row=4, column=1)
 
-    Label(alpha_form, text="offset_on:").grid(row=5, column=0)
-    offset_on_var = Entry(alpha_form)
-    offset_on_var.grid(row=5, column=1)
-    offset_on_var.insert(0, "0")  # Assuming the offset_on_var = 0
 
-    Label(alpha_form, text="offset_off:").grid(row=6, column=0)
-    offset_off_var = Entry(alpha_form)
-    offset_off_var.grid(row=6, column=1)
-    offset_off_var.insert(0, "0")  # Assuming the offset_off_var = 0 
+    offset_on_var = create_label_entry_pair(alpha_form, "offset_on:", 5, 0, "0")
+    offset_off_var = create_label_entry_pair(alpha_form, "offset_on:", 6, 0, "0")
+    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, "false")
+    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", 8, 0, "true")
+    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, "2")
+    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, "1.5")
+    grid_size_var = create_label_entry_pair(alpha_form, "grid size:", 11, 0, "2")
 
-    Label(alpha_form, text="debug Mode:").grid(row=7, column=0)
-    debugMode_var = Entry(alpha_form)
-    debugMode_var.grid(row=7, column=1)
-    debugMode_var.insert(0, "false")  
 
-    Label(alpha_form, text="is clickable:").grid(row=8, column=0)
-    is_clickable_var= Entry(alpha_form)
-    is_clickable_var.grid(row=8, column=1)
-    is_clickable_var.insert(0, "true")   
-
-    Label(alpha_form, text="click bounds height factor:").grid(row=9, column=0)
-    click_bounds_height_factor_var= Entry(alpha_form)
-    click_bounds_height_factor_var.grid(row=9, column=1)
-    click_bounds_height_factor_var.insert(0, "2")   
-
-    Label(alpha_form, text="click bounds width factor:").grid(row=10, column=0)
-    click_bounds_width_factor_var = Entry(alpha_form)
-    click_bounds_width_factor_var.grid(row=10, column=1)
-    click_bounds_width_factor_var.insert(0, "1.5")
-
-    Label(alpha_form, text="grid size:").grid(row=11, column=0)
-    grid_size_var = Entry(alpha_form)
-    grid_size_var.grid(row=11, column=1)
-    grid_size_var.insert(0, "2")
 
     Label(alpha_form, text="grid direction:").grid(row=12, column=0)
     grid_direction_var = StringVar(alpha_form)
@@ -305,8 +393,139 @@ def open_alpha_form(picture,image_size):
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
     color_menu.grid(row=13, column=1)
 
+    # Use the function to create label and entry pairs
+    rotation_1_Key_Var = create_label_entry_pair(alpha_form, " 1 rotation command: ", 4, 2, "none")
+    rotation_1_angle_Var = create_label_entry_pair(alpha_form, " 1 angle: ", 4, 4, "0")
+    rotation_2_Key_Var = create_label_entry_pair(alpha_form, " 2 rotation command: ", 5, 2, "none")
+    rotation_2_angle_Var = create_label_entry_pair(alpha_form, " 2 angle: ", 5, 4, "0")
+    rotation_3_Key_Var = create_label_entry_pair(alpha_form, " 3 rotation command: ", 6, 2, "none")
+    rotation_3_angle_Var = create_label_entry_pair(alpha_form, " 3 angle: ", 6, 4, "0")
+    rotation_4_Key_Var = create_label_entry_pair(alpha_form, " 4 rotation command: ", 7, 2, "none")
+    rotation_4_angle_Var = create_label_entry_pair(alpha_form, " 4 angle: ", 7, 4, "0")
+    rotation_5_Key_Var = create_label_entry_pair(alpha_form, " 5 rotation command: ", 8, 2, "none")
+    rotation_5_angle_Var = create_label_entry_pair(alpha_form, " 5 angle: ", 8, 4, "0")
+    rotation_6_Key_Var = create_label_entry_pair(alpha_form, " 6 rotation command: ", 9, 2, "none")
+    rotation_6_angle_Var = create_label_entry_pair(alpha_form, " 6 angle: ", 9, 4, "0")
+    rotation_7_Key_Var = create_label_entry_pair(alpha_form, " 7 rotation command: ", 10, 2, "none")
+    rotation_7_angle_Var = create_label_entry_pair(alpha_form, " 7 angle: ", 10, 4, "0")
+    rotation_8_Key_Var = create_label_entry_pair(alpha_form, " 8 rotation command: ", 11, 2, "none")
+    rotation_8_angle_Var = create_label_entry_pair(alpha_form, " 8 angle: ", 11, 4, "0")
+    rotation_9_Key_Var = create_label_entry_pair(alpha_form, " 9 rotation command: ", 12, 2, "none")
+    rotation_9_angle_Var = create_label_entry_pair(alpha_form, " 9 angle: ", 12, 4, "0")
+    rotation_10_Key_Var = create_label_entry_pair(alpha_form, " 10 rotation command: ", 13, 2, "none")
+    rotation_10_angle_Var = create_label_entry_pair(alpha_form, " 10 angle: ", 13, 4, "0")
+
+
+    conversion_1_Key_Var = create_label_entry_pair(alpha_form, " 1 pos command: ", 14, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=14, column=4)
+    conversion_1_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_1_file_path_Var)
+    file_path_entry.grid(row=14, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_1_file_path_Var))
+    file_path_button.grid(row=14, column=6)
+
+    conversion_2_Key_Var = create_label_entry_pair(alpha_form, " 2 pos command: ", 15, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=15, column=4)
+    conversion_2_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_2_file_path_Var)
+    file_path_entry.grid(row=15, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_2_file_path_Var))
+    file_path_button.grid(row=15, column=6)
+
+    conversion_3_Key_Var = create_label_entry_pair(alpha_form, " 3 pos command: ", 16, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=16, column=4)
+    conversion_3_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_3_file_path_Var)
+    file_path_entry.grid(row=16, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_3_file_path_Var))
+    file_path_button.grid(row=16, column=6)
+
+    conversion_4_Key_Var = create_label_entry_pair(alpha_form, " 4 pos command: ", 17, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=17, column=4)
+    conversion_4_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_4_file_path_Var)
+    file_path_entry.grid(row=17, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_4_file_path_Var))
+    file_path_button.grid(row=17, column=6)
+
+    conversion_5_Key_Var = create_label_entry_pair(alpha_form, " 5 pos command: ", 18, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=18, column=4)
+    conversion_5_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_5_file_path_Var)
+    file_path_entry.grid(row=18, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_5_file_path_Var))
+    file_path_button.grid(row=18, column=6)
+
+    conversion_6_Key_Var = create_label_entry_pair(alpha_form, " 6 pos command: ", 19, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=19, column=4)
+    conversion_6_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_6_file_path_Var)
+    file_path_entry.grid(row=19, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_6_file_path_Var))
+    file_path_button.grid(row=19, column=6)
+
+    conversion_7_Key_Var = create_label_entry_pair(alpha_form, " 7 pos command: ", 20, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=20, column=4)
+    conversion_7_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_7_file_path_Var)
+    file_path_entry.grid(row=20, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_7_file_path_Var))
+    file_path_button.grid(row=20, column=6)
+
+    conversion_8_Key_Var = create_label_entry_pair(alpha_form, " 8 pos command: ", 21, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=21, column=4)
+    conversion_8_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_8_file_path_Var)
+    file_path_entry.grid(row=21, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_8_file_path_Var))
+    file_path_button.grid(row=21, column=6)
+
+    conversion_9_Key_Var = create_label_entry_pair(alpha_form, " 9 pos command: ", 22, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=22, column=4)
+    conversion_9_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_9_file_path_Var)
+    file_path_entry.grid(row=22, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_9_file_path_Var))
+    file_path_button.grid(row=22, column=6)
+
+    conversion_10_Key_Var = create_label_entry_pair(alpha_form, " 10 pos command: ", 23, 2, "none")
+
+    Label(alpha_form, text="File Path:").grid(row=23, column=4)
+    conversion_10_file_path_Var = StringVar()
+    file_path_entry = Entry(alpha_form, textvariable=conversion_10_file_path_Var)
+    file_path_entry.grid(row=23, column=5)
+    
+    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_10_file_path_Var))
+    file_path_button.grid(row=23, column=6)
+
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=14, columnspan=2)
+    save_button.grid(row=15, columnspan=2)
+
+def handle_move_image(event):
+    global new_image_position
+    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, combine_images, update_info_label)
+
+def handle_rotate_image(event):
+    global rotation_angle
+    rotation_angle = rotate_image(event, img, rotation_angle, rotation_entry, image_label, combine_images, update_info_label)
 
 # Create the main window
 root = tk.Tk()
@@ -344,10 +563,14 @@ step_size_label = tk.Label(root, text=f"Current Step Size: {move_pixels} pixels"
 step_size_label.pack()
 
 # Bind arrow keys to the move_image function
-root.bind('<Right>', move_image)
-root.bind('<Left>', move_image)
-root.bind('<Up>', move_image)
-root.bind('<Down>', move_image)
+root.bind('<Right>', handle_move_image)
+root.bind('<Left>', handle_move_image)
+root.bind('<Up>', handle_move_image)
+root.bind('<Down>', handle_move_image)
+
+ # Bind the "R" key to rotate the image
+root.bind("<r>", handle_rotate_image)
+
 
 # Create a button to save the combined image
 save_button = tk.Button(root, text="Save Image", command=save_image)
