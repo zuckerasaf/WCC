@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu
+from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk
 import os
 import json
@@ -16,6 +17,7 @@ new_image_position = (0, 0)
 combined_image_path = None
 base_img = None  # Add a global variable to store the base image
 move_pixels = 10  # Default number of pixels to move
+rotate_degree = 10
 image_position_entry = None  # Reference to the image position entry field in the alpha form
 img = None  # Add a global variable to store the image
 image_label = None  # Add a global variable to store the image label
@@ -155,6 +157,13 @@ def set_move_pixels():
     if pixels:
         move_pixels = pixels
         step_size_label.config(text=f"Current Step Size: {move_pixels} pixels")
+
+def set_rotate_degree():
+    global rotate_degree
+    degree = simpledialog.askinteger("Input", "Enter the roattion degree step:", minvalue=1)
+    if degree:
+        rotate_degree = degree
+        step_angle_label.config(text=f"Current rotattion step: {rotate_degree} degree")
 
 def save_image():
     global combined_image_path
@@ -368,7 +377,6 @@ def open_alpha_form(picture,image_size):
     group_menu = OptionMenu(alpha_form, group_var, *group_options)
     group_menu.grid(row=4, column=1)
 
-
     offset_on_var = create_label_entry_pair(alpha_form, "offset_on:", 5, 0, "0")
     offset_off_var = create_label_entry_pair(alpha_form, "offset_on:", 6, 0, "0")
     debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, "false")
@@ -376,8 +384,6 @@ def open_alpha_form(picture,image_size):
     click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, "2")
     click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, "1.5")
     grid_size_var = create_label_entry_pair(alpha_form, "grid size:", 11, 0, "2")
-
-
 
     Label(alpha_form, text="grid direction:").grid(row=12, column=0)
     grid_direction_var = StringVar(alpha_form)
@@ -414,7 +420,6 @@ def open_alpha_form(picture,image_size):
     rotation_9_angle_Var = create_label_entry_pair(alpha_form, " 9 angle: ", 12, 4, "0")
     rotation_10_Key_Var = create_label_entry_pair(alpha_form, " 10 rotation command: ", 13, 2, "none")
     rotation_10_angle_Var = create_label_entry_pair(alpha_form, " 10 angle: ", 13, 4, "0")
-
 
     conversion_1_Key_Var = create_label_entry_pair(alpha_form, " 1 pos command: ", 14, 2, "none")
 
@@ -521,12 +526,36 @@ def open_alpha_form(picture,image_size):
 
 def handle_move_image(event):
     global new_image_position
-    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, combine_images, update_info_label)
+    small_step = 1
+    if event.state & 0x0001:  # Check if Shift key is pressed
+        small_step = 10
+    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, small_step, combine_images, update_info_label)
 
 def handle_rotate_image(event):
     global rotation_angle
-    rotation_angle = rotate_image(event, img, rotation_angle, rotation_entry, image_label, combine_images, update_info_label)
+    small_rotate = 1
+    if event.state & 0x0004:  # Check if Shift key is pressed
+        small_rotate = 10
+    rotation_angle = rotate_image(event, img, rotation_angle,rotate_degree, rotation_entry, image_label, small_rotate,combine_images, update_info_label)
 
+def save_and_close():
+    # Read data from alpha_data.json
+    try:
+        with open("alpha_data.json", 'r') as json_file:
+            data = json.load(json_file)
+    except FileNotFoundError:
+        print("alpha_data.json not found.")
+        return
+
+    # Prompt the user for a new filename
+    file_path = asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+    if file_path:
+        # Save the data to the new JSON file
+        with open(file_path, 'w') as new_json_file:
+            json.dump(data, new_json_file, indent=4)
+    
+    # Close the form
+    root.destroy()
 # Create the main window
 root = tk.Tk()
 root.title("Image Browser")
@@ -538,29 +567,36 @@ combined_image_path = None
 
 # Create a button to browse files
 browse_button = tk.Button(root, text="Browse Image", command=browse_image)
-browse_button.pack()
+browse_button.grid(row=0, column=1)
 
 # Create a label to display the image
 image_label = tk.Label(root)
-image_label.pack()
+image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
 # Create a label to display the image_id and file_path
 info_label = tk.Label(root, text="")
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
-info_label.pack()
+info_label.grid(row=2, column=1, padx=5, pady=5)
 
 # Create a button to add another image on top
 add_button = tk.Button(root, text="Add Image", command=add_image)
-add_button.pack()
-
+add_button.grid(row=3, column=1, padx=5, pady=5)
 
 # Create and place the set pixels button
 set_pixels_button = tk.Button(root, text="Set Move Pixels", command=set_move_pixels)
-set_pixels_button.pack()
+set_pixels_button.grid(row=4, column=0, padx=5, pady=5)
 
 # Create and place the step size label next to the set pixels button
 step_size_label = tk.Label(root, text=f"Current Step Size: {move_pixels} pixels")
-step_size_label.pack()
+step_size_label.grid(row=4, column=1, padx=5, pady=5)
+
+# Create and place the set pixels button
+set_angle_button = tk.Button(root, text="Set angle rotation", command=set_rotate_degree)
+set_angle_button.grid(row=4, column=2, padx=5, pady=5)
+
+# Create and place the step size label next to the set pixels button
+step_angle_label = tk.Label(root, text=f"Current angle rotation: {rotate_degree} degree")
+step_angle_label.grid(row=4, column=3, padx=5, pady=5)
 
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
@@ -571,14 +607,22 @@ root.bind('<Down>', handle_move_image)
  # Bind the "R" key to rotate the image
 root.bind("<r>", handle_rotate_image)
 
-
-# Create a button to save the combined image
-save_button = tk.Button(root, text="Save Image", command=save_image)
-save_button.pack()
-
 # Create a button to close the form
-close_button = tk.Button(root, text="Close", command=root.destroy)
-close_button.pack()
+close_button = tk.Button(root, text="Close", command=save_and_close)
+close_button.grid(row=7, column=1, padx=5, pady=5)
+
+# Configure grid weights to make the layout responsive
+root.grid_rowconfigure(0, weight=1)
+root.grid_rowconfigure(1, weight=1)
+root.grid_rowconfigure(2, weight=1)
+root.grid_rowconfigure(3, weight=1)
+root.grid_rowconfigure(4, weight=1)
+root.grid_rowconfigure(5, weight=1)
+root.grid_rowconfigure(6, weight=1)
+root.grid_rowconfigure(7, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=1)
+root.grid_columnconfigure(2, weight=1)
 
 # Start the Tkinter event loop
 root.mainloop()

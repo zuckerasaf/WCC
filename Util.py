@@ -1,17 +1,17 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 from PIL import Image, ImageTk
 
-def move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, combine_images, update_info_label):
+def move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, small_Step, combine_images, update_info_label):
     if new_image_path:
         if event.keysym == 'Right':
-            new_image_position = (new_image_position[0] + move_pixels, new_image_position[1])
+            new_image_position = (new_image_position[0] + move_pixels // small_Step, new_image_position[1])
         elif event.keysym == 'Left':
-            new_image_position = (new_image_position[0] - move_pixels, new_image_position[1])
+            new_image_position = (new_image_position[0] - move_pixels // small_Step, new_image_position[1])
         elif event.keysym == 'Up':
-            new_image_position = (new_image_position[0], new_image_position[1] - move_pixels)
+            new_image_position = (new_image_position[0], new_image_position[1] - move_pixels // small_Step)
         elif event.keysym == 'Down':
-            new_image_position = (new_image_position[0], new_image_position[1] + move_pixels)
+            new_image_position = (new_image_position[0], new_image_position[1] + move_pixels // small_Step)
         combine_images()
         update_info_label()
         if image_position_entry:
@@ -20,7 +20,7 @@ def move_image(event, new_image_position, move_pixels, new_image_path, image_pos
     return new_image_position
 
 
-def rotate_image(event, img, rotation_angle, rotation_entry, image_label, combine_images, update_info_label):
+def rotate_image(event, img, rotation_angle, rotate_degree, rotation_entry, image_label,small_Step, combine_images, update_info_label):
     
     # Check if img is not None
     if img is None:
@@ -28,7 +28,7 @@ def rotate_image(event, img, rotation_angle, rotation_entry, image_label, combin
         return rotation_angle
 
     # Increment the rotation angle by 30 degrees
-    rotation_angle = (rotation_angle + 10) % 360
+    rotation_angle = (rotation_angle + rotate_degree // small_Step) % 360
 
     # Rotate the image
     rotated_img = img.rotate(rotation_angle, expand=True)
@@ -53,3 +53,4 @@ def Bring_File_path ():
     global file_path
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
     return file_path
+
