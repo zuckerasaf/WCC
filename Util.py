@@ -20,15 +20,18 @@ def move_image(event, new_image_position, move_pixels, new_image_path, image_pos
     return new_image_position
 
 
-def rotate_image(event, img, rotation_angle, rotate_degree, rotation_entry, image_label,small_Step, combine_images, update_info_label):
-    
+def rotate_image(event, img, rotation_angle, rotate_degree, rotation_entry, image_label,combine_images):#, update_info_label):
+    disp_rotation_angle = 0
     # Check if img is not None
     if img is None:
         print("No image loaded to rotate.")
         return rotation_angle
 
-    # Increment the rotation angle by 30 degrees
-    rotation_angle = (rotation_angle + rotate_degree // small_Step) % 360
+    # # Increment the rotation angle by 30 degrees
+    # rotation_angle = (rotation_angle + rotate_degree // small_Step) % 360
+    # Increment the rotation angle by 30 degrees  
+    rotation_angle = (rotation_angle + rotate_degree) % 360
+
 
     # Rotate the image
     rotated_img = img.rotate(rotation_angle, expand=True)
@@ -39,14 +42,19 @@ def rotate_image(event, img, rotation_angle, rotate_degree, rotation_entry, imag
     # Update the rotation value in the alpha form
     if rotation_entry:
         rotation_entry.delete(0, tk.END)
-        rotation_entry.insert(0, str(rotation_angle))
+        if rotation_angle < 180:
+            disp_rotation_angle = 0 - rotation_angle
+        else:
+            disp_rotation_angle = 360- rotation_angle
+        rotation_entry.insert(0, str(disp_rotation_angle))
 
     # Combine images and update info label
     combine_images()
-    update_info_label()
+    #update_info_label()
     #print (rotation_angle)
-    
-    return rotation_angle
+
+
+    return rotation_angle 
 
 
 def Bring_File_path ():

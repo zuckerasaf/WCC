@@ -9,7 +9,7 @@ from Util import move_image, rotate_image, Bring_File_path  # Import the move_im
 # Define rotation_angle and rotation_entry as global variables at the top of the script
 rotation_angle = 0
 #rotation_entry = None
-
+disp_rotation_angle = 0
 # Global variables
 current_image_path = None
 new_image_path = None
@@ -104,7 +104,7 @@ def add_image():
 
 
 def combine_images():
-    global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, rotation_angle
+    global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, rotation_angle, disp_rotation_angle
     if base_img and new_image_path:
         # Open the new image
         new_img = Image.open(new_image_path)
@@ -156,14 +156,14 @@ def set_move_pixels():
     pixels = simpledialog.askinteger("Input", "Enter the number of pixels to move:", minvalue=1)
     if pixels:
         move_pixels = pixels
-        step_size_label.config(text=f"Current Step Size: {move_pixels} pixels")
+        step_size_label.config(text=f"Step : {move_pixels} pixels")
 
 def set_rotate_degree():
-    global rotate_degree
+    global rotate_degree, disp_rotation_angle
     degree = simpledialog.askinteger("Input", "Enter the roattion degree step:", minvalue=1)
     if degree:
         rotate_degree = degree
-        step_angle_label.config(text=f"Current rotattion step: {rotate_degree} degree")
+        step_angle_label.config(text=f"step: {rotate_degree} degree")
 
 def save_image():
     global combined_image_path
@@ -198,13 +198,13 @@ def open_alpha_form(picture,image_size):
         return entry_var
 
     def save_alpha_data():
-        image_key = image_key_entry.get()
+        #image_key = image_key_entry.get()
         image_name = image_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
         rotation = rotation_entry.get()
         type_value = type_var.get()
-        group_value = group_var.get()
+        #group_value = group_var.get()
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
         debugMode_value = debugMode_var.get()
@@ -262,42 +262,18 @@ def open_alpha_form(picture,image_size):
             width, height = "0", "0"  # Default values in case of error
 
         data = {
-            "key": image_key,
-            "type": type_value,
-            "group": group_value,
             "backend_name": image_name,
+            "type": type_value,
+            # "group": group_value,
             "width": width,
             "height": height,
             "left": new_image_position[0],
             "top": new_image_position[1],
             "offset_on": offset_on_value,
             "offset_off": offset_off_value,
-            "image_on": "/CMDSPanel/SWITCH_10_UP1.png",
-            "image_off": "/CMDSPanel/SWITCH_10_DOWN_1.png",
-            "debugMode": debugMode_value,
-            "is_clickable": is_clickable_value,
-            "click_props": {
-                "click_bounds_height_factor": click_bounds_height_factor_value,
-                "click_bounds_width_factor": click_bounds_width_factor_value,
-                "grid_size": grid_size_value,
-                "grid_direction": grid_direction_value,
-            },
-            "analog_props": {
-                    "rotation": {
-                    rotation_1_Key :  rotation_1_angle, 
-                    rotation_2_Key :  rotation_2_angle,
-                    rotation_3_Key :  rotation_3_angle, 
-                    rotation_4_Key :  rotation_4_angle,
-                    rotation_5_Key :  rotation_5_angle, 
-                    rotation_6_Key :  rotation_6_angle,
-                    rotation_7_Key :  rotation_7_angle, 
-                    rotation_8_Key :  rotation_8_angle,
-                    rotation_9_Key :  rotation_9_angle, 
-                    rotation_10_Key :  rotation_10_angle,
-                }
-            },
-            "knob_props": {
-                "conversion": {
+            "imageProps": {
+                "imageDefault": image_name,
+                "additionalImageData": {
                     conversion_1_Key : conversion_1_file_path,
                     conversion_2_Key : conversion_2_file_path,
                     conversion_3_Key : conversion_3_file_path,
@@ -310,6 +286,37 @@ def open_alpha_form(picture,image_size):
                     conversion_10_Key : conversion_10_file_path,
                  }
             },
+            
+            # "image_off": "/CMDSPanel/SWITCH_10_DOWN_1.png",
+            "debugMode": debugMode_value,
+            "is_clickable": is_clickable_value,
+            "click_props": {
+                "click_bounds_height_factor": click_bounds_height_factor_value,
+                "click_bounds_width_factor": click_bounds_width_factor_value,
+                "grid_size": grid_size_value,
+                "grid_direction": grid_direction_value,
+            },
+            "knob_props": {
+                "rotation": "any"
+            },
+            "analog_props": {
+                    "conversion": {
+                    rotation_1_Key :  rotation_1_angle, 
+                    rotation_2_Key :  rotation_2_angle,
+                    rotation_3_Key :  rotation_3_angle, 
+                    rotation_4_Key :  rotation_4_angle,
+                    rotation_5_Key :  rotation_5_angle, 
+                    rotation_6_Key :  rotation_6_angle,
+                    rotation_7_Key :  rotation_7_angle, 
+                    rotation_8_Key :  rotation_8_angle,
+                    rotation_9_Key :  rotation_9_angle, 
+                    rotation_10_Key :  rotation_10_angle,
+                }
+            },
+            "string_props": {
+                "maxStringLength": "3"
+            },
+
             "blinking": {
                 "color": color_value
             },
@@ -345,7 +352,7 @@ def open_alpha_form(picture,image_size):
     # Set the position of the alpha_form window to the right of the Image Browser window
     alpha_form.geometry(f"+{x + width + 10}+{y}")
 
-    image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
+    # image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
     image_name_entry = create_label_entry_pair(alpha_form, "Image Name:", 0, 0, picture.image_id)
     
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
@@ -358,24 +365,18 @@ def open_alpha_form(picture,image_size):
     image_position_entry.grid(row=2, column=1)
     image_position_entry.insert(0, str(new_image_position))
 
+
     Label(alpha_form, text="Rotation:").grid(row=3, column=2)
     rotation_entry = Entry(alpha_form)
     rotation_entry.grid(row=3, column=3)
-    rotation_entry.insert(0, str(rotation_angle))  # Initial rotation 
+    rotation_entry.insert(0, str(disp_rotation_angle))  # Initial rotation 
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
-    type_var.set("boolean")  # Default type value
-    type_options = ["a", "b", "boolean"]
+    type_var.set("state2")  # Default type value
+    type_options = ["state2" , "stateN" , "knobInteger" , "analog" , "string" , "number"]
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
-
-    Label(alpha_form, text="Group:").grid(row=4, column=0)
-    group_var = StringVar(alpha_form)
-    group_var.set("state2")  # Default group value
-    group_options = ["a", "b", "state2"]
-    group_menu = OptionMenu(alpha_form, group_var, *group_options)
-    group_menu.grid(row=4, column=1)
 
     offset_on_var = create_label_entry_pair(alpha_form, "offset_on:", 5, 0, "0")
     offset_off_var = create_label_entry_pair(alpha_form, "offset_on:", 6, 0, "0")
@@ -387,8 +388,8 @@ def open_alpha_form(picture,image_size):
 
     Label(alpha_form, text="grid direction:").grid(row=12, column=0)
     grid_direction_var = StringVar(alpha_form)
-    grid_direction_var.set("UD")  # Default type value
-    grid_direction_options = ["UD", "LR", "Other"]
+    grid_direction_var.set("ud")  # Default type value
+    grid_direction_options = ["ud", "lr", "none"]
     grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
     grid_direction_menu.grid(row=12, column=1)
 
@@ -531,12 +532,27 @@ def handle_move_image(event):
         small_step = 10
     new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, small_step, combine_images, update_info_label)
 
-def handle_rotate_image(event):
+# def handle_rotate_image(event):
+#     global rotation_angle, disp_rotation_angle
+#     small_rotate = 1
+#     if event.state & 0x0004:  # Check if Shift key is pressed
+#         small_rotate = 10
+#     rotation_angle = rotate_image(event, img, rotation_angle,rotate_degree, rotation_entry, image_label, small_rotate,combine_images, update_info_label)
+def handle_rotate_image(event, direction):
     global rotation_angle
     small_rotate = 1
-    if event.state & 0x0004:  # Check if Shift key is pressed
+    if event.state & 0x0004:  # Check if Ctrl key is pressed
         small_rotate = 10
-    rotation_angle = rotate_image(event, img, rotation_angle,rotate_degree, rotation_entry, image_label, small_rotate,combine_images, update_info_label)
+    if direction == "left":
+        rotation_angle = rotate_image(event, img, rotation_angle, -rotate_degree // small_rotate, rotation_entry, image_label, combine_images)# , update_info_label)
+    elif direction == "right":
+        rotation_angle = rotate_image(event, img, rotation_angle, rotate_degree // small_rotate, rotation_entry, image_label, combine_images)#, update_info_label)
+
+def handle_rotate_left(event):
+    handle_rotate_image(event, "left")
+
+def handle_rotate_right(event):
+    handle_rotate_image(event, "right")
 
 def save_and_close():
     # Read data from alpha_data.json
@@ -587,7 +603,7 @@ set_pixels_button = tk.Button(root, text="Set Move Pixels", command=set_move_pix
 set_pixels_button.grid(row=4, column=0, padx=5, pady=5)
 
 # Create and place the step size label next to the set pixels button
-step_size_label = tk.Label(root, text=f"Current Step Size: {move_pixels} pixels")
+step_size_label = tk.Label(root, text=f" Step : {move_pixels} pixels")
 step_size_label.grid(row=4, column=1, padx=5, pady=5)
 
 # Create and place the set pixels button
@@ -595,7 +611,7 @@ set_angle_button = tk.Button(root, text="Set angle rotation", command=set_rotate
 set_angle_button.grid(row=4, column=2, padx=5, pady=5)
 
 # Create and place the step size label next to the set pixels button
-step_angle_label = tk.Label(root, text=f"Current angle rotation: {rotate_degree} degree")
+step_angle_label = tk.Label(root, text=f" Angle : {rotate_degree} degree")
 step_angle_label.grid(row=4, column=3, padx=5, pady=5)
 
 # Bind arrow keys to the move_image function
@@ -604,25 +620,22 @@ root.bind('<Left>', handle_move_image)
 root.bind('<Up>', handle_move_image)
 root.bind('<Down>', handle_move_image)
 
- # Bind the "R" key to rotate the image
-root.bind("<r>", handle_rotate_image)
+# Bind the "R" key to rotate the image to the left
+root.bind("<r>", handle_rotate_left)
+
+# Bind the "T" key to rotate the image to the right
+root.bind("<t>", handle_rotate_right)
 
 # Create a button to close the form
 close_button = tk.Button(root, text="Close", command=save_and_close)
 close_button.grid(row=7, column=1, padx=5, pady=5)
 
-# Configure grid weights to make the layout responsive
-root.grid_rowconfigure(0, weight=1)
-root.grid_rowconfigure(1, weight=1)
-root.grid_rowconfigure(2, weight=1)
-root.grid_rowconfigure(3, weight=1)
-root.grid_rowconfigure(4, weight=1)
-root.grid_rowconfigure(5, weight=1)
-root.grid_rowconfigure(6, weight=1)
-root.grid_rowconfigure(7, weight=1)
-root.grid_columnconfigure(0, weight=1)
-root.grid_columnconfigure(1, weight=1)
-root.grid_columnconfigure(2, weight=1)
+# Configure grid rows and columns
+for i in range(8):
+    root.grid_rowconfigure(i, weight=1)
+
+for i in range(3):
+    root.grid_columnconfigure(i, weight=1)
 
 # Start the Tkinter event loop
 root.mainloop()

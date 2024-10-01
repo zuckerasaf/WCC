@@ -14,3 +14,6 @@ Image Name: Squareknob.png, Image Size: 250x250, Image Position: (120, 100), Lev
 Image Name: Switch_center_gery.png, Image Size: 250x250, Image Position: (460, 120), Level: 2, Trigger: event1
 Image Name: IFFPanel.png, Image Size: 250x250, Image Position: (0, 0), Level: 1, Trigger: event1
 Image Name: Roundknob.png, Image Size: 250x250, Image Position: (120, 100), Level: 2, Trigger: event12
+Image Name: IFFPanel.png, Image Size: 250x250, Image Position: (0, 0), Level: 1, Trigger: event1
+Image Name: IFFPanel.png, Image Size: 250x250, Image Position: (0, 0), Level: 1, Trigger: event1
+Image Name: Roundknob.png, Image Size: 250x250, Image Position: (130, 100), Level: 1, Trigger: event1
