@@ -197,6 +197,27 @@ def open_alpha_form(picture,image_size):
     
         return entry_var
     
+    def create_file_path_entry(frame, row, var_name):
+        # Create the label
+        Label(frame, text="File Path:").grid(row=row, column=4)
+        
+        # Create the StringVar
+        file_path_var = StringVar(name=var_name)
+        
+        # Create the entry widget with right-aligned text
+        file_path_entry = Entry(frame, textvariable=file_path_var, justify="right")
+        file_path_entry.grid(row=row, column=5)
+        
+        # Set the cursor to the end of the text and scroll to the end
+        file_path_entry.icursor(tk.END)
+        file_path_entry.xview_moveto(1)
+        
+        # Create the button
+        file_path_button = Button(frame, text="file", command=lambda: on_bring_file_path(file_path_var))
+        file_path_button.grid(row=row, column=6)
+        
+        return file_path_var
+    
     def toggle_frame(frame, button):
         if frame.winfo_viewable():
             frame.grid_remove()
@@ -207,13 +228,12 @@ def open_alpha_form(picture,image_size):
 
 
     def save_alpha_data():
-        #image_key = image_key_entry.get()
+        
+        global rotation_angle
+
         image_name = image_name_entry.get()
         image_size = image_size_entry.get()
-        image_position = image_position_entry.get()
-        rotation = rotation_entry.get()
         type_value = type_var.get()
-        #group_value = group_var.get()
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
         debugMode_value = debugMode_var.get()
@@ -278,17 +298,11 @@ def open_alpha_form(picture,image_size):
         Value_conversion_5_Key = Value_conversion_5_Key_Var.get()
         Value_conversion_5_angle = Value_conversion_5_angle_Var.get()
         String_Length = String_Length_Var.get()
-        top_value = top_var.get()
-        right_value = right_var.get()
-        bottom_value = bottom_var.get()
-        left_value = left_var.get()
-        press_pull1_value = press_pull1_var.get()
-        press_pull2_value = press_pull2_var.get()
 
-        try:
-            width, height = image_size.split('x')
-        except ValueError:
-            width, height = "0", "0"  # Default values in case of error
+        # try:
+        #     width, height = image_size.split('x')
+        # except ValueError:
+        #     width, height = "0", "0"  # Default values in case of error
 
         data = {
             "backend_name": image_name,
@@ -323,12 +337,12 @@ def open_alpha_form(picture,image_size):
                 "click_bounds_height_factor": click_bounds_height_factor_value,
                 "click_bounds_width_factor": click_bounds_width_factor_value,
                 "mapping": {
-                    "top": top_value,
-                    "right": right_value,
-                    "bottom": bottom_value,
-                    "left ": left_value,
-                    "press_pull1 ": press_pull1_value,
-                    "press_pull2 ": press_pull2_value,
+                    "top": top,
+                    "right": right,
+                    "bottom": bottom,
+                    "left ": left,
+                    "press_pull1 ": press_pull1,
+                    "press_pull2 ": press_pull2,
                 }
             },
             "knob_props": {
@@ -376,6 +390,9 @@ def open_alpha_form(picture,image_size):
         # Write the updated data back to the JSON file
         with open("alpha_data.json", "w") as file:
             json.dump(existing_data, file, indent=4)
+        
+        # Reset the rotation angle to 0
+        rotation_angle = 0
 
         alpha_form.destroy()
 
@@ -495,104 +512,25 @@ def open_alpha_form(picture,image_size):
     toggle_additional_button.grid(row=5, column=2, columnspan=3, padx=5, pady=5)
 
     conversion_1_Key_Var = create_label_entry_pair(imageProps_frame, " 1 pos command: ", 14, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=14, column=4)
-    conversion_1_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_1_file_path_Var)
-    file_path_entry.grid(row=14, column=5)
-
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_1_file_path_Var))
-    file_path_button.grid(row=14, column=6)
-
+    conversion_1_file_path_Var = create_file_path_entry(imageProps_frame, 14, "conversion_1_file_path_Var")
     conversion_2_Key_Var = create_label_entry_pair(imageProps_frame, " 2 pos command: ", 15, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=15, column=4)
-    conversion_2_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_2_file_path_Var)
-    file_path_entry.grid(row=15, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_2_file_path_Var))
-    file_path_button.grid(row=15, column=6)
-
+    conversion_2_file_path_Var = create_file_path_entry(imageProps_frame, 15, "conversion_2_file_path_Var")
     conversion_3_Key_Var = create_label_entry_pair(imageProps_frame, " 3 pos command: ", 16, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=16, column=4)
-    conversion_3_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_3_file_path_Var)
-    file_path_entry.grid(row=16, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_3_file_path_Var))
-    file_path_button.grid(row=16, column=6)
-
+    conversion_3_file_path_Var = create_file_path_entry(imageProps_frame, 16, "conversion_3_file_path_Var")
     conversion_4_Key_Var = create_label_entry_pair(imageProps_frame, " 4 pos command: ", 17, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=17, column=4)
-    conversion_4_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_4_file_path_Var)
-    file_path_entry.grid(row=17, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_4_file_path_Var))
-    file_path_button.grid(row=17, column=6)
-
+    conversion_4_file_path_Var = create_file_path_entry(imageProps_frame, 17, "conversion_4_file_path_Var")
     conversion_5_Key_Var = create_label_entry_pair(imageProps_frame, " 5 pos command: ", 18, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=18, column=4)
-    conversion_5_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_5_file_path_Var)
-    file_path_entry.grid(row=18, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_5_file_path_Var))
-    file_path_button.grid(row=18, column=6)
-
+    conversion_5_file_path_Var = create_file_path_entry(imageProps_frame, 18, "conversion_5_file_path_Var")
     conversion_6_Key_Var = create_label_entry_pair(imageProps_frame, " 6 pos command: ", 19, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=19, column=4)
-    conversion_6_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_6_file_path_Var)
-    file_path_entry.grid(row=19, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_6_file_path_Var))
-    file_path_button.grid(row=19, column=6)
-
+    conversion_6_file_path_Var = create_file_path_entry(imageProps_frame, 19, "conversion_6_file_path_Var")
     conversion_7_Key_Var = create_label_entry_pair(imageProps_frame, " 7 pos command: ", 20, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=20, column=4)
-    conversion_7_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_7_file_path_Var)
-    file_path_entry.grid(row=20, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_7_file_path_Var))
-    file_path_button.grid(row=20, column=6)
-
+    conversion_7_file_path_Var = create_file_path_entry(imageProps_frame, 20, "conversion_7_file_path_Var")
     conversion_8_Key_Var = create_label_entry_pair(imageProps_frame, " 8 pos command: ", 21, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=21, column=4)
-    conversion_8_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_8_file_path_Var)
-    file_path_entry.grid(row=21, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_8_file_path_Var))
-    file_path_button.grid(row=21, column=6)
-
+    conversion_8_file_path_Var = create_file_path_entry(imageProps_frame, 21, "conversion_8_file_path_Var")
     conversion_9_Key_Var = create_label_entry_pair(imageProps_frame, " 9 pos command: ", 22, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=22, column=4)
-    conversion_9_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_9_file_path_Var)
-    file_path_entry.grid(row=22, column=5)
-
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_9_file_path_Var))
-    file_path_button.grid(row=22, column=6)
-
+    conversion_9_file_path_Var = create_file_path_entry(imageProps_frame, 22, "conversion_9_file_path_Var")
     conversion_10_Key_Var = create_label_entry_pair(imageProps_frame, " 10 pos command: ", 23, 2, "none")
-
-    Label(imageProps_frame, text="File Path:").grid(row=23, column=4)
-    conversion_10_file_path_Var = StringVar()
-    file_path_entry = Entry(imageProps_frame, textvariable=conversion_10_file_path_Var)
-    file_path_entry.grid(row=23, column=5)
-    
-    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_10_file_path_Var))
-    file_path_button.grid(row=23, column=6)
+    conversion_10_file_path_Var = create_file_path_entry(imageProps_frame, 23, "conversion_10_file_path_Var")
 
     # Create a frame for rotation commands
     Conversion_frame = ttk.Frame(alpha_form, padding="10")
