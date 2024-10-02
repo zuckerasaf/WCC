@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu
+from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
 from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk
 import os
@@ -196,6 +196,15 @@ def open_alpha_form(picture,image_size):
         entry_var.set(default_value)
     
         return entry_var
+    
+    def toggle_frame(frame, button):
+        if frame.winfo_viewable():
+            frame.grid_remove()
+            button.config(text=f" {button.cget('text').split(' ')[1]} Commands")
+        else:
+            frame.grid()
+            button.config(text=f" {button.cget('text').split(' ')[1]} Commands")
+
 
     def save_alpha_data():
         #image_key = image_key_entry.get()
@@ -211,8 +220,12 @@ def open_alpha_form(picture,image_size):
         is_clickable_value = is_clickable_var.get()
         click_bounds_height_factor_value = click_bounds_height_factor_var.get()
         click_bounds_width_factor_value = click_bounds_width_factor_var.get()
-        grid_size_value = grid_size_var.get()
-        grid_direction_value = grid_direction_var.get()
+        top = top_var.get()
+        right = right_var.get()
+        bottom = bottom_var.get()
+        left = left_var.get()
+        press_pull1 = press_pull1_var.get()
+        press_pull2 = press_pull2_var.get()
         color_value = color_var.get()
         rotation_1_Key = rotation_1_Key_Var.get()
         rotation_1_angle = rotation_1_angle_Var.get()
@@ -254,7 +267,23 @@ def open_alpha_form(picture,image_size):
         conversion_9_file_path = conversion_9_file_path_Var.get()
         conversion_10_Key = conversion_10_Key_Var.get()
         conversion_10_file_path = conversion_10_file_path_Var.get()
-
+        Value_conversion_1_Key = Value_conversion_1_Key_Var.get()
+        Value_conversion_1_angle = Value_conversion_1_angle_Var.get()
+        Value_conversion_2_Key = Value_conversion_2_Key_Var.get()
+        Value_conversion_2_angle = Value_conversion_2_angle_Var.get()
+        Value_conversion_3_Key = Value_conversion_3_Key_Var.get()
+        Value_conversion_3_angle = Value_conversion_3_angle_Var.get()
+        Value_conversion_4_Key = Value_conversion_4_Key_Var.get()
+        Value_conversion_4_angle = Value_conversion_4_angle_Var.get()
+        Value_conversion_5_Key = Value_conversion_5_Key_Var.get()
+        Value_conversion_5_angle = Value_conversion_5_angle_Var.get()
+        String_Length = String_Length_Var.get()
+        top_value = top_var.get()
+        right_value = right_var.get()
+        bottom_value = bottom_var.get()
+        left_value = left_var.get()
+        press_pull1_value = press_pull1_var.get()
+        press_pull2_value = press_pull2_var.get()
 
         try:
             width, height = image_size.split('x')
@@ -265,8 +294,8 @@ def open_alpha_form(picture,image_size):
             "backend_name": image_name,
             "type": type_value,
             # "group": group_value,
-            "width": width,
-            "height": height,
+            "width": picture.width,
+            "height": picture.height,
             "left": new_image_position[0],
             "top": new_image_position[1],
             "offset_on": offset_on_value,
@@ -293,13 +322,16 @@ def open_alpha_form(picture,image_size):
             "click_props": {
                 "click_bounds_height_factor": click_bounds_height_factor_value,
                 "click_bounds_width_factor": click_bounds_width_factor_value,
-                "grid_size": grid_size_value,
-                "grid_direction": grid_direction_value,
+                "mapping": {
+                    "top": top_value,
+                    "right": right_value,
+                    "bottom": bottom_value,
+                    "left ": left_value,
+                    "press_pull1 ": press_pull1_value,
+                    "press_pull2 ": press_pull2_value,
+                }
             },
             "knob_props": {
-                "rotation": "any"
-            },
-            "analog_props": {
                     "conversion": {
                     rotation_1_Key :  rotation_1_angle, 
                     rotation_2_Key :  rotation_2_angle,
@@ -311,10 +343,19 @@ def open_alpha_form(picture,image_size):
                     rotation_8_Key :  rotation_8_angle,
                     rotation_9_Key :  rotation_9_angle, 
                     rotation_10_Key :  rotation_10_angle,
+                    }
+            },
+            "analog_props": {
+                    "conversion": {
+                    Value_conversion_1_Key :  Value_conversion_1_angle, 
+                    Value_conversion_2_Key :  Value_conversion_2_angle,
+                    Value_conversion_3_Key :  Value_conversion_3_angle, 
+                    Value_conversion_4_Key :  Value_conversion_4_angle,
+                    Value_conversion_5_Key :  Value_conversion_5_angle, 
                 }
             },
             "string_props": {
-                "maxStringLength": "3"
+                "maxStringLength": String_Length
             },
 
             "blinking": {
@@ -366,9 +407,9 @@ def open_alpha_form(picture,image_size):
     image_position_entry.insert(0, str(new_image_position))
 
 
-    Label(alpha_form, text="Rotation:").grid(row=3, column=2)
+    Label(alpha_form, text="Rotation:").grid(row=2, column=2)
     rotation_entry = Entry(alpha_form)
-    rotation_entry.grid(row=3, column=3)
+    rotation_entry.grid(row=2, column=3)
     rotation_entry.insert(0, str(disp_rotation_angle))  # Initial rotation 
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
@@ -378,152 +419,209 @@ def open_alpha_form(picture,image_size):
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
 
-    offset_on_var = create_label_entry_pair(alpha_form, "offset_on:", 5, 0, "0")
-    offset_off_var = create_label_entry_pair(alpha_form, "offset_on:", 6, 0, "0")
+    offset_on_var = create_label_entry_pair(alpha_form, "offset on:", 5, 0, "0")
+    offset_off_var = create_label_entry_pair(alpha_form, "offset on:", 6, 0, "0")
     debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, "false")
     is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", 8, 0, "true")
     click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, "2")
     click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, "1.5")
-    grid_size_var = create_label_entry_pair(alpha_form, "grid size:", 11, 0, "2")
-
-    Label(alpha_form, text="grid direction:").grid(row=12, column=0)
+    top_var = create_label_entry_pair(alpha_form, "top:", 12, 0, "none")
+    right_var = create_label_entry_pair(alpha_form, "right:", 13, 0, "none")
+    bottom_var = create_label_entry_pair(alpha_form, "bottom:", 14, 0, "none")
+    left_var = create_label_entry_pair(alpha_form, "left:", 15, 0, "none")
+    press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, "none")
+    press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, "none")
+    
+    Label(alpha_form, text="grid direction:").grid(row=19, column=0)
     grid_direction_var = StringVar(alpha_form)
     grid_direction_var.set("ud")  # Default type value
     grid_direction_options = ["ud", "lr", "none"]
     grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
-    grid_direction_menu.grid(row=12, column=1)
+    grid_direction_menu.grid(row=19, column=1)
 
-    Label(alpha_form, text="Blinking color:").grid(row=13, column=0)
+    Label(alpha_form, text="Blinking color:").grid(row=20, column=0)
     color_var= StringVar(alpha_form)
     color_var.set("yellow")  # Default type value
     color_options = ["yellow", "red", "blue"]
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
-    color_menu.grid(row=13, column=1)
+    color_menu.grid(row=20, column=1)
+
+    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 22, 0, "0")
+
+    # Create a frame for rotation commands
+    knob_props_frame = ttk.Frame(alpha_form, padding="10")
+    knob_props_frame.grid(row=4, column=2, columnspan=3, sticky="nsew")
+
+    # Initially hide the frame
+    knob_props_frame.grid_remove()
+
+    # Create a toggle button to show/hide the additional frame
+    toggle_additional_button = ttk.Button(alpha_form, text="Knob rotate", command=lambda: toggle_frame(knob_props_frame, toggle_additional_button))
+    toggle_additional_button.grid(row=3, column=2, columnspan=3, padx=5, pady=5)
+
 
     # Use the function to create label and entry pairs
-    rotation_1_Key_Var = create_label_entry_pair(alpha_form, " 1 rotation command: ", 4, 2, "none")
-    rotation_1_angle_Var = create_label_entry_pair(alpha_form, " 1 angle: ", 4, 4, "0")
-    rotation_2_Key_Var = create_label_entry_pair(alpha_form, " 2 rotation command: ", 5, 2, "none")
-    rotation_2_angle_Var = create_label_entry_pair(alpha_form, " 2 angle: ", 5, 4, "0")
-    rotation_3_Key_Var = create_label_entry_pair(alpha_form, " 3 rotation command: ", 6, 2, "none")
-    rotation_3_angle_Var = create_label_entry_pair(alpha_form, " 3 angle: ", 6, 4, "0")
-    rotation_4_Key_Var = create_label_entry_pair(alpha_form, " 4 rotation command: ", 7, 2, "none")
-    rotation_4_angle_Var = create_label_entry_pair(alpha_form, " 4 angle: ", 7, 4, "0")
-    rotation_5_Key_Var = create_label_entry_pair(alpha_form, " 5 rotation command: ", 8, 2, "none")
-    rotation_5_angle_Var = create_label_entry_pair(alpha_form, " 5 angle: ", 8, 4, "0")
-    rotation_6_Key_Var = create_label_entry_pair(alpha_form, " 6 rotation command: ", 9, 2, "none")
-    rotation_6_angle_Var = create_label_entry_pair(alpha_form, " 6 angle: ", 9, 4, "0")
-    rotation_7_Key_Var = create_label_entry_pair(alpha_form, " 7 rotation command: ", 10, 2, "none")
-    rotation_7_angle_Var = create_label_entry_pair(alpha_form, " 7 angle: ", 10, 4, "0")
-    rotation_8_Key_Var = create_label_entry_pair(alpha_form, " 8 rotation command: ", 11, 2, "none")
-    rotation_8_angle_Var = create_label_entry_pair(alpha_form, " 8 angle: ", 11, 4, "0")
-    rotation_9_Key_Var = create_label_entry_pair(alpha_form, " 9 rotation command: ", 12, 2, "none")
-    rotation_9_angle_Var = create_label_entry_pair(alpha_form, " 9 angle: ", 12, 4, "0")
-    rotation_10_Key_Var = create_label_entry_pair(alpha_form, " 10 rotation command: ", 13, 2, "none")
-    rotation_10_angle_Var = create_label_entry_pair(alpha_form, " 10 angle: ", 13, 4, "0")
+    rotation_1_Key_Var = create_label_entry_pair(knob_props_frame, " 1 rotation command: ", 4, 2, "none")
+    rotation_1_angle_Var = create_label_entry_pair(knob_props_frame, " 1 angle: ", 4, 4, "0")
+    rotation_2_Key_Var = create_label_entry_pair(knob_props_frame, " 2 rotation command: ", 5, 2, "none")
+    rotation_2_angle_Var = create_label_entry_pair(knob_props_frame, " 2 angle: ", 5, 4, "0")
+    rotation_3_Key_Var = create_label_entry_pair(knob_props_frame, " 3 rotation command: ", 6, 2, "none")
+    rotation_3_angle_Var = create_label_entry_pair(knob_props_frame, " 3 angle: ", 6, 4, "0")
+    rotation_4_Key_Var = create_label_entry_pair(knob_props_frame, " 4 rotation command: ", 7, 2, "none")
+    rotation_4_angle_Var = create_label_entry_pair(knob_props_frame, " 4 angle: ", 7, 4, "0")
+    rotation_5_Key_Var = create_label_entry_pair(knob_props_frame, " 5 rotation command: ", 8, 2, "none")
+    rotation_5_angle_Var = create_label_entry_pair(knob_props_frame, " 5 angle: ", 8, 4, "0")
+    rotation_6_Key_Var = create_label_entry_pair(knob_props_frame, " 6 rotation command: ", 9, 2, "none")
+    rotation_6_angle_Var = create_label_entry_pair(knob_props_frame, " 6 angle: ", 9, 4, "0")
+    rotation_7_Key_Var = create_label_entry_pair(knob_props_frame, " 7 rotation command: ", 10, 2, "none")
+    rotation_7_angle_Var = create_label_entry_pair(knob_props_frame, " 7 angle: ", 10, 4, "0")
+    rotation_8_Key_Var = create_label_entry_pair(knob_props_frame, " 8 rotation command: ", 11, 2, "none")
+    rotation_8_angle_Var = create_label_entry_pair(knob_props_frame, " 8 angle: ", 11, 4, "0")
+    rotation_9_Key_Var = create_label_entry_pair(knob_props_frame, " 9 rotation command: ", 12, 2, "none")
+    rotation_9_angle_Var = create_label_entry_pair(knob_props_frame, " 9 angle: ", 12, 4, "0")
+    rotation_10_Key_Var = create_label_entry_pair(knob_props_frame, " 10 rotation command: ", 13, 2, "none")
+    rotation_10_angle_Var = create_label_entry_pair(knob_props_frame, " 10 angle: ", 13, 4, "0")
 
-    conversion_1_Key_Var = create_label_entry_pair(alpha_form, " 1 pos command: ", 14, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=14, column=4)
+        # Create a frame for rotation commands
+    imageProps_frame = ttk.Frame(alpha_form, padding="10")
+    imageProps_frame.grid(row=6, column=2, columnspan=3, sticky="nsew")
+
+    # Initially hide the frame
+    imageProps_frame.grid_remove()
+
+    # Create a toggle button to show/hide the additional frame
+    toggle_additional_button = ttk.Button(alpha_form, text="Knob Image", command=lambda: toggle_frame(imageProps_frame, toggle_additional_button))
+    toggle_additional_button.grid(row=5, column=2, columnspan=3, padx=5, pady=5)
+
+    conversion_1_Key_Var = create_label_entry_pair(imageProps_frame, " 1 pos command: ", 14, 2, "none")
+
+    Label(imageProps_frame, text="File Path:").grid(row=14, column=4)
     conversion_1_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_1_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_1_file_path_Var)
     file_path_entry.grid(row=14, column=5)
-    
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_1_file_path_Var))
+
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_1_file_path_Var))
     file_path_button.grid(row=14, column=6)
 
-    conversion_2_Key_Var = create_label_entry_pair(alpha_form, " 2 pos command: ", 15, 2, "none")
+    conversion_2_Key_Var = create_label_entry_pair(imageProps_frame, " 2 pos command: ", 15, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=15, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=15, column=4)
     conversion_2_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_2_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_2_file_path_Var)
     file_path_entry.grid(row=15, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_2_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_2_file_path_Var))
     file_path_button.grid(row=15, column=6)
 
-    conversion_3_Key_Var = create_label_entry_pair(alpha_form, " 3 pos command: ", 16, 2, "none")
+    conversion_3_Key_Var = create_label_entry_pair(imageProps_frame, " 3 pos command: ", 16, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=16, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=16, column=4)
     conversion_3_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_3_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_3_file_path_Var)
     file_path_entry.grid(row=16, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_3_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_3_file_path_Var))
     file_path_button.grid(row=16, column=6)
 
-    conversion_4_Key_Var = create_label_entry_pair(alpha_form, " 4 pos command: ", 17, 2, "none")
+    conversion_4_Key_Var = create_label_entry_pair(imageProps_frame, " 4 pos command: ", 17, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=17, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=17, column=4)
     conversion_4_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_4_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_4_file_path_Var)
     file_path_entry.grid(row=17, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_4_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_4_file_path_Var))
     file_path_button.grid(row=17, column=6)
 
-    conversion_5_Key_Var = create_label_entry_pair(alpha_form, " 5 pos command: ", 18, 2, "none")
+    conversion_5_Key_Var = create_label_entry_pair(imageProps_frame, " 5 pos command: ", 18, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=18, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=18, column=4)
     conversion_5_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_5_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_5_file_path_Var)
     file_path_entry.grid(row=18, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_5_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_5_file_path_Var))
     file_path_button.grid(row=18, column=6)
 
-    conversion_6_Key_Var = create_label_entry_pair(alpha_form, " 6 pos command: ", 19, 2, "none")
+    conversion_6_Key_Var = create_label_entry_pair(imageProps_frame, " 6 pos command: ", 19, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=19, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=19, column=4)
     conversion_6_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_6_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_6_file_path_Var)
     file_path_entry.grid(row=19, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_6_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_6_file_path_Var))
     file_path_button.grid(row=19, column=6)
 
-    conversion_7_Key_Var = create_label_entry_pair(alpha_form, " 7 pos command: ", 20, 2, "none")
+    conversion_7_Key_Var = create_label_entry_pair(imageProps_frame, " 7 pos command: ", 20, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=20, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=20, column=4)
     conversion_7_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_7_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_7_file_path_Var)
     file_path_entry.grid(row=20, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_7_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_7_file_path_Var))
     file_path_button.grid(row=20, column=6)
 
-    conversion_8_Key_Var = create_label_entry_pair(alpha_form, " 8 pos command: ", 21, 2, "none")
+    conversion_8_Key_Var = create_label_entry_pair(imageProps_frame, " 8 pos command: ", 21, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=21, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=21, column=4)
     conversion_8_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_8_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_8_file_path_Var)
     file_path_entry.grid(row=21, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_8_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_8_file_path_Var))
     file_path_button.grid(row=21, column=6)
 
-    conversion_9_Key_Var = create_label_entry_pair(alpha_form, " 9 pos command: ", 22, 2, "none")
+    conversion_9_Key_Var = create_label_entry_pair(imageProps_frame, " 9 pos command: ", 22, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=22, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=22, column=4)
     conversion_9_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_9_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_9_file_path_Var)
     file_path_entry.grid(row=22, column=5)
-    
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_9_file_path_Var))
+
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_9_file_path_Var))
     file_path_button.grid(row=22, column=6)
 
-    conversion_10_Key_Var = create_label_entry_pair(alpha_form, " 10 pos command: ", 23, 2, "none")
+    conversion_10_Key_Var = create_label_entry_pair(imageProps_frame, " 10 pos command: ", 23, 2, "none")
 
-    Label(alpha_form, text="File Path:").grid(row=23, column=4)
+    Label(imageProps_frame, text="File Path:").grid(row=23, column=4)
     conversion_10_file_path_Var = StringVar()
-    file_path_entry = Entry(alpha_form, textvariable=conversion_10_file_path_Var)
+    file_path_entry = Entry(imageProps_frame, textvariable=conversion_10_file_path_Var)
     file_path_entry.grid(row=23, column=5)
     
-    file_path_button = Button(alpha_form, text="file", command=lambda: on_bring_file_path(conversion_10_file_path_Var))
+    file_path_button = Button(imageProps_frame, text="file", command=lambda: on_bring_file_path(conversion_10_file_path_Var))
     file_path_button.grid(row=23, column=6)
 
+    # Create a frame for rotation commands
+    Conversion_frame = ttk.Frame(alpha_form, padding="10")
+    Conversion_frame.grid(row=8, column=2, columnspan=3, sticky="nsew")
+
+    # Initially hide the frame
+    Conversion_frame.grid_remove()
+
+    # Create a toggle button to show/hide the additional frame
+    toggle_additional_button = ttk.Button(alpha_form, text="value Conversion", command=lambda: toggle_frame(Conversion_frame, toggle_additional_button))
+    toggle_additional_button.grid(row=7, column=2, columnspan=3, padx=5, pady=5)
+
+    Value_conversion_1_Key_Var = create_label_entry_pair(Conversion_frame, " 1  Value command: ", 24, 2, "none")
+    Value_conversion_1_angle_Var = create_label_entry_pair(Conversion_frame, " 1 Conversion angle: ", 24, 4, "0")
+    Value_conversion_2_Key_Var = create_label_entry_pair(Conversion_frame, " 2 Value command: ", 25, 2, "none")
+    Value_conversion_2_angle_Var = create_label_entry_pair(Conversion_frame, " 2 Conversion angle: ", 25, 4, "0")
+    Value_conversion_3_Key_Var = create_label_entry_pair(Conversion_frame, " 3 Value command: ", 26, 2, "none")
+    Value_conversion_3_angle_Var = create_label_entry_pair(Conversion_frame, " 3 Conversion angle: ", 26, 4, "0")
+    Value_conversion_4_Key_Var = create_label_entry_pair(Conversion_frame, " 4 Value command: ", 27, 2, "none")
+    Value_conversion_4_angle_Var = create_label_entry_pair(Conversion_frame, " 4 Conversion angle: ", 27, 4, "0")
+    Value_conversion_5_Key_Var = create_label_entry_pair(Conversion_frame, " 5 Value command: ", 28, 2, "none")
+    Value_conversion_5_angle_Var = create_label_entry_pair(Conversion_frame, " 5 Conversion angle: ", 28, 4, "0")
+
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=15, columnspan=2)
+    save_button.grid(row=24, columnspan=2)
+
+
+
+
 
 def handle_move_image(event):
     global new_image_position
@@ -532,12 +630,7 @@ def handle_move_image(event):
         small_step = 10
     new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, small_step, combine_images, update_info_label)
 
-# def handle_rotate_image(event):
-#     global rotation_angle, disp_rotation_angle
-#     small_rotate = 1
-#     if event.state & 0x0004:  # Check if Shift key is pressed
-#         small_rotate = 10
-#     rotation_angle = rotate_image(event, img, rotation_angle,rotate_degree, rotation_entry, image_label, small_rotate,combine_images, update_info_label)
+
 def handle_rotate_image(event, direction):
     global rotation_angle
     small_rotate = 1
