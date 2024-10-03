@@ -6,11 +6,9 @@ import os
 import json
 from Util import move_image, rotate_image, Bring_File_path  # Import the move_image function
 
-# Define rotation_angle and rotation_entry as global variables at the top of the script
-rotation_angle = 0
-#rotation_entry = None
-disp_rotation_angle = 0
 # Global variables
+rotation_angle = 0
+disp_rotation_angle = 0
 current_image_path = None
 new_image_path = None
 new_image_position = (0, 0)
@@ -72,7 +70,6 @@ def browse_image():
         #open_alpha_form(picture)
 
     
-
 def add_image():
     global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id
 
@@ -100,9 +97,6 @@ def add_image():
             # Open the alpha form
             open_alpha_form(picture, f"{width}x{height}")
 
-
-
-
 def combine_images():
     global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, rotation_angle, disp_rotation_angle
     if base_img and new_image_path:
@@ -120,9 +114,6 @@ def combine_images():
         # Create a copy of the base image to avoid modifying the original
         combined_img = base_img.copy()
 
-       # # Paste the new image on top of the base image at the current position
-       #combined_img.paste(new_img, new_image_position, new_img if new_img.mode == 'RGBA' else None)
-
         # Paste the rotated new image on top of the base image at the current position
         combined_img.paste(rotated_new_img, new_image_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
 
@@ -138,10 +129,6 @@ def combine_images():
         img_tk = ImageTk.PhotoImage(combined_img)
         image_label.config(image=img_tk)
         image_label.image = img_tk  # Keep a reference to avoid garbage collection
-
-#def update_info_label():
-#   global new_image_position
-#    info_label.config(text=f"New Image Position: {new_image_position}")
 
 # Function to update the info label
 def update_info_label():
@@ -557,17 +544,12 @@ def open_alpha_form(picture,image_size):
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
     save_button.grid(row=24, columnspan=2)
 
-
-
-
-
 def handle_move_image(event):
     global new_image_position
     small_step = 1
     if event.state & 0x0001:  # Check if Shift key is pressed
         small_step = 10
     new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, image_position_entry, small_step, combine_images, update_info_label)
-
 
 def handle_rotate_image(event, direction):
     global rotation_angle
@@ -658,7 +640,7 @@ root.bind("<r>", handle_rotate_left)
 root.bind("<t>", handle_rotate_right)
 
 # Create a button to close the form
-close_button = tk.Button(root, text="Close", command=save_and_close)
+close_button = tk.Button(root, text="Save and Close", command=save_and_close)
 close_button.grid(row=7, column=1, padx=5, pady=5)
 
 # Configure grid rows and columns
