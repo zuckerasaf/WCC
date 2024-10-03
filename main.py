@@ -103,19 +103,23 @@ def combine_images():
         # Open the new image
         new_img = Image.open(new_image_path)
 
-        # Rotate the new image
+        # Calculate the center of the original image
+        original_center_x = new_image_position[0] + new_img.width // 2
+        original_center_y = new_image_position[1] + new_img.height // 2
+
+        # Rotate the image
         rotated_new_img = new_img.rotate(rotation_angle, expand=True)
 
         # Calculate the new position to keep the rotated image centered
-        new_x = new_image_position[0] - (rotated_new_img.width - new_img.width) // 2
-        new_y = new_image_position[1] - (rotated_new_img.height - new_img.height) // 2
+        new_x = original_center_x - rotated_new_img.width // 2
+        new_y = original_center_y - rotated_new_img.height // 2
         new_position = (new_x, new_y)
 
         # Create a copy of the base image to avoid modifying the original
         combined_img = base_img.copy()
 
         # Paste the rotated new image on top of the base image at the current position
-        combined_img.paste(rotated_new_img, new_image_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
+        combined_img.paste(rotated_new_img, new_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
 
 
         # Save the combined image to a temporary file
