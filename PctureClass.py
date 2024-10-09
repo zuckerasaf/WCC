@@ -23,6 +23,17 @@ class Picture:
         print(f"Width: {self.width}")
         print(f"Height: {self.height}")
         print(f"rotation: {self.rotation}")
+
+class Panel:
+    def __init__(self, name):
+        self.Name = name
+        
+        
+
+    # Method to display picture information
+    def display_info(self):
+        print(f"Panel Name: {self.Name}")
+
        
 
 

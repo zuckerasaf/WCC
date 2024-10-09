@@ -1,8 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
-from tkinter.filedialog import asksaveasfilename
-from PIL import Image, ImageTk
+from PIL import ImageTk
 import json
 
 
@@ -71,9 +69,58 @@ def load_panel_names():
         data = json.load(file)
         return data["panel_names"]
     
+def load_switch_names(panel_name):
+    print("panel_name", panel_name)
+    with open('Panel_Switch_DB.json', 'r', encoding='utf-8') as file:
+        data = json.load(file)
+        panels = data.get("panels", [])
+        for panel in panels:
+            if panel.get("panel_name") == panel_name:
+                return list(panel.get("Items", {}).values())
+        return []
+# Function to select a switch name
 
-def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_size):
+def select_switch_name(panel_name , switch_name_entry):
+    print("panel_name",panel_name)
+   
+    if panel_name is None:
+        print("No panel selected")
+        return
+    switch_names = load_switch_names(panel_name)
+
+    # Create a new window for switch name selection
+    switch_window = Toplevel()
+    switch_window.title("Select Switch Name")
+
+    # Set the width of the switch_window to twice its default width
+    default_width = 200  # Example default width, adjust as needed
+    switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
+
+    # Create a StringVar to track the selected switch name
+    selected_switch_name = tk.StringVar()
+
+        # Create a label and combobox for panel name selection
+    Switch_label = ttk.Label(switch_window, text="Select switch Name:")
+    Switch_label.pack(padx=10, pady=5)
+
+    Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names, width=40)
+    Switch_combobox.pack(padx=10, pady=5)
+
+    # Function to proceed after switch name is selected
+    def proceed():
+        if selected_switch_name.get():
+            switch_name_entry.delete(0, tk.END)
+            switch_name_entry.insert(0, selected_switch_name.get())
+            switch_window.destroy()
+    
+
+    # Create a button to proceed
+    proceed_button = ttk.Button(switch_window, text="Proceed", command=proceed)
+    proceed_button.pack(padx=10, pady=10)
+
+def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_size,panel_name):
     global rotation_entry,image_position_entry,file_path
+    # print("panel_name",panel_name)
     
 
     def on_bring_file_path(var):
@@ -127,7 +174,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         
         global rotation_angle
 
-        image_name = image_name_entry.get()
+        backend_name = switch_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
         type_value = type_var.get()
@@ -202,8 +249,8 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         #     width, height = "0", "0"  # Default values in case of error
 
         data = {
-            "backend_name": image_name,
             "type": type_value,
+            "backend_name": backend_name,
             # "group": group_value,
             "width": picture.width,
             "height": picture.height,
@@ -212,7 +259,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
             "offset_on": offset_on_value,
             "offset_off": offset_off_value,
             "imageProps": {
-                "imageDefault": image_name,
+                "imageDefault": picture.file_path,
                 "additionalImageData": {
                     conversion_1_Key : conversion_1_file_path,
                     conversion_2_Key : conversion_2_file_path,
@@ -307,8 +354,18 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     # Set the position of the alpha_form window to the right of the Image Browser window
     alpha_form.geometry(f"+{x + width + 10}+{y}")
 
+    # Create a label to display the selected panel name
+    Label(alpha_form, text="switch name :").grid(row=0, column=0)
+    switch_name_entry = Entry(alpha_form)
+    switch_name_entry.grid(row=0, column=1)
+    switch_name_entry.insert(0, "no switch selected")
+
+
     # image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
-    image_name_entry = create_label_entry_pair(alpha_form, "Image Name:", 0, 0, picture.image_id)
+    #image_name_entry = create_label_entry_pair(alpha_form, "switch name:", 0, 0, picture.image_id)
+
+    switch_name_button = Button(alpha_form, text="Switch Name", command=lambda: select_switch_name(panel_name, switch_name_entry))#command=select_switch_name)
+    switch_name_button.grid(row=0, column=2, columnspan=2)
 
     
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
@@ -362,6 +419,13 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     color_menu.grid(row=20, column=1)
 
     String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 22, 0, "0")
+
+    Label(alpha_form, text="Logger caption:").grid(row=23, column=0)
+    Logger_var = StringVar(alpha_form)
+    Logger_var.set("true")  # Default type value
+    Logger_options = ["true" , "stateN" , "knobInteger" , "false"]
+    Logger_menu = OptionMenu(alpha_form, Logger_var, *Logger_options)
+    Logger_menu.grid(row=23, column=1)
 
     # Create a frame for rotation commands
     knob_props_frame = ttk.Frame(alpha_form, padding="10")
@@ -453,6 +517,6 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     Value_conversion_5_angle_Var = create_label_entry_pair(Conversion_frame, " 5 Conversion angle: ", 28, 4, "0")
 
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=24, columnspan=2)
+    save_button.grid(row=25, columnspan=2)
 
 
