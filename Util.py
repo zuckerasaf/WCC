@@ -88,6 +88,10 @@ def select_switch_name(panel_name , switch_name_entry):
         return
     switch_names = load_switch_names(panel_name)
 
+    
+    # Sort the switch names alphabetically
+    switch_names_sorted = sorted(switch_names)
+
     # Create a new window for switch name selection
     switch_window = Toplevel()
     switch_window.title("Select Switch Name")
@@ -103,7 +107,7 @@ def select_switch_name(panel_name , switch_name_entry):
     Switch_label = ttk.Label(switch_window, text="Select switch Name:")
     Switch_label.pack(padx=10, pady=5)
 
-    Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names, width=40)
+    Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
     Switch_combobox.pack(padx=10, pady=5)
 
     # Function to proceed after switch name is selected
