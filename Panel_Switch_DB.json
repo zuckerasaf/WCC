@@ -1,7 +1,7 @@
 {
   "panels": [
     {
-      "panel_name": "FWD_FCC",
+      "panel_name": "FWD_UFC",
       "Items": {
         "item_1": "GRN_override_button",
         "item_2": "RED_SAT_override_button",
@@ -30,43 +30,7 @@
         "item_25": "Keyboard_TIME__key_6",
         "item_26": "Keyboard_MARK__key_7",
         "item_27": "Keyboard_DTS__key_8",
-        "item_28": "Keyboard_DVR__key_9",
-        "item_29": "DED",
-        "item_30": "Standby_attitude_indicator",
-        "item_31": "Fuel_flow_indicator",
-        "item_32": "GRN_override_button",
-        "item_33": "RED_SAT_override_button",
-        "item_34": "IFF_override_button",
-        "item_35": "SAK_override_button",
-        "item_36": "AA_override_button",
-        "item_37": "AG_override_button",
-        "item_38": "Enter_button",
-        "item_39": "Drift_C_O_switch",
-        "item_40": "Data_control_switch_(DCS)",
-        "item_41": "Increment_decrement_switch",
-        "item_42": "FLIR_PLRT_button",
-        "item_43": "FLIR_increment_decrement_switch",
-        "item_44": "FLIR_gain_switch",
-        "item_45": "RET_DEPR_knob",
-        "item_46": "CONT_knob",
-        "item_47": "SYM_knob",
-        "item_48": "BRT_knob"
-      }
-    },
-    {
-      "panel_name": "FWD_MFD",
-      "Items": {
-        "item_1": "Right_MFD_screen",
-        "item_2": "Left_MFD_screen",
-        "item_3": "Gain_rocker_switch",
-        "item_4": "BRT_rocker_switch",
-        "item_5": "Right_MFD_screen",
-        "item_6": "Left_MFD_screen",
-        "item_7": "Gain_rocker_switch",
-        "item_8": "BRT_rocker_switch",
-        "item_9": "CON_rocker_switch",
-        "item_10": "SYM_rocker_switch",
-        "item_11": "20_OSB_buttons"
+        "item_28": "Keyboard_DVR__key_9"
       }
     },
     {
@@ -85,6 +49,23 @@
       "panel_name": "FWD_Fuel_flow_ind",
       "Items": {
         "item_1": "Fuel_flow_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_MFD",
+      "Items": {
+        "item_1": "Right_MFD_screen",
+        "item_2": "Left_MFD_screen",
+        "item_3": "Gain_rocker_switch",
+        "item_4": "BRT_rocker_switch",
+        "item_5": "CON_rocker_switch",
+        "item_6": "20_OSB_buttons"
+      }
+    },
+    {
+      "panel_name": "FW0D_MFD",
+      "Items": {
+        "item_1": "SYM_rocker_switch"
       }
     },
     {
@@ -491,21 +472,16 @@
     {
       "panel_name": "FWD_Cabin_IND",
       "Items": {
-        "item_1": "Cabin_PreB12:C35ss_altimeter"
-      }
-    },
-    {
-      "panel_name": "FWD_SNSE_PWR_Panel",
-      "Items": {
-        "item_1": "Left_HDPT_switch"
+        "item_1": "Cabin_Pre_altimeter"
       }
     },
     {
       "panel_name": "FWD_SNSR_PWR_Panel",
       "Items": {
-        "item_1": "Right_HDPT_switch",
-        "item_2": "FCR_switch",
-        "item_3": "Radar_ALT_switch"
+        "item_1": "Left_HDPT_switch",
+        "item_2": "Right_HDPT_switch",
+        "item_3": "FCR_switch",
+        "item_4": "Radar_ALT_switch"
       }
     },
     {
@@ -561,60 +537,60 @@
     }
   ],
   "panel_names": [
-    "FWD_EREZ",
-    "FWD_Fuel_Panel",
-    "FWD_2_Warning_Light",
-    "FWD_SNSE_PWR_Panel",
-    "FWD_Airspeed_IND",
-    "FWD_EPU_Panel",
-    "FWD_Test_Panel",
-    "FWD_AirSelector_Panel",
-    "FWD_HSI",
-    "FWD_FUEL_IND",
-    "FWD_Ejection_Handle",
-    "FWD_SNSR_PWR_Panel",
-    "FWD_Cabin_IND",
-    "FWD_ELEC_Panel",
-    "FWD_AUX_COMM",
-    "FWD_EPU_IND",
-    "FWD_HYD_IND",
-    "FWD_Lightning_Panel",
-    "FWD_Speed_Breake_Ind",
-    "FWD_Magnetic_Compass",
-    "FWD_Altimeter",
-    "FWD_Fuel_flow_ind",
-    "FWD_Warning_Light",
-    "FWD_DED",
-    "FWD_MISC",
-    "FWD_MFD",
-    "FWD_IFF_NVIS",
-    "FWD_EXT_Light",
-    "FWD_EW_Power",
-    "FWD_Audio1",
-    "FWD_Avionics_PWR_Panel",
-    "FWD_LG_Panel",
-    "FWD_HUD_Panel",
-    "FWD_FLT_Control_Panel",
-    "FWD_VVI",
-    "FWD_FCC",
     "FWD_EW_Disp",
-    "FWD_Anti_G",
-    "FWD_FMCS",
-    "FWD_ADI",
+    "FWD_AirSelector_Panel",
+    "FWD_Magnetic_Compass",
     "FWD_5_Warning_Light",
-    "FWD_Trim_Panel",
-    "FWD_ENGINE_IND",
-    "FWD_MRK_BCN_button",
-    "FWD_MC_Light",
-    "FWD_General_Panel",
+    "FWD_Lightning_Panel",
+    "FWD_DED",
     "FWD_Standby_attitude_ind",
-    "FWD_Audio_2",
-    "FWD_Chaff_Flare_Button",
+    "FWD_ENGINE_IND",
+    "FWD_Fuel_flow_ind",
+    "FWD_IFF_NVIS",
+    "FWD_2_Warning_Light",
+    "FWD_EPU_IND",
+    "FWD_Warning_Light",
     "FWD_FUEL_QTY",
-    "FWD_ADDS",
-    "FWD_INSTR",
-    "FWD_Alt_Gear_handle",
+    "FWD_EXT_Light",
+    "FWD_ADI",
+    "FWD_Audio_2",
+    "FWD_MC_Light",
+    "FW0D_MFD",
+    "FWD_FUEL_IND",
     "FWD_ENG_Start_Panel",
-    "FWD_AOA"
+    "FWD_Altimeter",
+    "FWD_Audio1",
+    "FWD_FLT_Control_Panel",
+    "FWD_HSI",
+    "FWD_Cabin_IND",
+    "FWD_UFC",
+    "FWD_INSTR",
+    "FWD_Trim_Panel",
+    "FWD_ADDS",
+    "FWD_AUX_COMM",
+    "FWD_Ejection_Handle",
+    "FWD_EREZ",
+    "FWD_Avionics_PWR_Panel",
+    "FWD_FMCS",
+    "FWD_EW_Power",
+    "FWD_MISC",
+    "FWD_ELEC_Panel",
+    "FWD_HUD_Panel",
+    "FWD_VVI",
+    "FWD_Test_Panel",
+    "FWD_Chaff_Flare_Button",
+    "FWD_Alt_Gear_handle",
+    "FWD_Anti_G",
+    "FWD_AOA",
+    "FWD_Airspeed_IND",
+    "FWD_HYD_IND",
+    "FWD_LG_Panel",
+    "FWD_EPU_Panel",
+    "FWD_Speed_Breake_Ind",
+    "FWD_Fuel_Panel",
+    "FWD_General_Panel",
+    "FWD_SNSR_PWR_Panel",
+    "FWD_MRK_BCN_button",
+    "FWD_MFD"
   ]
 }
