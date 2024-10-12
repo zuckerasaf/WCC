@@ -1,7 +1,41 @@
 import tkinter as tk
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
-from PIL import ImageTk
+from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
+
+def add_switch_name_to_Image(backend_name, image, x, y):
+        # if not backend_name:
+        #     print("No backend_name loaded to add switch name.")
+        #     return
+        # if not image:
+        #     print("No image loaded to add switch name.")
+        #     return
+        # if not x or not y:
+        #     print("No position loaded to add switch name.")
+        #     return
+        #          # Load the image
+        # combined_img = Image.open(image)
+
+        # # Define the position and text
+        # position = (x, y)
+        # text = backend_name
+
+        # # Initialize ImageDraw
+        # draw = ImageDraw.Draw(combined_img)
+
+        # # Define the font and size
+        # font = ImageFont.load_default()
+
+        # # Add text to image
+        # draw.text(position, text, font=font, fill="black")
+
+        # # Save the image
+        # combined_img.save("combined_img_with_label.png")
+
+        # print(f"Saved label '{text}' at position {position}")
+    pass 
+
+
 
 
 def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
@@ -80,52 +114,55 @@ def load_switch_names(panel_name):
         return []
 # Function to select a switch name
 
-def select_switch_name(panel_name , switch_name_entry):
-    print("panel_name",panel_name)
+# def select_switch_name(panel_name, switch_name_entry):
+#     print("panel_name",panel_name)
    
-    if panel_name is None:
-        print("No panel selected")
-        return
-    switch_names = load_switch_names(panel_name)
+#     if panel_name is None:
+#         print("No panel selected")
+#         return
+#     switch_names = load_switch_names(panel_name)
 
     
-    # Sort the switch names alphabetically
-    switch_names_sorted = sorted(switch_names)
+#     # Sort the switch names alphabetically
+#     switch_names_sorted = sorted(switch_names)
 
-    # Create a new window for switch name selection
-    switch_window = Toplevel()
-    switch_window.title("Select Switch Name")
+#     # Create a new window for switch name selection
+#     switch_window = Toplevel()
+#     switch_window.title("Select Switch Name")
 
-    # Set the width of the switch_window to twice its default width
-    default_width = 200  # Example default width, adjust as needed
-    switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
+#     # Set the width of the switch_window to twice its default width
+#     default_width = 200  # Example default width, adjust as needed
+#     switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
 
-    # Create a StringVar to track the selected switch name
-    selected_switch_name = tk.StringVar()
+#     # Create a StringVar to track the selected switch name
+#     selected_switch_name = tk.StringVar()
 
-        # Create a label and combobox for panel name selection
-    Switch_label = ttk.Label(switch_window, text="Select switch Name:")
-    Switch_label.pack(padx=10, pady=5)
+#         # Create a label and combobox for panel name selection
+#     Switch_label = ttk.Label(switch_window, text="Select switch Name:")
+#     Switch_label.pack(padx=10, pady=5)
 
-    Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
-    Switch_combobox.pack(padx=10, pady=5)
+#     Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
+#     Switch_combobox.pack(padx=10, pady=5)
 
-    # Function to proceed after switch name is selected
-    def proceed():
-        if selected_switch_name.get():
-            switch_name_entry.delete(0, tk.END)
-            switch_name_entry.insert(0, selected_switch_name.get())
-            switch_window.destroy()
+#     # Function to proceed after switch name is selected
+#     def proceed():
+#         if selected_switch_name.get():
+#             switch_name_entry.delete(0, tk.END)
+#             switch_name_entry.insert(0, selected_switch_name.get())
+#             switch_window.destroy()
+            
     
 
-    # Create a button to proceed
-    proceed_button = ttk.Button(switch_window, text="Proceed", command=proceed)
-    proceed_button.pack(padx=10, pady=10)
+#     # Create a button to proceed
+#     proceed_button = ttk.Button(switch_window, text="Proceed", command=proceed)
+#     proceed_button.pack(padx=10, pady=10)
+
+    
 
 def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_size,panel_name):
     global rotation_entry,image_position_entry,file_path
     # print("panel_name",panel_name)
-    
+
 
     def on_bring_file_path(var):
         file_path = Bring_File_path()
@@ -175,6 +212,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
 
 
     def save_alpha_data():
+
         
         global rotation_angle
 
@@ -246,6 +284,8 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         Value_conversion_5_Key = Value_conversion_5_Key_Var.get()
         Value_conversion_5_angle = Value_conversion_5_angle_Var.get()
         String_Length = String_Length_Var.get()
+
+        # add_switch_name_to_Image(backend_name, image, x, y)
 
         # try:
         #     width, height = image_size.split('x')
@@ -362,7 +402,8 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     Label(alpha_form, text="switch name :").grid(row=0, column=0)
     switch_name_entry = Entry(alpha_form)
     switch_name_entry.grid(row=0, column=1)
-    switch_name_entry.insert(0, "no switch selected")
+    switch_name_entry.insert(0, picture.imageName)
+    #switch_name_entry.insert(0, "no switch selected")
 
 
     # image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")

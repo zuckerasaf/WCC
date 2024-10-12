@@ -1,5 +1,6 @@
-class Picture:
+class Switch:
     def __init__(self, image_id, file_path, width, height):
+        self.imageName = "switch"
         self.image_id = image_id
         self.file_path = file_path
         self.width = width

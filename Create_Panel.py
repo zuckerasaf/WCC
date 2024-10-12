@@ -1,11 +1,11 @@
 import tkinter as tk
-from  PctureClass import Picture, Panel
+from  PctureClass import Switch, Panel
 from tkinter import filedialog, simpledialog, ttk
 from tkinter.filedialog import asksaveasfilename
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
-from Util import move_image, rotate_image, load_panel_names, open_alpha_form  # Import the move_image function
+from Util import move_image, rotate_image, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
 #from shared import selected_panel_name  # Import from shared.py
 
 
@@ -53,18 +53,64 @@ def browse_image():
         # Get the image size
         width, height = img.width, img.height
 
-        # Create a Picture instance with the image name as the ID
+        select_panel_name()
+
+        # Create a switch instance with the image name as the ID
         image_id = os.path.basename(file_path)
-        picture = Picture(image_id=image_id, file_path=file_path, width=width, height=height)
+        switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
         
         # Update the text label with image_id and file_path
-        info_label.config(text=f"Image ID: {picture.image_id}\nFile Path: {picture.file_path}")
-        print(f"Created Picture instance: ID={picture.image_id}, Path={picture.file_path}")
+        info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}")
+        print(f"Created switch instance: ID={switch.image_id}, Path={switch.file_path}")
        
         # Save the image details to a text file
         with open("image_details.txt", "a") as file:
-            file.write(f"Image ID: {picture.image_id}, File Path: {picture.file_path}\n")
+            file.write(f"Image ID: {switch.image_id}, File Path: {switch.file_path}\n")
 
+def select_switch_name(panel_name, switch):
+    print("panel_name",panel_name)
+   
+    if panel_name is None:
+        print("No panel selected")
+        return
+    switch_names = load_switch_names(panel_name)
+
+    
+    # Sort the switch names alphabetically
+    switch_names_sorted = sorted(switch_names)
+
+    # Create a new window for switch name selection
+    switch_window = tk.Toplevel(root)
+    switch_window.title("Select Switch Name")
+
+    # Set the width of the switch_window to twice its default width
+    default_width = 200  # Example default width, adjust as needed
+    switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
+
+    # Create a StringVar to track the selected switch name
+    selected_switch_name = tk.StringVar()
+
+        # Create a label and combobox for panel name selection
+    Switch_label = ttk.Label(switch_window, text="Select switch Name:")
+    Switch_label.pack(padx=10, pady=5)
+
+    Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
+    Switch_combobox.pack(padx=10, pady=5)
+
+    # Function to proceed after switch name is selected
+    def proceed():
+        if selected_switch_name.get():
+            switch.imageName = selected_switch_name.get()
+            print(switch.imageName)
+            switch_window.destroy()
+            
+    
+
+    # Create a button to proceed
+    proceed_button = ttk.Button(switch_window, text="Proceed", command=proceed)
+    proceed_button.pack(padx=10, pady=10)
+
+    switch_window.wait_window()
 
 # Function to select a panel name
 def select_panel_name():
@@ -102,34 +148,56 @@ def select_panel_name():
     proceed_button = ttk.Button(panel_window, text="Proceed", command=proceed)
     proceed_button.pack(padx=10, pady=10)
 
-    
-def add_image(panel):
-    global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,picture
-    
+    panel_window.wait_window()
+
+
+def combine_switch_name_with_image(file_path, switch_name, position):
+    # Open the image
+    img = Image.open(file_path)
+
+    # Initialize ImageDraw
+    draw = ImageDraw.Draw(img)
+
+    # Define the font and size
+    font = ImageFont.load_default()
+
+    # Add switch name to the image at the specified position
+    draw.text(position, switch_name, font=font, fill="white")
+
+    # Save the modified image
+    modified_file_path = file_path[:-4] + "_withcaption.png"
+    img.save(modified_file_path)
+
+    print(f"Saved modified image with switch name '{switch_name}' at position {position}")
+    return modified_file_path
+
+def add_Switch(panel):
+    global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
     if current_image_path:
         # Open file dialog to select another image file
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
-
             new_image_path = file_path
             new_image_position = (0, 0)  # Start at the top-left corner
             base_img = Image.open(current_image_path)  # Open and store the base image
             image_id = os.path.basename(file_path)
+            img = Image.open(file_path)
+            width, height = img.width, img.height
+
+            switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
+            select_switch_name(panel, switch)                      
+            switch_name = switch.imageName
+            print("here "  + switch_name)
+
+            new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
 
             # Combine images and update info label
             combine_images(rotation_angle)
             update_info_label()
 
-            # Create a Picture instance with the image name as the ID
-            image_id = os.path.basename(file_path)
-             # Get the image size
-            img = Image.open(file_path)
-            width, height = img.width, img.height
-            picture = Picture(image_id=image_id, file_path=file_path, width=width, height=height)
-
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, picture, f"{width}x{height}",panel)
+            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, f"{width}x{height}",panel)
 
 def combine_images(rotation_angle):
     global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
@@ -155,7 +223,6 @@ def combine_images(rotation_angle):
         # Paste the rotated new image on top of the base image at the current position
         combined_img.paste(rotated_new_img, new_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
 
-
         # Save the combined image to a temporary file
         combined_image_path = os.path.join(os.path.dirname(current_image_path), "combined_image.png")
         combined_img.save(combined_image_path)
@@ -172,9 +239,9 @@ def combine_images(rotation_angle):
 def update_info_label():
     global current_image_path, new_image_position
     if current_image_path:
-        # Assuming picture is an object with image_id and file_path attributes
-        picture = type('Picture', (object,), {'image_id': 1, 'file_path': current_image_path})()
-        info_label.config(text=f"Image ID: {picture.image_id}\nFile Path: {picture.file_path}\nNew Image Position: {new_image_position}")
+        # Assuming switch is an object with image_id and file_path attributes
+        switch = type('switch', (object,), {'image_id': 1, 'file_path': current_image_path})()
+        info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}\nNew Image Position: {new_image_position}")
 
 def set_move_pixels():
     global move_pixels
@@ -206,7 +273,7 @@ def handle_move_image(event):
     small_step = 1
     if event.state & 0x0001:  # Check if Shift key is pressed
         small_step = 10
-    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, small_step, combine_images, update_info_label,rotation_angle,picture)
+    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, small_step, combine_images, update_info_label,rotation_angle,switch)
 
 def handle_rotate_image(event, direction):
     global rotation_angle
@@ -252,8 +319,8 @@ new_image_position = (0, 0)
 combined_image_path = None
 
 # Create a button to browse files
-browse_button = tk.Button(root, text="Browse Image", command=browse_image)
-browse_button.grid(row=0, column=1)
+browse_button = tk.Button(root, text="Create panel ", command=browse_image)
+browse_button.grid(row=0, column=0)
 
 # Create a label to display the image
 image_label = tk.Label(root)
@@ -264,33 +331,37 @@ info_label = tk.Label(root, text="")
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
 info_label.grid(row=2, column=1, padx=5, pady=5)
 
-# Create a button to select panel name
-panel_name_button = ttk.Button(root, text="Panel Name", command=select_panel_name)
-panel_name_button.grid(row=3, column=0, padx=5, pady=5)
+# # Create a button to select panel name
+# panel_name_button = ttk.Button(root, text="Panel Name", command=select_panel_name)
+# panel_name_button.grid(row=3, column=0, padx=5, pady=5)
 
 # Create a label to display the selected panel name
 panel_name_label = ttk.Label(root, text="No panel selected")
-panel_name_label.grid(row=3, column=1, padx=5, pady=5)
+panel_name_label.grid(row=0, column=1, padx=5, pady=5)
 
 # Create a button to add another image on top
-add_button = tk.Button(root, text="Add Image", command=lambda: add_image(panel_name_label.cget("text")), state=tk.DISABLED)
-add_button.grid(row=3, column=2, padx=5, pady=5)
+add_button = tk.Button(root, text="Add Switch", command=lambda: add_Switch(panel_name_label.cget("text")), state=tk.DISABLED)
+add_button.grid(row=3, column=1, padx=5, pady=5)
+
+# Create a frame to hold the widgets
+frame = ttk.Frame(root)
+frame.grid(row=4, column=0, padx=10, pady=10)
 
 # Create and place the set pixels button
-set_pixels_button = tk.Button(root, text="Set Move Pixels", command=set_move_pixels)
-set_pixels_button.grid(row=4, column=0, padx=5, pady=5)
+set_pixels_button = tk.Button(frame, text="Set Move Pixels", command=set_move_pixels)
+set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 
 # Create and place the step size label next to the set pixels button
-step_size_label = tk.Label(root, text=f" Step : {move_pixels} pixels")
-step_size_label.grid(row=4, column=1, padx=5, pady=5)
+step_size_label = tk.Label(frame, text=f" Step : {move_pixels} pixels")
+step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
 # Create and place the set pixels button
-set_angle_button = tk.Button(root, text="Set angle rotation", command=set_rotate_degree)
-set_angle_button.grid(row=4, column=2, padx=5, pady=5)
+set_angle_button = tk.Button(frame, text="Set angle rotation", command=set_rotate_degree)
+set_angle_button.grid(row=1, column=0, padx=1, pady=5)
 
 # Create and place the step size label next to the set pixels button
-step_angle_label = tk.Label(root, text=f" Angle : {rotate_degree} degree")
-step_angle_label.grid(row=4, column=3, padx=5, pady=5)
+step_angle_label = tk.Label(frame, text=f" Angle : {rotate_degree} degree")
+step_angle_label.grid(row=1, column=1, padx=1, pady=5)
 
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
