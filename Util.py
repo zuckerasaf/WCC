@@ -112,52 +112,6 @@ def load_switch_names(panel_name):
             if panel.get("panel_name") == panel_name:
                 return list(panel.get("Items", {}).values())
         return []
-# Function to select a switch name
-
-# def select_switch_name(panel_name, switch_name_entry):
-#     print("panel_name",panel_name)
-   
-#     if panel_name is None:
-#         print("No panel selected")
-#         return
-#     switch_names = load_switch_names(panel_name)
-
-    
-#     # Sort the switch names alphabetically
-#     switch_names_sorted = sorted(switch_names)
-
-#     # Create a new window for switch name selection
-#     switch_window = Toplevel()
-#     switch_window.title("Select Switch Name")
-
-#     # Set the width of the switch_window to twice its default width
-#     default_width = 200  # Example default width, adjust as needed
-#     switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
-
-#     # Create a StringVar to track the selected switch name
-#     selected_switch_name = tk.StringVar()
-
-#         # Create a label and combobox for panel name selection
-#     Switch_label = ttk.Label(switch_window, text="Select switch Name:")
-#     Switch_label.pack(padx=10, pady=5)
-
-#     Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
-#     Switch_combobox.pack(padx=10, pady=5)
-
-#     # Function to proceed after switch name is selected
-#     def proceed():
-#         if selected_switch_name.get():
-#             switch_name_entry.delete(0, tk.END)
-#             switch_name_entry.insert(0, selected_switch_name.get())
-#             switch_window.destroy()
-            
-    
-
-#     # Create a button to proceed
-#     proceed_button = ttk.Button(switch_window, text="Proceed", command=proceed)
-#     proceed_button.pack(padx=10, pady=10)
-
-    
 
 def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_size,panel_name):
     global rotation_entry,image_position_entry,file_path
@@ -284,6 +238,8 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         Value_conversion_5_Key = Value_conversion_5_Key_Var.get()
         Value_conversion_5_angle = Value_conversion_5_angle_Var.get()
         String_Length = String_Length_Var.get()
+        Loggerstate = Logger_var.get()
+        Z_Index = Z_index_var.get()
 
         # add_switch_name_to_Image(backend_name, image, x, y)
 
@@ -295,13 +251,15 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         data = {
             "type": type_value,
             "backend_name": backend_name,
-            # "group": group_value,
             "width": picture.width,
             "height": picture.height,
             "left": picture.x,#image_position[0],
             "top": picture.y,#image_position[1],
             "offset_on": offset_on_value,
             "offset_off": offset_off_value,
+            "Logger": Loggerstate,
+            "Z_index" : Z_Index,
+
             "imageProps": {
                 "imageDefault": picture.file_path,
                 "additionalImageData": {
@@ -409,8 +367,8 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     # image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
     #image_name_entry = create_label_entry_pair(alpha_form, "switch name:", 0, 0, picture.image_id)
 
-    switch_name_button = Button(alpha_form, text="Switch Name", command=lambda: select_switch_name(panel_name, switch_name_entry))#command=select_switch_name)
-    switch_name_button.grid(row=0, column=2, columnspan=2)
+    # switch_name_button = Button(alpha_form, text="Switch Name", command=lambda: select_switch_name(panel_name, switch_name_entry))#command=select_switch_name)
+    # switch_name_button.grid(row=0, column=2, columnspan=2)
 
     
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
@@ -431,46 +389,48 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
-    type_var.set("state2")  # Default type value
+    type_var.set(picture.type_value)  # Default type value
     type_options = ["state2" , "stateN" , "knobInteger" , "analog" , "string" , "number"]
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
 
-    offset_on_var = create_label_entry_pair(alpha_form, "offset on:", 5, 0, "0")
-    offset_off_var = create_label_entry_pair(alpha_form, "offset on:", 6, 0, "0")
-    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, "false")
-    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", 8, 0, "true")
-    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, "2")
-    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, "1.5")
-    top_var = create_label_entry_pair(alpha_form, "top:", 12, 0, "none")
-    right_var = create_label_entry_pair(alpha_form, "right:", 13, 0, "none")
-    bottom_var = create_label_entry_pair(alpha_form, "bottom:", 14, 0, "none")
-    left_var = create_label_entry_pair(alpha_form, "left:", 15, 0, "none")
-    press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, "none")
-    press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, "none")
+    offset_on_var = create_label_entry_pair(alpha_form, "offset on:", 5, 0, picture.offset_on_value)
+    offset_off_var = create_label_entry_pair(alpha_form, "offset off:", 6, 0, picture.offset_off_value)
+    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, picture.debugMode_value)
+    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", 8, 0, picture.is_clickable_value)
+    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, picture.click_bounds_height_factor_value)
+    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, picture.click_bounds_width_factor_value)
+    top_var = create_label_entry_pair(alpha_form, "top:", 12, 0, picture.top)
+    right_var = create_label_entry_pair(alpha_form, "right:", 13, 0, picture.right)
+    bottom_var = create_label_entry_pair(alpha_form, "bottom:", 14, 0, picture.bottom)
+    left_var = create_label_entry_pair(alpha_form, "left:", 15, 0, picture.left)
+    press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, picture.press_pull1)
+    press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, picture.press_pull2)
     
     Label(alpha_form, text="grid direction:").grid(row=19, column=0)
     grid_direction_var = StringVar(alpha_form)
-    grid_direction_var.set("ud")  # Default type value
+    grid_direction_var.set( picture.grid_direction)  # Default type value
     grid_direction_options = ["ud", "lr", "none"]
     grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
     grid_direction_menu.grid(row=19, column=1)
 
     Label(alpha_form, text="Blinking color:").grid(row=20, column=0)
     color_var= StringVar(alpha_form)
-    color_var.set("yellow")  # Default type value
+    color_var.set(picture.color)  # Default type value
     color_options = ["yellow", "red", "blue"]
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
     color_menu.grid(row=20, column=1)
 
-    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 22, 0, "0")
+    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 22, 0, picture.String_Length)
 
     Label(alpha_form, text="Logger caption:").grid(row=23, column=0)
     Logger_var = StringVar(alpha_form)
-    Logger_var.set("true")  # Default type value
-    Logger_options = ["true" , "stateN" , "knobInteger" , "false"]
+    Logger_var.set(picture.Logger)  # Default type value
+    Logger_options = ["true" , "opt1" , "opt2" , "false"]
     Logger_menu = OptionMenu(alpha_form, Logger_var, *Logger_options)
     Logger_menu.grid(row=23, column=1)
+
+    Z_index_var = create_label_entry_pair(alpha_form, "Z_index:", 24, 0, picture.Z_index)
 
     # Create a frame for rotation commands
     knob_props_frame = ttk.Frame(alpha_form, padding="10")

@@ -318,9 +318,18 @@ new_image_path = None
 new_image_position = (0, 0)
 combined_image_path = None
 
+# Create a frame to hold the widgets
+name_frame = ttk.Frame(root)
+name_frame.grid(row=0, column=0, padx=10, pady=10)
+
 # Create a button to browse files
-browse_button = tk.Button(root, text="Create panel ", command=browse_image)
+browse_button = tk.Button(name_frame, text="Create panel ", command=browse_image)
 browse_button.grid(row=0, column=0)
+
+# Create a label to display the selected panel name
+panel_name_label = ttk.Label(name_frame, text="No panel selected")
+panel_name_label.grid(row=0, column=1, padx=5, pady=5)
+
 
 # Create a label to display the image
 image_label = tk.Label(root)
@@ -330,14 +339,6 @@ image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 info_label = tk.Label(root, text="")
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
 info_label.grid(row=2, column=1, padx=5, pady=5)
-
-# # Create a button to select panel name
-# panel_name_button = ttk.Button(root, text="Panel Name", command=select_panel_name)
-# panel_name_button.grid(row=3, column=0, padx=5, pady=5)
-
-# Create a label to display the selected panel name
-panel_name_label = ttk.Label(root, text="No panel selected")
-panel_name_label.grid(row=0, column=1, padx=5, pady=5)
 
 # Create a button to add another image on top
 add_button = tk.Button(root, text="Add Switch", command=lambda: add_Switch(panel_name_label.cget("text")), state=tk.DISABLED)
