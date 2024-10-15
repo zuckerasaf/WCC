@@ -5,7 +5,6 @@
 *.zip
 *.rar
 *.gif
-*.txt
 
 
 # Ignore all files and directories under .venv

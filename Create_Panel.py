@@ -6,6 +6,7 @@ from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
 from Util import move_image, rotate_image, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
+from Create_Jason_File import transfer_to_json 
 #from shared import selected_panel_name  # Import from shared.py
 
 
@@ -28,6 +29,14 @@ panel_name_label_String = None  # Add a global variable to store the panel name 
 def hello_world():
     print("Hello, World!")
 
+def browse_DB(db_name_var):
+    # Open a file dialog to select a new database file
+    file_path = filedialog.askopenfilename(
+        title="Select Database File",
+        filetypes=(("Text Files", "*.txt"), ("All Files", "*.*"))
+    )
+    if file_path:
+        db_name_var.set(file_path)
 
 def browse_image():
     global img, img_tk, image_label, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
@@ -331,18 +340,31 @@ panel_name_label = ttk.Label(name_frame, text="No panel selected")
 panel_name_label.grid(row=0, column=1, padx=5, pady=5)
 
 
+# Create the DB_name label with a default value
+db_name_var = tk.StringVar(value="C:\\projectPython\\WCC\\PLAF\\PLAF_DB_switch.txt")
+db_name_label = ttk.Label(root, textvariable=db_name_var)
+db_name_label.grid(row=0, column=3, padx=10, pady=10)
+
+# Create the "DB update" button
+db_update_button = ttk.Button(root, text="DB update", command=lambda: transfer_to_json(db_name_var.get(),'Panel_Switch_DB.json'))
+db_update_button.grid(row=0, column=2, padx=10, pady=10)
+
+# Create the "browse_DB" button
+browse_db_button = ttk.Button(root, text="browse_DB", command=lambda: browse_DB(db_name_var))
+browse_db_button.grid(row=0, column=4, padx=10, pady=10)
+
+
 # Create a label to display the image
 image_label = tk.Label(root)
 image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
 # Create a label to display the image_id and file_path
-info_label = tk.Label(root, text="")
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
-info_label.grid(row=2, column=1, padx=5, pady=5)
+info_label.grid(row=2, column=0, padx=5, pady=5)
 
 # Create a button to add another image on top
 add_button = tk.Button(root, text="Add Switch", command=lambda: add_Switch(panel_name_label.cget("text")), state=tk.DISABLED)
-add_button.grid(row=3, column=1, padx=5, pady=5)
+add_button.grid(row=3, column=0, padx=5, pady=5)
 
 # Create a frame to hold the widgets
 frame = ttk.Frame(root)
@@ -356,13 +378,20 @@ set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 step_size_label = tk.Label(frame, text=f" Step : {move_pixels} pixels")
 step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
+step_info_label = tk.Label(frame, text=f"arrows for move, shift + arrow for small step (0.1 step)")
+step_info_label.grid(row=1, column=0, padx=0, pady=5)
+
 # Create and place the set pixels button
 set_angle_button = tk.Button(frame, text="Set angle rotation", command=set_rotate_degree)
-set_angle_button.grid(row=1, column=0, padx=1, pady=5)
+set_angle_button.grid(row=2, column=0, padx=1, pady=5)
 
 # Create and place the step size label next to the set pixels button
 step_angle_label = tk.Label(frame, text=f" Angle : {rotate_degree} degree")
-step_angle_label.grid(row=1, column=1, padx=1, pady=5)
+step_angle_label.grid(row=2, column=1, padx=1, pady=5)
+
+step_angle_info_label = tk.Label(frame, text=f"R rotate to right, T rotate to left + CTRL for small step (0.1 step)")
+step_angle_info_label.grid(row=3, column=0, padx=0, pady=5)
+
 
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
