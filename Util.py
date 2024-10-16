@@ -3,6 +3,40 @@ from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, St
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 
+def add_switch_name_to_Image(backend_name, image, x, y):
+        # if not backend_name:
+        #     print("No backend_name loaded to add switch name.")
+        #     return
+        # if not image:
+        #     print("No image loaded to add switch name.")
+        #     return
+        # if not x or not y:
+        #     print("No position loaded to add switch name.")
+        #     return
+        #          # Load the image
+        # combined_img = Image.open(image)
+
+        # # Define the position and text
+        # position = (x, y)
+        # text = backend_name
+
+        # # Initialize ImageDraw
+        # draw = ImageDraw.Draw(combined_img)
+
+        # # Define the font and size
+        # font = ImageFont.load_default()
+
+        # # Add text to image
+        # draw.text(position, text, font=font, fill="black")
+
+        # # Save the image
+        # combined_img.save("combined_img_with_label.png")
+
+        # print(f"Saved label '{text}' at position {position}")
+    pass 
+
+
+
 
 def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
     

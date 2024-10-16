@@ -174,11 +174,31 @@ def combine_switch_name_with_image(file_path, switch_name, position):
     draw.text(position, switch_name, font=font, fill="white")
 
     # Save the modified image
-    modified_file_path = file_path[:-4] + "_withcaption.png"
+    #modified_file_path = file_path[:-4] + "_withcaption.png"
+    modified_file_path =  transform_file_path(file_path,"withcaption")
+
     img.save(modified_file_path)
 
     print(f"Saved modified image with switch name '{switch_name}' at position {position}")
     return modified_file_path
+
+def transform_file_path(file_path, text ):
+    # Extract the directory and filename
+    directory = os.path.dirname(file_path)
+    filename = os.path.basename(file_path)
+    
+       # Modify the directory and filename
+    new_directory = os.path.join(directory, "Working")
+
+        # Ensure the directory exists
+    os.makedirs(new_directory, exist_ok=True)
+
+    name, ext = os.path.splitext(filename)
+    new_filename = f"{name}_{text}{ext}"
+    
+    # Reconstruct the new file path
+    new_file_path = os.path.join(new_directory, new_filename)
+    return new_file_path
 
 def add_Switch(panel):
     global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch

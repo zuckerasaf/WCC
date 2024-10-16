@@ -3,10 +3,15 @@ import json
 def transfer_to_json(source_file, target_file):
     panels = {}
     panel_names = set()
+    newtarget_file = source_file[:-4] + ".json"
 
-    # Read the source file with utf-8 encoding
-    with open(source_file, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+    try:
+        with open(source_file, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+    except UnicodeDecodeError:
+        with open(source_file, 'r', encoding='latin-1') as file:
+            lines = file.readlines()
+        
 
     # Parse the lines and organize them into the desired structure
     for line in lines:
@@ -29,6 +34,8 @@ def transfer_to_json(source_file, target_file):
     # Write the final structure to the target JSON file
     with open(target_file, 'w', encoding='utf-8') as file:
         json.dump(final_data, file, indent=2)
+    with open(newtarget_file, 'w', encoding='utf-8') as file:
+        json.dump(final_data, file, indent=2)
 
 
-transfer_to_json('source_jason.txt', 'Panel_Switch_DB.json')
+transfer_to_json('C:\projectPython\WCC\PLAF\PLAF_DB_switch.txt', 'Panel_Switch_DB.json')
