@@ -57,15 +57,16 @@ class Switch:
         try:
             with open(json_file_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
-                item = next((item for item in data if item['name'] == item_name), None)
+                item = next((item for item in data if item['backend_name'] == item_name), None)
                 if item:
                     self.imageName = item.get('backend_name', self.imageName)  
                     self.image_id = item.get('imageDefault', self.image_id) 
-                    self.file_path = item.get('imageDefault', self.file_path) 
-                    self.width = item.get('width', self.width) 
-                    self.height = item.get('height', self.height) 
-                    self.x = item.get('left', self.x) 
-                    self.y = item.get('top', self.y) 
+                    imageProps = item.get('imageProps', {})
+                    self.file_path = imageProps.get('imageDefault', self.file_path) 
+                    self.width = item.get('img_width', self.width) 
+                    self.height = item.get('img_height', self.height) 
+                    self.x = item.get('pos_left', self.x) 
+                    self.y = item.get('pos_top', self.y) 
                     self.rotation = "0" 
                     self.type_value = item.get('type', self.type_value) 
                     self.offset_on_value = item.get('offset_on', self.offset_on_value) 
@@ -77,12 +78,12 @@ class Switch:
                     self.click_bounds_height_factor_value = click_props.get('click_bounds_height_factor', self.click_bounds_height_factor_value) 
                     self.click_bounds_width_factor_value = click_props.get('click_bounds_width_factor', self.click_bounds_width_factor_value) 
                     mapping = click_props.get('mapping', {})
-                    self.top = mapping.get('top', self.top)
-                    self.right = mapping.get('right', self.right)
-                    self.bottom = mapping.get('bottom',self.bottom)
-                    self.left = mapping.get('left', self.left)
-                    self.press_pull1 = mapping.get('press_pull1', self.press_pull1)
-                    self.press_pull2 = mapping.get('press_pull2', self.press_pull2)
+                    self.top = mapping.get('map_top', self.top)
+                    self.right = mapping.get('map_right', self.right)
+                    self.bottom = mapping.get('map_bottom',self.bottom)
+                    self.left = mapping.get('map_left', self.left)
+                    self.press_pull1 = mapping.get('map_press_pull1', self.press_pull1)
+                    self.press_pull2 = mapping.get('map_press_pull2', self.press_pull2)
                     blinking = item.get('string_props', {})
                     self.color = blinking.get('color', self.color) 
                     self.grid_direction = "ud"
@@ -100,18 +101,3 @@ class Switch:
             print(f"File {json_file_path} not found")
         except json.JSONDecodeError:
             print(f"Error decoding JSON from {json_file_path}")   
-
-class Panel:
-    def __init__(self, name):
-        self.Name = name
-        
-        
-
-    # Method to display picture information
-    def display_info(self):
-        print(f"Panel Name: {self.Name}")
-
-       
-
-
-        

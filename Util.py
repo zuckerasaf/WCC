@@ -3,40 +3,6 @@ from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, St
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 
-def add_switch_name_to_Image(backend_name, image, x, y):
-        # if not backend_name:
-        #     print("No backend_name loaded to add switch name.")
-        #     return
-        # if not image:
-        #     print("No image loaded to add switch name.")
-        #     return
-        # if not x or not y:
-        #     print("No position loaded to add switch name.")
-        #     return
-        #          # Load the image
-        # combined_img = Image.open(image)
-
-        # # Define the position and text
-        # position = (x, y)
-        # text = backend_name
-
-        # # Initialize ImageDraw
-        # draw = ImageDraw.Draw(combined_img)
-
-        # # Define the font and size
-        # font = ImageFont.load_default()
-
-        # # Add text to image
-        # draw.text(position, text, font=font, fill="black")
-
-        # # Save the image
-        # combined_img.save("combined_img_with_label.png")
-
-        # print(f"Saved label '{text}' at position {position}")
-    pass 
-
-
-
 
 def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
     
@@ -98,14 +64,14 @@ def Bring_File_path ():
     file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
     return file_path
 
-def load_panel_names():
-    with open('Panel_Switch_DB.json', 'r', encoding='utf-8') as file:
+def load_panel_names(DB_file_path):
+    with open(DB_file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
         return data["panel_names"]
     
-def load_switch_names(panel_name):
+def load_switch_names(DB_file_path,panel_name):
     print("panel_name", panel_name)
-    with open('Panel_Switch_DB.json', 'r', encoding='utf-8') as file:
+    with open(DB_file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
         panels = data.get("panels", [])
         for panel in panels:
@@ -113,7 +79,7 @@ def load_switch_names(panel_name):
                 return list(panel.get("Items", {}).values())
         return []
 
-def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_size,panel_name):
+def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
     global rotation_entry,image_position_entry,file_path
     # print("panel_name",panel_name)
 
@@ -145,7 +111,6 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         # Create the entry widget with right-aligned text
         file_path_entry = Entry(frame, textvariable=file_path_var, justify="right")
         file_path_entry.grid(row=row, column=column+1)
-        
         
         # Set the cursor to the end of the text and scroll to the end
         file_path_entry.icursor(tk.END)
@@ -179,6 +144,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         offset_off_value = offset_off_var.get()
         debugMode_value = debugMode_var.get()
         is_clickable_value = is_clickable_var.get()
+        imageDefault_value = imageDefault_var.get()
         click_bounds_height_factor_value = click_bounds_height_factor_var.get()
         click_bounds_width_factor_value = click_bounds_width_factor_var.get()
         top = top_var.get()
@@ -252,17 +218,17 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
         data = {
             "type": type_value,
             "backend_name": backend_name,
-            "width": picture.width,
-            "height": picture.height,
-            "left": picture.x,#image_position[0],
-            "top": picture.y,#image_position[1],
+            "img_width": picture.width,
+            "img_height": picture.height,
+            "pos_left": picture.x,#image_position[0],
+            "pos_top": picture.y,#image_position[1],
             "offset_on": offset_on_value,
             "offset_off": offset_off_value,
             "Logger": Loggerstate,
             "Z_index" : Z_Index,
 
             "imageProps": {
-                "imageDefault": picture.file_path,
+                "imageDefault": imageDefault_value,#picture.file_path,
                 "additionalImageData": {
                     conversion_1_Key : conversion_1_file_path,
                     conversion_2_Key : conversion_2_file_path,
@@ -284,12 +250,12 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
                 "click_bounds_height_factor": click_bounds_height_factor_value,
                 "click_bounds_width_factor": click_bounds_width_factor_value,
                 "mapping": {
-                    "top": top,
-                    "right": right,
-                    "bottom": bottom,
-                    "left ": left,
-                    "press_pull1 ": press_pull1,
-                    "press_pull2 ": press_pull2,
+                    "map_top": top,
+                    "map_right": right,
+                    "map_bottom": bottom,
+                    "map_left ": left,
+                    "map_press_pull1 ": press_pull1,
+                    "map_press_pull2 ": press_pull2,
                 }
             },
             "knob_props": {
@@ -522,7 +488,11 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,image_
     Value_conversion_5_Key_Var = create_label_entry_pair(Conversion_frame, " 5 Value command: ", 28, 2, picture.value_conversion[4][0])
     Value_conversion_5_angle_Var = create_label_entry_pair(Conversion_frame, " 5 Conversion angle: ", 28, 4, picture.value_conversion[4][1])
 
+
+
+    imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 26, 0, picture.file_path)
+    
     save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=25, columnspan=2)
+    save_button.grid(row=27, columnspan=2)
 
 

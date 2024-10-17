@@ -1,12 +1,12 @@
 import tkinter as tk
-from  PctureClass import Switch, Panel
+from  PctureClass import Switch
 from tkinter import filedialog, simpledialog, ttk
 from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
 from Util import move_image, rotate_image, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
-from Create_Jason_File import transfer_to_json 
+from Delete_Update import delete_item, update_item
 #from shared import selected_panel_name  # Import from shared.py
 
 
@@ -33,13 +33,15 @@ def browse_DB(db_name_var):
     # Open a file dialog to select a new database file
     file_path = filedialog.askopenfilename(
         title="Select Database File",
-        filetypes=(("Text Files", "*.txt"), ("All Files", "*.*"))
+        initialdir=r'C:\projectPython\WCC\DB',  # Set the initial directory
+        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
     )
     if file_path:
+        browse_button.config(state=tk.NORMAL)
         db_name_var.set(file_path)
 
-def browse_image():
-    global img, img_tk, image_label, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
+def browse_image(DB_file_path,image_label):
+    global img, img_tk, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
 
     # Create a new, empty alpha_data.json file
     with open("alpha_data.json", "w") as file:
@@ -62,7 +64,7 @@ def browse_image():
         # Get the image size
         width, height = img.width, img.height
 
-        select_panel_name()
+        select_panel_name(DB_file_path)
 
         # Create a switch instance with the image name as the ID
         image_id = os.path.basename(file_path)
@@ -76,13 +78,13 @@ def browse_image():
         with open("image_details.txt", "a") as file:
             file.write(f"Image ID: {switch.image_id}, File Path: {switch.file_path}\n")
 
-def select_switch_name(panel_name, switch):
+def select_switch_name(DB_file_path,panel_name, switch):
     print("panel_name",panel_name)
    
     if panel_name is None:
         print("No panel selected")
         return
-    switch_names = load_switch_names(panel_name)
+    switch_names = load_switch_names(DB_file_path,panel_name)
 
     
     # Sort the switch names alphabetically
@@ -122,9 +124,9 @@ def select_switch_name(panel_name, switch):
     switch_window.wait_window()
 
 # Function to select a panel name
-def select_panel_name():
+def select_panel_name(DB_file_path):
     global panel
-    panel_names = load_panel_names()
+    panel_names = load_panel_names(DB_file_path)
         
     # Sort the switch names alphabetically
     panel_names_sorted = sorted(panel_names)
@@ -153,6 +155,11 @@ def select_panel_name():
             panel_window.destroy()
             panel_name_label.config(text=selected_panel_name.get())
             add_button.config(state=tk.NORMAL)
+            update_button.config(state=tk.NORMAL)
+            delete_button.config(state=tk.NORMAL)
+            update_button_IMG.config(state=tk.NORMAL)
+
+
     # Create a button to proceed
     proceed_button = ttk.Button(panel_window, text="Proceed", command=proceed)
     proceed_button.pack(padx=10, pady=10)
@@ -200,10 +207,10 @@ def transform_file_path(file_path, text ):
     new_file_path = os.path.join(new_directory, new_filename)
     return new_file_path
 
-def add_Switch(panel):
+def add_Switch(DB_file_path,panel,update):
     global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
-    if current_image_path:
+    if current_image_path and update==1:
         # Open file dialog to select another image file
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
@@ -215,7 +222,7 @@ def add_Switch(panel):
             width, height = img.width, img.height
 
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
-            select_switch_name(panel, switch)                      
+            select_switch_name(DB_file_path,panel, switch)                      
             switch_name = switch.imageName
             print("here "  + switch_name)
 
@@ -226,7 +233,55 @@ def add_Switch(panel):
             update_info_label()
 
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, f"{width}x{height}",panel)
+            open_alpha_form(root,new_image_position, disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+    elif current_image_path and update==2:
+        selected_name = ""
+        json_file_path = ""
+        
+        # Create an instance of PctureClass and update parameters from JSON
+        switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
+        json_file_path, selected_name = update_item()
+        switch.update_parameters_from_json(json_file_path, selected_name)
+        # switch  = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
+        # switch = update_item()
+        new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
+
+        new_image_position = (switch.x, switch.y)
+        base_img = Image.open(current_image_path)  # Open and store the base image
+
+            # Combine images and update info label
+        combine_images(rotation_angle)
+        update_info_label()
+
+            # Open the alpha form
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+    elif current_image_path and update==3:
+        selected_name = ""
+        json_file_path = ""
+        
+        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        new_image_path = file_path
+
+        # Create an instance of PctureClass and update parameters from JSON
+        switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
+        json_file_path, selected_name = update_item()
+        switch.update_parameters_from_json(json_file_path, selected_name)
+        switch.file_path = new_image_path
+        switch.image_id = new_image_path
+        # switch  = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
+        # switch = update_item()
+        new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
+
+        new_image_position = (switch.x, switch.y)
+        base_img = Image.open(current_image_path)  # Open and store the base image
+
+            # Combine images and update info label
+        combine_images(rotation_angle)
+        update_info_label()
+
+            # Open the alpha form
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+
 
 def combine_images(rotation_angle):
     global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
@@ -335,9 +390,11 @@ def save_and_close():
         # Save the data to the new JSON file
         with open(file_path, 'w') as new_json_file:
             json.dump(data, new_json_file, indent=4)
-    
+        # Delete the alpha_data.json file
+        with open("alpha_data.json", "w") as file:
+            json.dump([], file)
     # Close the form
-    root.destroy()
+    #root.destroy()
 # Create the main window
 root = tk.Tk()
 root.title("Image Browser")
@@ -351,8 +408,14 @@ combined_image_path = None
 name_frame = ttk.Frame(root)
 name_frame.grid(row=0, column=0, padx=10, pady=10)
 
+# Create a label to display the image
+image_label = tk.Label(root)
+image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
+
+
+
 # Create a button to browse files
-browse_button = tk.Button(name_frame, text="Create panel ", command=browse_image)
+browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),image_label), state=tk.DISABLED)
 browse_button.grid(row=0, column=0)
 
 # Create a label to display the selected panel name
@@ -360,57 +423,68 @@ panel_name_label = ttk.Label(name_frame, text="No panel selected")
 panel_name_label.grid(row=0, column=1, padx=5, pady=5)
 
 
-# Create the DB_name label with a default value
-db_name_var = tk.StringVar(value="C:\\projectPython\\WCC\\PLAF\\PLAF_DB_switch.txt")
-db_name_label = ttk.Label(root, textvariable=db_name_var)
-db_name_label.grid(row=0, column=3, padx=10, pady=10)
-
-# Create the "DB update" button
-db_update_button = ttk.Button(root, text="DB update", command=lambda: transfer_to_json(db_name_var.get(),'Panel_Switch_DB.json'))
-db_update_button.grid(row=0, column=2, padx=10, pady=10)
-
 # Create the "browse_DB" button
-browse_db_button = ttk.Button(root, text="browse_DB", command=lambda: browse_DB(db_name_var))
-browse_db_button.grid(row=0, column=4, padx=10, pady=10)
+browse_db_button = ttk.Button(name_frame, text="Browse DB", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
+browse_db_button.grid(row=0, column=3, padx=10, pady=10)
 
+# Create the DB_name label with a default value
+db_name_var = tk.StringVar(value="No Data base selected")
+db_name_label = ttk.Label(name_frame, textvariable=db_name_var)
+db_name_label.grid(row=0, column=4, padx=10, pady=10)
 
-# Create a label to display the image
-image_label = tk.Label(root)
-image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
 # Create a label to display the image_id and file_path
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
 info_label.grid(row=2, column=0, padx=5, pady=5)
 
+
+# Create a frame to hold the widgets
+switchbuttonframe = ttk.Frame(root)
+switchbuttonframe.grid(row=3, column=0, padx=10, pady=10)
+
 # Create a button to add another image on top
-add_button = tk.Button(root, text="Add Switch", command=lambda: add_Switch(panel_name_label.cget("text")), state=tk.DISABLED)
+add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1), state=tk.DISABLED, bg="lightgreen")
 add_button.grid(row=3, column=0, padx=5, pady=5)
+
+# Create a button to add update switch from the Jason file
+update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2), state=tk.DISABLED , bg="lightyellow")
+update_button.grid(row=3, column=1, padx=5, pady=5)
+
+# Create a button to add update switch from the Jason file
+update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 3), state=tk.DISABLED , bg="lightyellow")
+update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
+
+# Create a button to add delete switch from the Jason file 
+delete_button = tk.Button(switchbuttonframe, text="delete switch", command=delete_item, state=tk.DISABLED,bg="lightcoral")
+delete_button.grid(row=3, column=3, padx=5, pady=5)
+
+
 
 # Create a frame to hold the widgets
 frame = ttk.Frame(root)
 frame.grid(row=4, column=0, padx=10, pady=10)
 
-# Create and place the set pixels button
+# Move the image by the specified number of pixels in the specified direction
 set_pixels_button = tk.Button(frame, text="Set Move Pixels", command=set_move_pixels)
 set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 
-# Create and place the step size label next to the set pixels button
 step_size_label = tk.Label(frame, text=f" Step : {move_pixels} pixels")
 step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
-step_info_label = tk.Label(frame, text=f"arrows for move, shift + arrow for small step (0.1 step)")
+step_info_label = tk.Label(frame, text=f"arrows for move, shift for 0.1 step")
 step_info_label.grid(row=1, column=0, padx=0, pady=5)
 
-# Create and place the set pixels button
+
+# Rotate the image by the specified number of degrees in the specified direction
 set_angle_button = tk.Button(frame, text="Set angle rotation", command=set_rotate_degree)
-set_angle_button.grid(row=2, column=0, padx=1, pady=5)
+set_angle_button.grid(row=0, column=2, padx=1, pady=5)
 
-# Create and place the step size label next to the set pixels button
 step_angle_label = tk.Label(frame, text=f" Angle : {rotate_degree} degree")
-step_angle_label.grid(row=2, column=1, padx=1, pady=5)
+step_angle_label.grid(row=0, column=3, padx=1, pady=5)
 
-step_angle_info_label = tk.Label(frame, text=f"R rotate to right, T rotate to left + CTRL for small step (0.1 step)")
-step_angle_info_label.grid(row=3, column=0, padx=0, pady=5)
+step_angle_info_label = tk.Label(frame, text=f"R rotate  right\T rotate left , CTRL 0.1 step")
+step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
+
 
 
 # Bind arrow keys to the move_image function
@@ -425,9 +499,10 @@ root.bind("<r>", handle_rotate_left)
 # Bind the "T" key to rotate the image to the right
 root.bind("<t>", handle_rotate_right)
 
+
 # Create a button to close the form
 close_button = tk.Button(root, text="Save and Close", command=save_and_close)
-close_button.grid(row=7, column=1, padx=5, pady=5)
+close_button.grid(row=8, column=1, padx=5, pady=5)
 
 # Configure grid rows and columns
 for i in range(8):

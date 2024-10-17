@@ -1,6 +1,8 @@
 import json
+import os
+from tkinter import filedialog
 
-def transfer_to_json(source_file, target_file):
+def transfer_to_json(source_file,target_file):
     panels = {}
     panel_names = set()
     newtarget_file = source_file[:-4] + ".json"
@@ -38,4 +40,10 @@ def transfer_to_json(source_file, target_file):
         json.dump(final_data, file, indent=2)
 
 
-transfer_to_json('C:\projectPython\WCC\PLAF\PLAF_DB_switch.txt', 'Panel_Switch_DB.json')
+
+
+source_file = filedialog.askopenfilename(filetypes=[("TXT file", "*txt")])
+directory = r'C:\projectPython\WCC\DB'
+target_file = os.path.basename(source_file)[:-4] + '.json'
+target_file = os.path.join(directory, target_file)
+transfer_to_json(source_file,target_file)
