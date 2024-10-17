@@ -1,0 +1,848 @@
+{
+  "panels": [
+    {
+      "panel_name": "ICP",
+      "Items": {
+        "item_1": "Integrated_control_panel",
+        "item_2": "Com_1_override_button",
+        "item_3": "Com_2_override_button",
+        "item_4": "IFF_override_button",
+        "item_5": "ENTER_button",
+        "item_6": "M_SEL_button_0_key",
+        "item_7": "DRIFT_C_O_switch",
+        "item_8": "Data_control_switch_DCS",
+        "item_9": "Increment_Decrement_switch",
+        "item_10": "LIST_button",
+        "item_11": "A_A_button",
+        "item_12": "A_G_button",
+        "item_13": "RCL_button",
+        "item_14": "RET_DEPER_knob",
+        "item_15": "CONT_knob_not_used",
+        "item_16": "SYM_knob",
+        "item_17": "BRT_knob_not_used",
+        "item_18": "Weather_mode_button_not_used",
+        "item_19": "FLIR_Increment_Decrement_not_used",
+        "item_20": "FLIR_gain_switch",
+        "item_21": "Priority_function_and_numeric_keyboard",
+        "item_22": "T_ILS_key_1",
+        "item_23": "ALOW_key_2",
+        "item_24": "Key_3",
+        "item_25": "STPT_key_4",
+        "item_26": "CRUS_key_5",
+        "item_27": "TIME_key_6",
+        "item_28": "MARK_key_7",
+        "item_29": "FIX_key_8",
+        "item_30": "A_CAL_key_9"
+      }
+    },
+    {
+      "panel_name": "DED",
+      "Items": {
+        "item_1": "DED"
+      }
+    },
+    {
+      "panel_name": "AOA_indexer",
+      "Items": {
+        "item_1": "High_AOA_indexer_above_15",
+        "item_2": "Optimum_AOA_indexer_approximately_13",
+        "item_3": "Low_AOA_indexer_under_11"
+      }
+    },
+    {
+      "panel_name": "AR_status_NWS_indicator",
+      "Items": {
+        "item_1": "RDY_status_light",
+        "item_2": "AR_NWS_status_light"
+      }
+    },
+    {
+      "panel_name": "DEWD",
+      "Items": {
+        "item_1": "Dedicated_Electronic_Warfare_Display",
+        "item_2": "DEWD_BRT_knob"
+      }
+    },
+    {
+      "panel_name": "Airspeed_Mach_indicator",
+      "Items": {
+        "item_1": "Airspeed_Mach_indicator"
+      }
+    },
+    {
+      "panel_name": "Airspeed_Mach_IND_set_index_knob",
+      "Items": {
+        "item_1": "Airspeed_Mach_IND_set_index_knob"
+      }
+    },
+    {
+      "panel_name": "HSI_display",
+      "Items": {
+        "item_1": "Course_indication",
+        "item_2": "Range_indicator",
+        "item_3": "Range_indicator_warning_flag",
+        "item_4": "CRS_set_knob",
+        "item_5": "HDG_set_knob",
+        "item_6": "Instrument_mode_selector",
+        "item_7": "Instrument_mode_indicator",
+        "item_8": "Course_Deviation_Warning_Flag",
+        "item_9": "INU_Invalid_Flag_or_ATT_Failure_Flag"
+      }
+    },
+    {
+      "panel_name": "Altimeter_display",
+      "Items": {
+        "item_1": "Altimeter_display",
+        "item_2": "barometric_setting_knob",
+        "item_3": "PNEU_STBY_flag"
+      }
+    },
+    {
+      "panel_name": "Rudder_PEDAL_ADJ_Knob",
+      "Items": {
+        "item_1": "Rudder_PEDAL_ADJ_Knob"
+      }
+    },
+    {
+      "panel_name": "Vertical_velocity_indicator",
+      "Items": {
+        "item_1": "Vertical_velocity_indicator"
+      }
+    },
+    {
+      "panel_name": "AOA_indicator",
+      "Items": {
+        "item_1": "AOA_indicator"
+      }
+    },
+    {
+      "panel_name": "Fuel_flow_indicator",
+      "Items": {
+        "item_1": "Fuel_flow_indicator"
+      }
+    },
+    {
+      "panel_name": "Oil_pressure_indicator",
+      "Items": {
+        "item_1": "Oil_pressure_indicator"
+      }
+    },
+    {
+      "panel_name": "NOZ_POZ_indicator",
+      "Items": {
+        "item_1": "NOZ_POZ_indicator"
+      }
+    },
+    {
+      "panel_name": "RPM_indicator",
+      "Items": {
+        "item_1": "RPM_indicator"
+      }
+    },
+    {
+      "panel_name": "FTIT_indicator",
+      "Items": {
+        "item_1": "FTIT_indicator"
+      }
+    },
+    {
+      "panel_name": "Standby_Attitude_Indicator",
+      "Items": {
+        "item_1": "Standby_Attitude_Indicator"
+      }
+    },
+    {
+      "panel_name": "Fuel_QTY_SEL",
+      "Items": {
+        "item_1": "Fuel_QTY_SEL",
+        "item_2": "Fuel_QTY_SEL_selector"
+      }
+    },
+    {
+      "panel_name": "EXT_FUEL_TRANS_switch",
+      "Items": {
+        "item_1": "EXT_FUEL_TRANS_switch"
+      }
+    },
+    {
+      "panel_name": "ADI",
+      "Items": {
+        "item_1": "Ball",
+        "item_2": "GS_flag",
+        "item_3": "LOC_flag",
+        "item_4": "OFF_flag",
+        "item_5": "AUX_flag",
+        "item_6": "Pitch_Trim_Knob"
+      }
+    },
+    {
+      "panel_name": "MASTER_CAUTION",
+      "Items": {
+        "item_1": "MASTER_CAUTION_light",
+        "item_2": "MASTER_CAUTION_button"
+      }
+    },
+    {
+      "panel_name": "ECM_light",
+      "Items": {
+        "item_1": "ECM_light"
+      }
+    },
+    {
+      "panel_name": "TF_FAIL_light",
+      "Items": {
+        "item_1": "TF_FAIL_light"
+      }
+    },
+    {
+      "panel_name": "MFD_R",
+      "Items": {
+        "item_1": "Symbology_rocker_switch",
+        "item_2": "Contrast_rocker_switch",
+        "item_3": "Brightness_rocker_switch",
+        "item_4": "Gain_rocker_switch",
+        "item_5": "OSB_1",
+        "item_6": "OSB_2",
+        "item_7": "OSB_3",
+        "item_8": "OSB_4",
+        "item_9": "OSB_5",
+        "item_10": "OSB_6",
+        "item_11": "OSB_7",
+        "item_12": "OSB_8",
+        "item_13": "OSB_9",
+        "item_14": "OSB_10",
+        "item_15": "OSB_11",
+        "item_16": "OSB_12",
+        "item_17": "OSB_13",
+        "item_18": "OSB_14",
+        "item_19": "OSB_15",
+        "item_20": "OSB_16",
+        "item_21": "OSB_17",
+        "item_22": "OSB_18",
+        "item_23": "OSB_19",
+        "item_24": "OSB_20"
+      }
+    },
+    {
+      "panel_name": "MFD_L",
+      "Items": {
+        "item_1": "Symbology_rocker_switch",
+        "item_2": "Contrast_rocker_switch",
+        "item_3": "Brightness_rocker_switch",
+        "item_4": "Gain_rocker_switch",
+        "item_5": "OSB_1",
+        "item_6": "OSB_2",
+        "item_7": "OSB_3",
+        "item_8": "OSB_4",
+        "item_9": "OSB_5",
+        "item_10": "OSB_6",
+        "item_11": "OSB_7",
+        "item_12": "OSB_8",
+        "item_13": "OSB_9",
+        "item_14": "OSB_10",
+        "item_15": "OSB_11",
+        "item_16": "OSB_12",
+        "item_17": "OSB_13",
+        "item_18": "OSB_14",
+        "item_19": "OSB_15",
+        "item_20": "OSB_16",
+        "item_21": "OSB_17",
+        "item_22": "OSB_18",
+        "item_23": "OSB_19",
+        "item_24": "OSB_20"
+      }
+    },
+    {
+      "panel_name": "MRK_BCN_Light",
+      "Items": {
+        "item_1": "MRK_BCN_Light"
+      }
+    },
+    {
+      "panel_name": "MISC_panel",
+      "Items": {
+        "item_1": "DRAG_CHUTE_guard",
+        "item_2": "DRAG_CHUTE_switch",
+        "item_3": "LASER_ARM_switch",
+        "item_4": "ALT_REL_button",
+        "item_5": "MASTER_ARM_switch",
+        "item_6": "ADV_MODE_Switch",
+        "item_7": "Autopilot_pitch_switch",
+        "item_8": "Autopilot_roll_switch"
+      }
+    },
+    {
+      "panel_name": "AIDEWS_auxiliary_pane",
+      "Items": {
+        "item_1": "ML_mute_button",
+        "item_2": "0_5_Priority_button",
+        "item_3": "0_5_Priority_light",
+        "item_4": "ALL_Priority_button_light",
+        "item_5": "ALL_Priority_light",
+        "item_6": "BIT_button",
+        "item_7": "Go_light",
+        "item_8": "No_go_light",
+        "item_9": "ONBD_TRNG_switch",
+        "item_10": "ONBD_TRNG_light",
+        "item_11": "OV_TEMP_light"
+      }
+    },
+    {
+      "panel_name": "F_ACK",
+      "Items": {
+        "item_1": "F_ACK"
+      }
+    },
+    {
+      "panel_name": "IFF_IDENT",
+      "Items": {
+        "item_1": "IFF_IDENT"
+      }
+    },
+    {
+      "panel_name": "Magnetic_compass",
+      "Items": {
+        "item_1": "Magnetic_compass"
+      }
+    },
+    {
+      "panel_name": "Fuel_quantity_indicator",
+      "Items": {
+        "item_1": "Fuel_quantity_indicator"
+      }
+    },
+    {
+      "panel_name": "PFL_display",
+      "Items": {
+        "item_1": "PFL_display"
+      }
+    },
+    {
+      "panel_name": "System_A_HYD_PRESS_Indicator",
+      "Items": {
+        "item_1": "System_A_HYD_PRESS_Indicator"
+      }
+    },
+    {
+      "panel_name": "System_B_HYD_PRESS_Indicator",
+      "Items": {
+        "item_1": "System_B_HYD_PRESS_Indicator"
+      }
+    },
+    {
+      "panel_name": "_fuel_quantity_indicator",
+      "Items": {
+        "item_1": "_fuel_quantity_indicator"
+      }
+    },
+    {
+      "panel_name": "CABIN_PRESS_altimeter",
+      "Items": {
+        "item_1": "CABIN_PRESS_altimeter"
+      }
+    },
+    {
+      "panel_name": "clock",
+      "Items": {
+        "item_1": "clock"
+      }
+    },
+    {
+      "panel_name": "LG_control_panel",
+      "Items": {
+        "item_1": "HOOK_switch",
+        "item_2": "DN_LOCK_REL_button",
+        "item_3": "EMER_STORES_JETTISON_frangible_cover",
+        "item_4": "EMER_STORES_JETTISON_PANIC_button",
+        "item_5": "ANTI_SKID_switch",
+        "item_6": "BRAKES_CHANNEL_switch",
+        "item_7": "GROUND_JETT_switch",
+        "item_8": "Stores_config_switch",
+        "item_9": "Horn_silencer_button",
+        "item_10": "Lights_switch",
+        "item_11": "R_wheel_light",
+        "item_12": "L_wheel_light",
+        "item_13": "Nose_wheel_light",
+        "item_14": "Landing_gear_handle",
+        "item_15": "Landing_gear_handle_light",
+        "item_16": "LG_Handle_Down_Permission_Button",
+        "item_17": "Speed_break_indicator"
+      }
+    },
+    {
+      "panel_name": "CHAFF_FLARE_dispense_button",
+      "Items": {
+        "item_1": "CHAFF_FLARE_dispense_button"
+      }
+    },
+    {
+      "panel_name": "CMDS_control_panel",
+      "Items": {
+        "item_1": "System_status_display",
+        "item_2": "DISPENSE_RDY_display",
+        "item_3": "RWR_switch",
+        "item_4": "JMR_switch",
+        "item_5": "MWS_switch",
+        "item_6": "Inventory_display",
+        "item_7": "01_switch",
+        "item_8": "02_switch",
+        "item_9": "CHAFF_switch",
+        "item_10": "FLARE_switch",
+        "item_11": "JETT_switch",
+        "item_12": "PRGM_selector",
+        "item_13": "MODE_selector"
+      }
+    },
+    {
+      "panel_name": "ALT_GEAR",
+      "Items": {
+        "item_1": "Alt_gear_handle",
+        "item_2": "Alt_gear_reset_button"
+      }
+    },
+    {
+      "panel_name": "HMCS_panel",
+      "Items": {
+        "item_1": "Symbology_int_knob",
+        "item_2": "RF_switch"
+      }
+    },
+    {
+      "panel_name": "Stick",
+      "Items": {
+        "item_1": "NWS_A_R_DISC_MSL_STEP_button",
+        "item_2": "Trim_button",
+        "item_3": "Display_management_switch_DMS",
+        "item_4": "Target_management_switch_TMS",
+        "item_5": "Countermeasures_management_switch_CMS",
+        "item_6": "Expand_FOV_Button",
+        "item_7": "Paddle_switch",
+        "item_8": "Camera_gun_trigger",
+        "item_9": "WPN_REL_button"
+      }
+    },
+    {
+      "panel_name": "Throttle",
+      "Items": {
+        "item_1": "Throttle_cutoff_release",
+        "item_2": "COMM_transmit_switch",
+        "item_3": "MAN_RNG_uncage_knob_switch",
+        "item_4": "ANT_ELEV_knob",
+        "item_5": "Dogfight_switch",
+        "item_6": "SPEED_BREAK_switch",
+        "item_7": "RDR_CURSOR_ENABLE_switch",
+        "item_8": "Throttle_movement"
+      }
+    },
+    {
+      "panel_name": "SNSR_PWR_panel",
+      "Items": {
+        "item_1": "L_HDTP_switch",
+        "item_2": "R_HDTP_switch",
+        "item_3": "FCR_switch",
+        "item_4": "RDR_ALT_switch"
+      }
+    },
+    {
+      "panel_name": "HUD_control_panel",
+      "Items": {
+        "item_1": "Scales_switch",
+        "item_2": "FPM_switch",
+        "item_3": "DAD_DATA_switch",
+        "item_4": "DEPR_RET_switch",
+        "item_5": "Velocity_switch",
+        "item_6": "ALT_switch",
+        "item_7": "Brightness_control_switch",
+        "item_8": "TEST_switch",
+        "item_9": "PLAIN_cipher_switch",
+        "item_10": "ZEROIZE_guard",
+        "item_11": "ZEROIZE_switch",
+        "item_12": "Voice_massage_switch"
+      }
+    },
+    {
+      "panel_name": "Interior_lighting",
+      "Items": {
+        "item_1": "Primary_consoles_Knob",
+        "item_2": "Primary_INST_PNL_Knob",
+        "item_3": "Data_entry_display_Knob",
+        "item_4": "MAL_&_IND_LTS_Intensity_Switch",
+        "item_5": "Flood_INST_PNL_Knob",
+        "item_6": "Flood_consoles_Knob",
+        "item_7": "NVIS_Switch"
+      }
+    },
+    {
+      "panel_name": "AIR_COND_panel",
+      "Items": {
+        "item_1": "TEMP_selector",
+        "item_2": "AIR_SOURCE_selector"
+      }
+    },
+    {
+      "panel_name": "Oxygen_panel",
+      "Items": {
+        "item_1": "Oxygen_flow_indicator",
+        "item_2": "Oxygen_supply_indicator",
+        "item_3": "Supply_mode_lever",
+        "item_4": "Duliter_lever",
+        "item_5": "Emergency_lever"
+      }
+    },
+    {
+      "panel_name": "ANT_SEL",
+      "Items": {
+        "item_1": "ANT_SEL_IFF_switch",
+        "item_2": "ANT_SEL_UHF_switch",
+        "item_3": "Anti_Ice",
+        "item_4": "Right_console"
+      }
+    },
+    {
+      "panel_name": "Avionics_power_panel",
+      "Items": {
+        "item_1": "MMC_switch",
+        "item_2": "ST_STA_switch",
+        "item_3": "MFD_switch",
+        "item_4": "UFC_switch",
+        "item_5": "EGI_knob",
+        "item_6": "GPS_switch",
+        "item_7": "DL_switch",
+        "item_8": "MIDS_LVT_knob"
+      }
+    },
+    {
+      "panel_name": "K_58_Secure_voice_control_panel",
+      "Items": {
+        "item_1": "Mode_knob",
+        "item_2": "Fill_knob",
+        "item_3": "Power_Knob",
+        "item_4": "Volume_knob",
+        "item_5": "Scratchpad",
+        "item_6": "Fill_port"
+      }
+    },
+    {
+      "panel_name": "Manual_pitch_override_MPO",
+      "Items": {
+        "item_1": "Manual_pitch_override_MPO"
+      }
+    },
+    {
+      "panel_name": "Radio_backup_control_panel",
+      "Items": {
+        "item_1": "Display",
+        "item_2": "Keypad",
+        "item_3": "Squelch_Acknowledge_Switch",
+        "item_4": "Take_button",
+        "item_5": "Mode_knob",
+        "item_6": "Volume_knob",
+        "item_7": "SQL_Led_indicator",
+        "item_8": "OR_Led_indicator",
+        "item_9": "GO_Led_indicator",
+        "item_10": "TX_Led_indicator",
+        "item_11": "FILL_Port_connector"
+      }
+    },
+    {
+      "panel_name": "AUDIO_1_control_panel",
+      "Items": {
+        "item_1": "COMM_1_knob",
+        "item_2": "COMM_2_knob",
+        "item_3": "Secure_voice_knob",
+        "item_4": "MSL_knob",
+        "item_5": "Comm_1_SQL_selector",
+        "item_6": "Comm_2_SQL_selector",
+        "item_7": "TF_knob",
+        "item_8": "Threat_knob"
+      }
+    },
+    {
+      "panel_name": "AUDIO_2_control_panel",
+      "Items": {
+        "item_1": "Intercom_knob",
+        "item_2": "TACAN_knob",
+        "item_3": "ILS_knob",
+        "item_4": "Hot_mic_switch"
+      }
+    },
+    {
+      "panel_name": "ENG_&_JET_start_control_panel",
+      "Items": {
+        "item_1": "JFS_RUN_light",
+        "item_2": "JFS_start_switch",
+        "item_3": "ENG_CONT_guard",
+        "item_4": "ENG_CONT_switch",
+        "item_5": "AB_RESET_switch",
+        "item_6": "MAX_POWER_switch"
+      }
+    },
+    {
+      "panel_name": "AIDEWS_primary_control_panel",
+      "Items": {
+        "item_1": "Record_button",
+        "item_2": "Rec_label_light",
+        "item_3": "Full_label_light",
+        "item_4": "Erase_button_safety_cover",
+        "item_5": "Erase_button",
+        "item_6": "ALL_label_light",
+        "item_7": "DATA_label",
+        "item_8": "RWR_knob",
+        "item_9": "MDF_knob"
+      }
+    },
+    {
+      "panel_name": "DVR_control_panel",
+      "Items": {
+        "item_1": "Video_select_knob",
+        "item_2": "Event_mark_switch"
+      }
+    },
+    {
+      "panel_name": "EXT_lighting_control_panel",
+      "Items": {
+        "item_1": "Anti_collision_knob",
+        "item_2": "Flash_steady_switch",
+        "item_3": "wing_tail_switch",
+        "item_4": "Fuselage_switch",
+        "item_5": "Aerial_refueling_knob",
+        "item_6": "Form_knob",
+        "item_7": "Master_knob"
+      }
+    },
+    {
+      "panel_name": "Manual_trim_panel",
+      "Items": {
+        "item_1": "ROLL_TRIM_knob",
+        "item_2": "TRIM_AP_DISC_switch",
+        "item_3": "YAW_TRIM_knob",
+        "item_4": "PITCH_TRIM_knob",
+        "item_5": "ANTI_G_test_button"
+      }
+    },
+    {
+      "panel_name": "TEST_switch_panel",
+      "Items": {
+        "item_1": "FIRE_&_OVERHEAT_DETECT_button",
+        "item_2": "OBOGS_BIT_switch",
+        "item_3": "MAL_&_IND_LTS_button",
+        "item_4": "PROBE_HEAT_switch",
+        "item_5": "EPU_GEN_test_switch",
+        "item_6": "FLCS_PWR_A_light",
+        "item_7": "FLCS_PWR_B_light",
+        "item_8": "FLCS_PWR_C_light",
+        "item_9": "FLCS_PWR_D_light",
+        "item_10": "FLCS_PWR_TEST_switch"
+      }
+    },
+    {
+      "panel_name": "DEFOG_lever",
+      "Items": {
+        "item_1": "DEFOG_lever"
+      }
+    },
+    {
+      "panel_name": "FLT_control_panel",
+      "Items": {
+        "item_1": "DIGITAL_BACKUP_switch",
+        "item_2": "ALT_FLAPS_switch",
+        "item_3": "MANUAL_TF_FLYUP_switch",
+        "item_4": "FLCS_RUN_light",
+        "item_5": "FLCS_FAIL_light",
+        "item_6": "LE_FLAPS_switch",
+        "item_7": "FLCS_RESET_switch",
+        "item_8": "BIT_switch_FLCS"
+      }
+    },
+    {
+      "panel_name": "Fuel_control_panel",
+      "Items": {
+        "item_1": "FUEL_MASTER_guard",
+        "item_2": "FUEL_MASTER_switch",
+        "item_3": "TANK_INERT_switch",
+        "item_4": "ENG_FEED_selector",
+        "item_5": "AIR_REFUEL_switch"
+      }
+    },
+    {
+      "panel_name": "IFF_control_panel",
+      "Items": {
+        "item_1": "Master_IFF_selector",
+        "item_2": "M_4_code_switch",
+        "item_3": "C_&_I_selector",
+        "item_4": "Enable_switch",
+        "item_5": "Mode_1_3_selector_levers",
+        "item_6": "Mode_4_reply_switch",
+        "item_7": "Mode_4_audio_monitor_switch"
+      }
+    },
+    {
+      "panel_name": "EPU_control_panel",
+      "Items": {
+        "item_1": "HYDRAZIN_light",
+        "item_2": "AIR_light",
+        "item_3": "EPU_RUN_light",
+        "item_4": "EPU_guard",
+        "item_5": "EPU_switch"
+      }
+    },
+    {
+      "panel_name": "ELEC_control_panel",
+      "Items": {
+        "item_1": "MAIN_PWR_switch",
+        "item_2": "CAUTION_RESET_button",
+        "item_3": "FLCS_PMG_light",
+        "item_4": "MAIN_GEN_light",
+        "item_5": "STBY_GEN_light",
+        "item_6": "EPU_GEN_light",
+        "item_7": "EPU_PMG_light",
+        "item_8": "BATT_FAIL_light",
+        "item_9": "TO_FLCS_light",
+        "item_10": "FLCS_RLY_light"
+      }
+    },
+    {
+      "panel_name": "Brakes",
+      "Items": {
+        "item_1": "Right_Brake",
+        "item_2": "Left_Brake"
+      }
+    },
+    {
+      "panel_name": "Ejection_seat\u00a0",
+      "Items": {
+        "item_1": "Ejection_handle",
+        "item_2": "Emergency_manual_chute_handle",
+        "item_3": "Emergency_oxygen_green_ring",
+        "item_4": "Ejection_Safety_Lever",
+        "item_5": "RADIO_BEACON"
+      }
+    },
+    {
+      "panel_name": "Canopy_handle\u00a0",
+      "Items": {
+        "item_1": "Canopy_switch",
+        "item_2": "Canopy_jettison_handle_T",
+        "item_3": "Canopy_jettison_button_R_L"
+      }
+    },
+    {
+      "panel_name": "Right_glare_shield",
+      "Items": {
+        "item_1": "ENG_FIRE_glare_shield_light",
+        "item_2": "ENGINE_glare_shield_light",
+        "item_3": "HYD_OIL_PRESS_glare_shield_light",
+        "item_4": "FLCS_glare_shield_light",
+        "item_5": "DBU_ON_glare_shield_light",
+        "item_6": "TO_LDG_CONFIG_glare_shield_light",
+        "item_7": "CANOPY_glare_shield_light",
+        "item_8": "OXY_LOW_glare_shield_light"
+      }
+    },
+    {
+      "panel_name": "Caution_light_panel",
+      "Items": {
+        "item_1": "FLCS_fault_caution_light",
+        "item_2": "Engine_fault_caution_light",
+        "item_3": "Avionics_fault_caution_light",
+        "item_4": "Seat_not_armed_caution_light",
+        "item_5": "ELEC_SYS_caution_light",
+        "item_6": "SEC_caution_light",
+        "item_7": "Equip_hot_caution_light",
+        "item_8": "NWS_fail_caution_light",
+        "item_9": "Probe_heat_caution_light",
+        "item_10": "Fuel_oil_hot_caution_light",
+        "item_11": "Radar_alt_caution_light",
+        "item_12": "Anti_skid_cation_light",
+        "item_13": "CADC_caution_light",
+        "item_14": "Inlet_icing_caution_light",
+        "item_15": "IFF_caution_light",
+        "item_16": "Hook_caution_light",
+        "item_17": "Stores_config_caution_light",
+        "item_18": "Overheat_caution_light",
+        "item_19": "OBOGS_caution_light",
+        "item_20": "ATF_not_engaged_caution_light",
+        "item_21": "Cabin_press_caution_light",
+        "item_22": "FWD_fuel_low_caution_light",
+        "item_23": "AFT_fuel_low_caution_light"
+      }
+    }
+  ],
+  "panel_names": [
+    "ELEC_control_panel",
+    "MFD_R",
+    "Altimeter_display",
+    "MFD_L",
+    "Ejection_seat\u00a0",
+    "Manual_pitch_override_MPO",
+    "AUDIO_1_control_panel",
+    "Canopy_handle\u00a0",
+    "Airspeed_Mach_IND_set_index_knob",
+    "Throttle",
+    "ALT_GEAR",
+    "MISC_panel",
+    "DEWD",
+    "_fuel_quantity_indicator",
+    "AUDIO_2_control_panel",
+    "AR_status_NWS_indicator",
+    "Fuel_control_panel",
+    "EPU_control_panel",
+    "CMDS_control_panel",
+    "CABIN_PRESS_altimeter",
+    "K_58_Secure_voice_control_panel",
+    "Radio_backup_control_panel",
+    "Oil_pressure_indicator",
+    "RPM_indicator",
+    "AOA_indexer",
+    "AIDEWS_primary_control_panel",
+    "AIDEWS_auxiliary_pane",
+    "AOA_indicator",
+    "Rudder_PEDAL_ADJ_Knob",
+    "DVR_control_panel",
+    "clock",
+    "DED",
+    "ADI",
+    "HMCS_panel",
+    "F_ACK",
+    "HUD_control_panel",
+    "PFL_display",
+    "ENG_&_JET_start_control_panel",
+    "Vertical_velocity_indicator",
+    "Right_glare_shield",
+    "ANT_SEL",
+    "MRK_BCN_Light",
+    "Magnetic_compass",
+    "TEST_switch_panel",
+    "ECM_light",
+    "AIR_COND_panel",
+    "FLT_control_panel",
+    "Airspeed_Mach_indicator",
+    "LG_control_panel",
+    "Fuel_flow_indicator",
+    "System_A_HYD_PRESS_Indicator",
+    "TF_FAIL_light",
+    "EXT_lighting_control_panel",
+    "EXT_FUEL_TRANS_switch",
+    "HSI_display",
+    "Standby_Attitude_Indicator",
+    "IFF_IDENT",
+    "Fuel_QTY_SEL",
+    "Oxygen_panel",
+    "DEFOG_lever",
+    "NOZ_POZ_indicator",
+    "Avionics_power_panel",
+    "Stick",
+    "CHAFF_FLARE_dispense_button",
+    "SNSR_PWR_panel",
+    "IFF_control_panel",
+    "Caution_light_panel",
+    "Interior_lighting",
+    "ICP",
+    "Manual_trim_panel",
+    "Brakes",
+    "Fuel_quantity_indicator",
+    "FTIT_indicator",
+    "System_B_HYD_PRESS_Indicator",
+    "MASTER_CAUTION"
+  ]
+}

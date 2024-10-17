@@ -1,0 +1,596 @@
+{
+  "panels": [
+    {
+      "panel_name": "FWD_UFC",
+      "Items": {
+        "item_1": "GRN_override_button",
+        "item_2": "RED_SAT_override_button",
+        "item_3": "IFF_override_button",
+        "item_4": "SAK_override_button",
+        "item_5": "AA_override_button",
+        "item_6": "AG_override_button",
+        "item_7": "Enter_button",
+        "item_8": "Drift_C_O_switch",
+        "item_9": "Data_control_switch_(DCS)",
+        "item_10": "Increment_decrement_switch",
+        "item_11": "FLIR_PLRT_button",
+        "item_12": "FLIR_increment_decrement_switch",
+        "item_13": "FLIR_gain_switch",
+        "item_14": "RET_DEPR_knob",
+        "item_15": "CONT_knob",
+        "item_16": "SYM_knob",
+        "item_17": "BRT_knob",
+        "item_18": "Keyboard_Mode_RCL__key",
+        "item_19": "Keyboard_MSEL__key_0",
+        "item_20": "Keyboard_TILS__key_1",
+        "item_21": "Keyboard_ALOW__key_2",
+        "item_22": "Keyboard_FACK__key_3",
+        "item_23": "Keyboard_STPT__key_4",
+        "item_24": "Keyboard_CRUS__key_5",
+        "item_25": "Keyboard_TIME__key_6",
+        "item_26": "Keyboard_MARK__key_7",
+        "item_27": "Keyboard_DTS__key_8",
+        "item_28": "Keyboard_DVR__key_9"
+      }
+    },
+    {
+      "panel_name": "FWD_DED",
+      "Items": {
+        "item_1": "DED"
+      }
+    },
+    {
+      "panel_name": "FWD_Standby_attitude_ind",
+      "Items": {
+        "item_1": "Standby_attitude_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_Fuel_flow_ind",
+      "Items": {
+        "item_1": "Fuel_flow_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_MFD",
+      "Items": {
+        "item_1": "Right_MFD_screen",
+        "item_2": "Left_MFD_screen",
+        "item_3": "Gain_rocker_switch",
+        "item_4": "BRT_rocker_switch",
+        "item_5": "CON_rocker_switch",
+        "item_6": "20_OSB_buttons"
+      }
+    },
+    {
+      "panel_name": "FW0D_MFD",
+      "Items": {
+        "item_1": "SYM_rocker_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_ENGINE_IND",
+      "Items": {
+        "item_1": "Oil_pressure_indicator",
+        "item_2": "NOZ_POS_indicator",
+        "item_3": "RPM_indicator",
+        "item_4": "FTIT_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_VVI",
+      "Items": {
+        "item_1": "VVI_Vertical_velocity_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_MRK_BCN_button",
+      "Items": {
+        "item_1": "MRK_BCN_button"
+      }
+    },
+    {
+      "panel_name": "FWD_FUEL_QTY",
+      "Items": {
+        "item_1": "EXT_fuel_transfer_switch",
+        "item_2": "Fuel_QTY_select_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_AOA",
+      "Items": {
+        "item_1": "AOA_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_INSTR",
+      "Items": {
+        "item_1": "ISNTR_mode_knob",
+        "item_2": "INSTR_HDG_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_Airspeed_IND",
+      "Items": {
+        "item_1": "Airspeed_Mach_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_ADI",
+      "Items": {
+        "item_1": "ADI_indicator",
+        "item_2": "ADI_OFF_flag",
+        "item_3": "ADI_AUX_flag"
+      }
+    },
+    {
+      "panel_name": "FWD_HSI",
+      "Items": {
+        "item_1": "HSI_indicator",
+        "item_2": "HSI_Course_value_indication",
+        "item_3": "HSI_Range_indicator",
+        "item_4": "HSI_Range_warning_flag_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_Altimeter",
+      "Items": {
+        "item_1": "Altimeter"
+      }
+    },
+    {
+      "panel_name": "FWD_MISC",
+      "Items": {
+        "item_1": "Autopilot_pitch_switch",
+        "item_2": "Autopilot_roll_switch",
+        "item_3": "SEL_EMER_JETT_switch",
+        "item_4": "ADV_mode_switch",
+        "item_5": "Master_arm_switch",
+        "item_6": "Gun_arm_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_IFF_NVIS",
+      "Items": {
+        "item_1": "IFF_ident_button",
+        "item_2": "NVIS_button"
+      }
+    },
+    {
+      "panel_name": "FWD_2_Warning_Light",
+      "Items": {
+        "item_1": "TF_fail_warning_light",
+        "item_2": "ALT_LOW_warning",
+        "item_3": "OVRD_lights"
+      }
+    },
+    {
+      "panel_name": "FWD_MC_Light",
+      "Items": {
+        "item_1": "Master_caution_light"
+      }
+    },
+    {
+      "panel_name": "FWD_EW_Disp",
+      "Items": {
+        "item_1": "EW_RWR_display_screen",
+        "item_2": "ECM_mode_button",
+        "item_3": "Test_button",
+        "item_4": "Save_button",
+        "item_5": "8_buttons_(OSBs)"
+      }
+    },
+    {
+      "panel_name": "FWD_5_Warning_Light",
+      "Items": {
+        "item_1": "ENG_FIRE_warning_light",
+        "item_2": "ENGINE_warning_light",
+        "item_3": "HYD_OIL_PRESS_warning_light",
+        "item_4": "FLCS_warning_light",
+        "item_5": "DBU_ON_warning_light",
+        "item_6": "TO_LDG_CONFIG_warning_light",
+        "item_7": "CANOPY_warning_light",
+        "item_8": "OXYLOW_warning_light"
+      }
+    },
+    {
+      "panel_name": "FWD_Ejection_Handle",
+      "Items": {
+        "item_1": "Ejection_Handle"
+      }
+    },
+    {
+      "panel_name": "FWD_LG_Panel",
+      "Items": {
+        "item_1": "Landing_gear_handle",
+        "item_2": "LG_handle_down_permission_button",
+        "item_3": "LG_handle_red_warning_light",
+        "item_4": "Hook_switch",
+        "item_5": "Right_wheel_down_green_light",
+        "item_6": "Left_wheel_down_green_light",
+        "item_7": "Nose_wheel_down_green_light",
+        "item_8": "EMER-Stores_jettison_button_(panic)",
+        "item_9": "GND_JETT_enable_switch",
+        "item_10": "Brakes_channel_switch",
+        "item_11": "ANTI-SKID_switch",
+        "item_12": "DN_lock_release_button",
+        "item_13": "Stores_CONFIG_switch",
+        "item_14": "Horn_silencer_button",
+        "item_15": "Landing_taxi_lights_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Speed_Breake_Ind",
+      "Items": {
+        "item_1": "Speed_brake_position_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_EW_Power",
+      "Items": {
+        "item_1": "EW_power_indicator_and_button",
+        "item_2": "ECM_power_indicator_and_button",
+        "item_3": "MWS_power_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_Alt_Gear_handle",
+      "Items": {
+        "item_1": "ALT_gear_handle_",
+        "item_2": "ALT_gear_reset_button"
+      }
+    },
+    {
+      "panel_name": "FWD_FMCS",
+      "Items": {
+        "item_1": "Symbology_INT_knob",
+        "item_2": "RF_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_ADDS",
+      "Items": {
+        "item_1": "PROG_release_button",
+        "item_2": "Program_selector",
+        "item_3": "ADDS_manual_auto_dispense_selector",
+        "item_4": "EMERGENCY_dispense_switch",
+        "item_5": "Command_button",
+        "item_6": "R_T_P_indicators_lights",
+        "item_7": "Flare_Panic_button",
+        "item_8": "EW_NVIS_knob",
+        "item_9": "CH_defeat_button",
+        "item_10": "FL_defeat_button",
+        "item_11": "RF_defeat_button",
+        "item_12": "CH_defeat_light",
+        "item_13": "FL_defeat_light",
+        "item_14": "RF_defeat_light",
+        "item_15": "CF_inventory_indications",
+        "item_16": "FL_inventory_indications",
+        "item_17": "RF_inventory_indications",
+        "item_18": "ADDS_power"
+      }
+    },
+    {
+      "panel_name": "FWD_EREZ",
+      "Items": {
+        "item_1": "GRN_audio_EREZ1_knob",
+        "item_2": "GRN_audio_EREZ2_knob",
+        "item_3": "GRN_audio_EREZ3_knob",
+        "item_4": "GRN_audio_GD_(Guard)_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_Audio_2",
+      "Items": {
+        "item_1": "GRN_radio_knob",
+        "item_2": "RED_radio_knob_(PTT)",
+        "item_3": "HFSAT_radio_volume_knob",
+        "item_4": "AVTR_knob",
+        "item_5": "GRN_radio_SQL_selector",
+        "item_6": "RED_radio_SQL_selector",
+        "item_7": "TCNILS_power_switch",
+        "item_8": "Radio_key_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Audio1",
+      "Items": {
+        "item_1": "Intercom_VOX_knob",
+        "item_2": "HOT_MIC_mode_switch",
+        "item_3": "Threat_volume_knob",
+        "item_4": "MSL_volume_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_EXT_Light",
+      "Items": {
+        "item_1": "ANTI-collision_knob",
+        "item_2": "Flashsteady_switch",
+        "item_3": "Wingtail_switch",
+        "item_4": "Fuselage_switch",
+        "item_5": "Aerial_refueling_knob",
+        "item_6": "Master_knob",
+        "item_7": "Form_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_Trim_Panel",
+      "Items": {
+        "item_1": "Yaw_trim_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_Anti_G",
+      "Items": {
+        "item_1": "ANTI_G_test_button"
+      }
+    },
+    {
+      "panel_name": "FWD_ENG_Start_Panel",
+      "Items": {
+        "item_1": "JFS_start_switch",
+        "item_2": "JFS_run_light",
+        "item_3": "ENG_CONT_switch",
+        "item_4": "AB_reset_switch",
+        "item_5": "MAX_power_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_ELEC_Panel",
+      "Items": {
+        "item_1": "Main_power_switch",
+        "item_2": "Caution_reset_button",
+        "item_3": "FLCS_PMG_light",
+        "item_4": "MAIN_GEN_light",
+        "item_5": "STBY_GEN_light",
+        "item_6": "EPU_GEN_light",
+        "item_7": "EPU_PMG_light",
+        "item_8": "BATT_FAIL_light",
+        "item_9": "TO_FLCS_light",
+        "item_10": "FLCS_RLY_light"
+      }
+    },
+    {
+      "panel_name": "FWD_HUD_Panel",
+      "Items": {
+        "item_1": "Scales_switch",
+        "item_2": "FPM_switch",
+        "item_3": "DED_DATA_switch",
+        "item_4": "DEPR_RET_switch",
+        "item_5": "Velocity_switch",
+        "item_6": "Altitude_switch",
+        "item_7": "Brightness_control_switch",
+        "item_8": "HUD_test_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_EPU_Panel",
+      "Items": {
+        "item_1": "Hydrazn_light",
+        "item_2": "Air_light",
+        "item_3": "EPU_RUN_light",
+        "item_4": "EPU_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Fuel_Panel",
+      "Items": {
+        "item_1": "Master_fuel_switch",
+        "item_2": "Tank_inerting_switch",
+        "item_3": "ENG_FEED_selector",
+        "item_4": "Air_refuel_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_FLT_Control_Panel",
+      "Items": {
+        "item_1": "Digital_backup_switch",
+        "item_2": "ALT_flaps_switch",
+        "item_3": "Manual_TF_FLYUP_switch",
+        "item_4": "LE_flaps_switch",
+        "item_5": "FLCS_reset_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Test_Panel",
+      "Items": {
+        "item_1": "Fire_&_overheat_detect_button",
+        "item_2": "OBOGS_BIT_switch",
+        "item_3": "MAL_&_IND_LTS_button",
+        "item_4": "Stick_control_switch",
+        "item_5": "Probe_heat_switch",
+        "item_6": "EPUGEN_test_switch",
+        "item_7": "FLCS_PWR_A_light",
+        "item_8": "FLCS_PWR_B_light",
+        "item_9": "FLCS_PWR_C_light",
+        "item_10": "FLCS_PWR_D_light",
+        "item_11": "FLCS_PWR_test_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Chaff_Flare_Button",
+      "Items": {
+        "item_1": "Chaffflare_dispense_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Magnetic_Compass",
+      "Items": {
+        "item_1": "Magnetic_compass"
+      }
+    },
+    {
+      "panel_name": "FWD_FUEL_IND",
+      "Items": {
+        "item_1": "Fuel_quantity_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_HYD_IND",
+      "Items": {
+        "item_1": "System_A_HYD_PRESS_indication",
+        "item_2": "System_B_HYD_PRESS_indication"
+      }
+    },
+    {
+      "panel_name": "FWD_Warning_Light",
+      "Items": {
+        "item_1": "FLCS_fault_light",
+        "item_2": "ELECSYS_light",
+        "item_3": "CADC_light",
+        "item_4": "FWD_fuel_low_light",
+        "item_5": "AFT_fuel_low_light",
+        "item_6": "Overheat_light",
+        "item_7": "Engine_fault_light",
+        "item_8": "SEC_light",
+        "item_9": "Fueloil_hot_light",
+        "item_10": "Seat_not_armed_light",
+        "item_11": "EPU_off_light",
+        "item_12": "AVIONICS_light",
+        "item_13": "ATF_not_engaged_light",
+        "item_14": "Radar_ALT_light",
+        "item_15": "Equip_hot_light",
+        "item_16": "IFF_light",
+        "item_17": "ECM_light",
+        "item_18": "Stores_CONFIG_light",
+        "item_19": "ANTISKID_light",
+        "item_20": "Hook_light",
+        "item_21": "NWS_fail_light",
+        "item_22": "Cabin_press_light",
+        "item_23": "OBOGS_light",
+        "item_24": "Inlet_icing_light",
+        "item_25": "Probe_heat_light",
+        "item_26": "Rate_gyro_hot_light"
+      }
+    },
+    {
+      "panel_name": "FWD_EPU_IND",
+      "Items": {
+        "item_1": "EPU_fuel_quantity_indicator"
+      }
+    },
+    {
+      "panel_name": "FWD_Cabin_IND",
+      "Items": {
+        "item_1": "Cabin_Pre_altimeter"
+      }
+    },
+    {
+      "panel_name": "FWD_SNSR_PWR_Panel",
+      "Items": {
+        "item_1": "Left_HDPT_switch",
+        "item_2": "Right_HDPT_switch",
+        "item_3": "FCR_switch",
+        "item_4": "Radar_ALT_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_Avionics_PWR_Panel",
+      "Items": {
+        "item_1": "FCC_switch",
+        "item_2": "SMS_switch",
+        "item_3": "UFC_switch",
+        "item_4": "MFD_switch",
+        "item_5": "Saknay_switch",
+        "item_6": "ADTE_switch",
+        "item_7": "TISL_switch",
+        "item_8": "Laser_arm_switch",
+        "item_9": "EGI_knob"
+      }
+    },
+    {
+      "panel_name": "FWD_Lightning_Panel",
+      "Items": {
+        "item_1": "Primary_consoles_knob",
+        "item_2": "Primary_INST_PNL_knob",
+        "item_3": "Data_entry_display_knob",
+        "item_4": "MAL_&_IND_LTS_intensity_switch",
+        "item_5": "Flood_consoles_knob",
+        "item_6": "Flood_INST_PNL_knob",
+        "item_7": "NVIS_switch"
+      }
+    },
+    {
+      "panel_name": "FWD_AirSelector_Panel",
+      "Items": {
+        "item_1": "Air_source_selector"
+      }
+    },
+    {
+      "panel_name": "FWD_AUX_COMM",
+      "Items": {
+        "item_1": "Master_IFF_selector",
+        "item_2": "IFF_M4_code_switch",
+        "item_3": "CNI_selector",
+        "item_4": "IFF_M4_reply_switch",
+        "item_5": "IFF_M4_audio_monitor_switch",
+        "item_6": "Tacan_TR_mode"
+      }
+    },
+    {
+      "panel_name": "FWD_General_Panel",
+      "Items": {
+        "item_1": "Zeroize_switch",
+        "item_2": "NWS_control_button",
+        "item_3": "Voice_message_switch"
+      }
+    }
+  ],
+  "panel_names": [
+    "FWD_EXT_Light",
+    "FWD_Lightning_Panel",
+    "FWD_FUEL_QTY",
+    "FWD_VVI",
+    "FWD_MFD",
+    "FWD_EREZ",
+    "FWD_UFC",
+    "FWD_MISC",
+    "FWD_MRK_BCN_button",
+    "FWD_INSTR",
+    "FWD_Speed_Breake_Ind",
+    "FWD_Alt_Gear_handle",
+    "FWD_FMCS",
+    "FWD_Magnetic_Compass",
+    "FWD_Avionics_PWR_Panel",
+    "FWD_EPU_Panel",
+    "FWD_Warning_Light",
+    "FWD_HYD_IND",
+    "FWD_Altimeter",
+    "FWD_EW_Power",
+    "FWD_Test_Panel",
+    "FWD_EW_Disp",
+    "FWD_Airspeed_IND",
+    "FWD_Anti_G",
+    "FWD_ENG_Start_Panel",
+    "FWD_2_Warning_Light",
+    "FWD_Fuel_flow_ind",
+    "FWD_5_Warning_Light",
+    "FWD_ELEC_Panel",
+    "FWD_Cabin_IND",
+    "FWD_Trim_Panel",
+    "FWD_Chaff_Flare_Button",
+    "FWD_HUD_Panel",
+    "FWD_FUEL_IND",
+    "FWD_Standby_attitude_ind",
+    "FWD_LG_Panel",
+    "FWD_General_Panel",
+    "FWD_AUX_COMM",
+    "FWD_EPU_IND",
+    "FWD_MC_Light",
+    "FWD_FLT_Control_Panel",
+    "FWD_ADDS",
+    "FW0D_MFD",
+    "FWD_SNSR_PWR_Panel",
+    "FWD_Ejection_Handle",
+    "FWD_Audio1",
+    "FWD_AirSelector_Panel",
+    "FWD_Audio_2",
+    "FWD_ADI",
+    "FWD_HSI",
+    "FWD_Fuel_Panel",
+    "FWD_DED",
+    "FWD_AOA",
+    "FWD_IFF_NVIS",
+    "FWD_ENGINE_IND"
+  ]
+}
