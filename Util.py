@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
+import pyautogui
+from time import sleep
 
 
 def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
@@ -15,6 +17,8 @@ def move_image(event, new_image_position, move_pixels, new_image_path, small_Ste
             new_image_position = (new_image_position[0], new_image_position[1] - move_pixels // small_Step)
         elif event.keysym == 'Down':
             new_image_position = (new_image_position[0], new_image_position[1] + move_pixels // small_Step)
+        elif event.keysym == 'd':
+            new_image_position = (-100, -100 + move_pixels // small_Step)
         combine_images(rotation_angle)
         update_info_label()
         Picture.x = new_image_position[0]
@@ -79,11 +83,9 @@ def load_switch_names(DB_file_path,panel_name):
                 return list(panel.get("Items", {}).values())
         return []
 
-def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
+def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Switch):
     global rotation_entry,image_position_entry,file_path
     # print("panel_name",panel_name)
-
-
     def on_bring_file_path(var):
         file_path = Bring_File_path()
         if file_path:
@@ -111,6 +113,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
         # Create the entry widget with right-aligned text
         file_path_entry = Entry(frame, textvariable=file_path_var, justify="right")
         file_path_entry.grid(row=row, column=column+1)
+        file_path_var.set(default_value)
         
         # Set the cursor to the end of the text and scroll to the end
         file_path_entry.icursor(tk.END)
@@ -130,8 +133,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
             frame.grid()
             button.config(text=f" {button.cget('text').split(' ')[1]} Commands")
 
-
-    def save_alpha_data():
+    def save_alpha_data(add_Switch,picture):
 
         
         global rotation_angle
@@ -273,7 +275,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
                     }
             },
             "analog_props": {
-                    "conversion": {
+                    "Value_conversion": {
                     Value_conversion_1_Key :  Value_conversion_1_angle, 
                     Value_conversion_2_Key :  Value_conversion_2_angle,
                     Value_conversion_3_Key :  Value_conversion_3_angle, 
@@ -289,20 +291,45 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
                 "color": color_value
             },
         }
+        if add_Switch == True:
+            # Read existing data from the JSON file
+            try:
+                with open("alpha_data.json", "r") as file:
+                    existing_data = json.load(file)
+            except FileNotFoundError:
+                existing_data = []
 
-        # Read existing data from the JSON file
-        try:
-            with open("alpha_data.json", "r") as file:
-                existing_data = json.load(file)
-        except FileNotFoundError:
-            existing_data = []
+            # Append the new data
+            existing_data.append(data)
 
-        # Append the new data
-        existing_data.append(data)
+            # Write the updated data back to the JSON file
+            with open("alpha_data.json", "w") as file:
+                json.dump(existing_data, file, indent=4)
 
-        # Write the updated data back to the JSON file
-        with open("alpha_data.json", "w") as file:
-            json.dump(existing_data, file, indent=4)
+        elif add_Switch == False:
+            # Read existing data from the JSON file
+            with open(picture.json_file_path, 'r', encoding='utf-8') as file:
+                olddata = json.load(file)
+            
+             # Delete the selected item from the existing JSON data
+            olddata = [item for item in olddata if item['backend_name'] != picture.imageName]
+            olddata.append(data)
+
+            try:
+                with open("alpha_data.json", "r") as file:
+                    existing_data = json.load(file)
+            except FileNotFoundError:
+                existing_data = []
+
+            existing_data.extend(olddata)
+
+             # Write the updated data back to the JSON file
+            with open("alpha_data.json", "w") as file:
+                json.dump(existing_data, file, indent=4)
+            
+            # Write the updated data back to the JSON file
+            with open(picture.json_file_path, "w") as file:
+                json.dump(existing_data, file, indent=4)
         
         # Reset the rotation angle to 0
         rotation_angle = 0
@@ -492,7 +519,6 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture):
 
     imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 26, 0, picture.file_path)
     
-    save_button = Button(alpha_form, text="Save", command=save_alpha_data)
-    save_button.grid(row=27, columnspan=2)
-
+    save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture))
+    save_button.grid(row=27, columnspan=1)
 

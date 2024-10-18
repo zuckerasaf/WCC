@@ -29,9 +29,12 @@ class Switch:
         self.grid_direction = "ud"
         self.String_Length = "0"
         self.Z_index = "0"
-        self.rotation =[["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"]]
+        self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-        self.value_conversion =[["0","0"],["0","0"],["0","0"],["0","0"],["0","0"]]        
+        self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]  
+        self.scale = "100" 
+        self.IMG_rotation = "100"   
+        self.json_file_path = "none"  
 
 # Method to resize the picture
     def resize(self, new_width, new_height):
@@ -90,9 +93,30 @@ class Switch:
                     string_props = item.get('string_props', {})
                     self.String_Length = string_props.get('maxStringLength', self.String_Length) 
                     self.Z_index = item.get('Z_index', self.Z_index) 
-                    self.rotation =[["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"],["none","0"]]
+                    # Read and update the "knob_props" dictionary
+                    self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
+                    knob_props = item.get('knob_props')
+                    conversion = knob_props.get('conversion')
+                    updated_rotation = [[angle, value] for angle, value in conversion.items()]
+                    for i in range(len(updated_rotation)):
+                        self.rotation[i] = updated_rotation[i]
+
+                    # Read and update the "additionalImageData" dictionary
                     self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-                    self.value_conversion =[["0","0"],["0","0"],["0","0"],["0","0"],["0","0"]]   
+                    imageProps = item.get('imageProps')
+                    additionalImageData = imageProps.get('additionalImageData')
+                    updated_additionalImageData = [[Pic, Path] for Pic, Path in additionalImageData.items()]
+                    for j in range(len(updated_additionalImageData)):
+                        self.conversion[j] = updated_additionalImageData[j]
+
+                    self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]   
+                    analog_props = item.get('analog_props')
+                    Value_conversion = analog_props.get('Value_conversion')
+                    updated_value_conversion = [[ang1, ang2] for ang1, ang2 in Value_conversion.items()]
+                    for k in range(len(updated_value_conversion)):
+                        self.value_conversion[k] = updated_value_conversion[k]
+
+                    self.json_file_path = json_file_path
 
                     print(f"Updated parameters for {item_name} from {json_file_path}")
                 else:

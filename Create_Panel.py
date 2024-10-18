@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from  PctureClass import Switch
 from tkinter import filedialog, simpledialog, ttk
 from tkinter.filedialog import asksaveasfilename
@@ -211,7 +212,7 @@ def add_Switch(DB_file_path,panel,update):
     global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
     if current_image_path and update==1:
-        # Open file dialog to select another image file
+        # add new image to the panel 
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
             new_image_path = file_path
@@ -233,7 +234,7 @@ def add_Switch(DB_file_path,panel,update):
             update_info_label()
 
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, True)#, f"{width}x{height}",panel)
     elif current_image_path and update==2:
         selected_name = ""
         json_file_path = ""
@@ -254,7 +255,7 @@ def add_Switch(DB_file_path,panel,update):
         update_info_label()
 
             # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
     elif current_image_path and update==3:
         selected_name = ""
         json_file_path = ""
@@ -280,7 +281,7 @@ def add_Switch(DB_file_path,panel,update):
         update_info_label()
 
             # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch)#, f"{width}x{height}",panel)
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
 
 
 def combine_images(rotation_angle):
@@ -428,7 +429,7 @@ browse_db_button = ttk.Button(name_frame, text="Browse DB", command=lambda: brow
 browse_db_button.grid(row=0, column=3, padx=10, pady=10)
 
 # Create the DB_name label with a default value
-db_name_var = tk.StringVar(value="No Data base selected")
+db_name_var = tk.StringVar(value="No DB selected yet")
 db_name_label = ttk.Label(name_frame, textvariable=db_name_var)
 db_name_label.grid(row=0, column=4, padx=10, pady=10)
 
@@ -486,12 +487,17 @@ step_angle_info_label = tk.Label(frame, text=f"R rotate  right\T rotate left , C
 step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
 
 
+step_angle_info_label = tk.Label(frame, text=f"press D to move image out of the presentation area")
+step_angle_info_label.grid(row=1, column=3, padx=0, pady=5)
+
+
 
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
 root.bind('<Left>', handle_move_image)
 root.bind('<Up>', handle_move_image)
 root.bind('<Down>', handle_move_image)
+root.bind('<d>', handle_move_image)
 
 # Bind the "R" key to rotate the image to the left
 root.bind("<r>", handle_rotate_left)
