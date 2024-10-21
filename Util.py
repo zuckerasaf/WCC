@@ -2,9 +2,15 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
-import pyautogui
-from time import sleep
 
+def load_backend_names():
+    try:
+        with open("alpha_data.json", "r") as file:
+            data = json.load(file)
+            backend_names = [item["backend_name"] for item in data]
+            return backend_names
+    except FileNotFoundError:
+        return []
 
 def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
     
@@ -133,7 +139,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
             frame.grid()
             button.config(text=f" {button.cget('text').split(' ')[1]} Commands")
 
-    def save_alpha_data(add_Switch,picture):
+    def save_alpha_data(add_Switch,picture, root):
 
         
         global rotation_angle
@@ -334,6 +340,23 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
         # Reset the rotation angle to 0
         rotation_angle = 0
 
+
+        def Switch_name_listbox(root):
+            # Load backend names from the JSON file
+            backend_names = load_backend_names()
+
+            # Create a listbox to display the backend names
+            Switch_name_listbox = tk.Listbox(root)
+            Switch_name_listbox.grid(row=8, column=0, padx=5, pady=5, sticky="nsew")
+
+            # Add backend names to the listbox
+            for name in backend_names:
+                Switch_name_listbox.insert(tk.END, name)
+            
+                # Configure grid to expand the listbox
+            root.grid_rowconfigure(8, weight=1)
+            root.grid_columnconfigure(0, weight=1)
+        Switch_name_listbox(root)
         alpha_form.destroy()
 
     alpha_form = Toplevel(root)
@@ -355,15 +378,6 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
     switch_name_entry = Entry(alpha_form)
     switch_name_entry.grid(row=0, column=1)
     switch_name_entry.insert(0, picture.imageName)
-    #switch_name_entry.insert(0, "no switch selected")
-
-
-    # image_key_entry = create_label_entry_pair(alpha_form, "Image key:", 0, 2, "0")
-    #image_name_entry = create_label_entry_pair(alpha_form, "switch name:", 0, 0, picture.image_id)
-
-    # switch_name_button = Button(alpha_form, text="Switch Name", command=lambda: select_switch_name(panel_name, switch_name_entry))#command=select_switch_name)
-    # switch_name_button.grid(row=0, column=2, columnspan=2)
-
     
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
     image_size_entry = Entry(alpha_form)
@@ -519,6 +533,6 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
 
     imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 26, 0, picture.file_path)
     
-    save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture))
+    save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture, root))
     save_button.grid(row=27, columnspan=1)
 

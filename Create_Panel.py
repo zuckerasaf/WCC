@@ -159,6 +159,7 @@ def select_panel_name(DB_file_path):
             update_button.config(state=tk.NORMAL)
             delete_button.config(state=tk.NORMAL)
             update_button_IMG.config(state=tk.NORMAL)
+            update_button_add_switch.config(state=tk.NORMAL)
 
 
     # Create a button to proceed
@@ -236,6 +237,7 @@ def add_Switch(DB_file_path,panel,update):
             # Open the alpha form
             open_alpha_form(root,new_image_position, disp_rotation_angle, switch, True)#, f"{width}x{height}",panel)
     elif current_image_path and update==2:
+        # up date switch data  in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
         
@@ -257,6 +259,7 @@ def add_Switch(DB_file_path,panel,update):
             # Open the alpha form
         open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
     elif current_image_path and update==3:
+        # up date switch image in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
         
@@ -282,7 +285,35 @@ def add_Switch(DB_file_path,panel,update):
 
             # Open the alpha form
         open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
+    elif current_image_path and update==4:
+        # add new image to exsit  panel in json_file_path
+        json_file_path = filedialog.askopenfilename(
+        title="Select JSON File",
+        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
+        )
+        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        if file_path:
+            new_image_path = file_path
+            new_image_position = (0, 0)  # Start at the top-left corner
+            base_img = Image.open(current_image_path)  # Open and store the base image
+            image_id = os.path.basename(file_path)
+            img = Image.open(file_path)
+            width, height = img.width, img.height
 
+            switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
+            switch.json_file_path= json_file_path
+            select_switch_name(DB_file_path,panel, switch)                      
+            switch_name = switch.imageName
+            print("here "  + switch_name)
+
+            new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
+
+            # Combine images and update info label
+            combine_images(rotation_angle)
+            update_info_label()
+
+            # Open the alpha form
+            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False)#, f"{width}x{height}",panel)
 
 def combine_images(rotation_angle):
     global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
@@ -395,7 +426,9 @@ def save_and_close():
         with open("alpha_data.json", "w") as file:
             json.dump([], file)
     # Close the form
-    #root.destroy()
+    root.destroy()
+
+
 # Create the main window
 root = tk.Tk()
 root.title("Image Browser")
@@ -455,9 +488,13 @@ update_button.grid(row=3, column=1, padx=5, pady=5)
 update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 3), state=tk.DISABLED , bg="lightyellow")
 update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
 
+# Create a button to add update switch from the Jason file
+update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 4), state=tk.DISABLED , bg="lightyellow")
+update_button_add_switch.grid(row=3, column=3, padx=5, pady=5)
+
 # Create a button to add delete switch from the Jason file 
 delete_button = tk.Button(switchbuttonframe, text="delete switch", command=delete_item, state=tk.DISABLED,bg="lightcoral")
-delete_button.grid(row=3, column=3, padx=5, pady=5)
+delete_button.grid(row=3, column=4, padx=5, pady=5)
 
 
 
@@ -488,7 +525,7 @@ step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
 
 
 step_angle_info_label = tk.Label(frame, text=f"press D to move image out of the presentation area")
-step_angle_info_label.grid(row=1, column=3, padx=0, pady=5)
+step_angle_info_label.grid(row=2, column=2, padx=0, pady=5)
 
 
 
@@ -504,7 +541,6 @@ root.bind("<r>", handle_rotate_left)
 
 # Bind the "T" key to rotate the image to the right
 root.bind("<t>", handle_rotate_right)
-
 
 # Create a button to close the form
 close_button = tk.Button(root, text="Save and Close", command=save_and_close)
