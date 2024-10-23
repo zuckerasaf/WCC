@@ -1,0 +1,58 @@
+[
+    {
+        "type": "state2",
+        "backend_name": "CHAFF_switch",
+        "scale": "100",
+        "img_width": 75,
+        "img_height": 75,
+        "pos_left": 0,
+        "pos_top": 0,
+        "offset_on": "0",
+        "offset_off": "0",
+        "Logger": "true",
+        "Z_index": "0",
+        "imageProps": {
+            "imageDefault": "C:/project/WCC/Resources/Bar/To Boris/L1/CMDS/Knob_Plus.png",
+            "additionalImageData": {
+                "none": "none"
+            }
+        },
+        "debugMode": "false",
+        "is_clickable": "true",
+        "click_props": {
+            "click_bounds_height_factor": "2",
+            "click_bounds_width_factor": "1.5",
+            "mapping": {
+                "map_top": "none",
+                "map_right": "none",
+                "map_bottom": "none",
+                "map_left ": "none",
+                "map_press_pull1 ": "none",
+                "map_press_pull2 ": "none"
+            }
+        },
+        "knob_props": {
+            "conversion": {
+                "none": "none"
+            }
+        },
+        "analog_props": {
+            "Value_conversion": {
+                "none": "none"
+            }
+        },
+        "string_props": {
+            "maxStringLength": "0"
+        },
+        "blinking": {
+            "color": "yellow"
+        },
+        "DBSIM_Props": {
+            "Key": "CMDS_control_panel_IN",
+            "StationName": "",
+            "BlockName": "IOToHostCHAFF_switch",
+            "ElementName": "Data.CHAFF_switch",
+            "ElementType": "Integer"
+        }
+    }
+]
