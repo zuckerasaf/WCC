@@ -1,34 +1,32 @@
 import tkinter as tk
 from tkinter import messagebox
-from  PctureClass import Switch
+from  PctureClass import Switch, TempData
 from tkinter import filedialog, simpledialog, ttk
 from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
-from Util import move_image, rotate_image, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
+from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
 from Delete_Update import delete_item, update_item
-#from shared import selected_panel_name  # Import from shared.py
-
-
-# Global variables
-rotation_angle = 0
-disp_rotation_angle = 0
-current_image_path = None
-new_image_path = None
-new_image_position = (0, 0)
-combined_image_path = None
-base_img = None  # Add a global variable to store the base image
-move_pixels = 10  # Default number of pixels to move
-rotate_degree = 10
-image_position_entry = None  # Reference to the image position entry field in the alpha form
-img = None  # Add a global variable to store the image
-image_label = None  # Add a global variable to store the image label
-panel_name_label_String = None  # Add a global variable to store the panel name label
 
 
 def hello_world():
     print("Hello, World!")
+
+# Function to read the JSON file and extract the default DB path
+def get_default_db_path(json_file):
+    try:
+        with open(json_file, 'r') as file:
+            data = json.load(file)
+            db_default_folder = data[0]["DB_Default_Folder"]
+            db_default_file = data[0]["DB_Default_file"]
+            full_path = os.path.join(db_default_folder, db_default_file)
+            if os.path.exists(full_path):
+                browse_button.config(state=tk.NORMAL)
+                return full_path
+            else: return "No DB selected yet"
+    except FileNotFoundError:
+        return "No DB selected yet"
 
 def browse_DB(db_name_var):
     # Open a file dialog to select a new database file
@@ -42,21 +40,17 @@ def browse_DB(db_name_var):
         db_name_var.set(file_path)
 
 def browse_image(DB_file_path,image_label):
-    global img, img_tk, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
+    global tempData, switch
+    # global img, img_tk, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
 
     # Create a new, empty alpha_data.json file
     with open("alpha_data.json", "w") as file:
         json.dump([], file)
-
+    
     # Open file dialog to select an image file
-    file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+    file_path = filedialog.askopenfilename(title="Select panel image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
     if file_path:
-        current_image_path = os.path.normpath(file_path)
-        new_image_path = None  # Reset the new image path
-        rotated_new_img = 0
-        new_image_position = (0, 0)  # Reset the new image position
-        combined_image_path = None  # Reset the combined image path
-        # Open and display the image
+        tempData.current_image_path = os.path.normpath(file_path)
         img = Image.open(file_path)
         img_tk = ImageTk.PhotoImage(img)
         image_label.config(image=img_tk)
@@ -75,9 +69,6 @@ def browse_image(DB_file_path,image_label):
         info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}")
         print(f"Created switch instance: ID={switch.image_id}, Path={switch.file_path}")
        
-        # Save the image details to a text file
-        with open("image_details.txt", "a") as file:
-            file.write(f"Image ID: {switch.image_id}, File Path: {switch.file_path}\n")
 
 def select_switch_name(DB_file_path,panel_name, switch):
     print("panel_name",panel_name)
@@ -126,7 +117,7 @@ def select_switch_name(DB_file_path,panel_name, switch):
 
 # Function to select a panel name
 def select_panel_name(DB_file_path):
-    global panel
+ 
     panel_names = load_panel_names(DB_file_path)
         
     # Sort the switch names alphabetically
@@ -209,33 +200,39 @@ def transform_file_path(file_path, text ):
     new_file_path = os.path.join(new_directory, new_filename)
     return new_file_path
 
-def add_Switch(DB_file_path,panel,update):
-    global current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
+def add_Switch(DB_file_path,panel,update,panelName):
+
+    global tempData, switch
+    #global new_scale, current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
-    if current_image_path and update==1:
+    if tempData.current_image_path and update==1:
         # add new image to the panel 
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
-            new_image_path = file_path
-            new_image_position = (0, 0)  # Start at the top-left corner
-            base_img = Image.open(current_image_path)  # Open and store the base image
+            tempData.new_image_path = file_path
+            # new_image_position = (0, 0)  # Start at the top-left corner
+            # new_scale = 1.0
+            tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
             image_id = os.path.basename(file_path)
             img = Image.open(file_path)
             width, height = img.width, img.height
 
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
+            switch.InPanelName = panelName
+            switch.scale = tempData.new_scale
+            print("scale",switch.scale)
             select_switch_name(DB_file_path,panel, switch)                      
             switch_name = switch.imageName
             print("here "  + switch_name)
 
-            new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
+            tempData.new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
 
             # Combine images and update info label
-            combine_images(rotation_angle)
+            combine_images()
             update_info_label()
 
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, True)#, f"{width}x{height}",panel)
+            open_alpha_form(root,True,tempData,switch)#, f"{width}x{height}",panel)
     elif current_image_path and update==2:
         # up date switch data  in  exsit  panel in json_file_path
         selected_name = ""
@@ -245,8 +242,8 @@ def add_Switch(DB_file_path,panel,update):
         switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
         json_file_path, selected_name = update_item()
         switch.update_parameters_from_json(json_file_path, selected_name)
-        # switch  = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
-        # switch = update_item()
+        
+
         new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
 
         new_image_position = (switch.x, switch.y)
@@ -257,13 +254,13 @@ def add_Switch(DB_file_path,panel,update):
         update_info_label()
 
             # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
     elif current_image_path and update==3:
         # up date switch image in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
         
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         new_image_path = file_path
 
         # Create an instance of PctureClass and update parameters from JSON
@@ -272,8 +269,9 @@ def add_Switch(DB_file_path,panel,update):
         switch.update_parameters_from_json(json_file_path, selected_name)
         switch.file_path = new_image_path
         switch.image_id = new_image_path
-        # switch  = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
-        # switch = update_item()
+        switch.scale = new_scale
+        print("scale",switch.scale)
+
         new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
 
         new_image_position = (switch.x, switch.y)
@@ -284,14 +282,14 @@ def add_Switch(DB_file_path,panel,update):
         update_info_label()
 
             # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False)#, f"{width}x{height}",panel)
+        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
     elif current_image_path and update==4:
         # add new image to exsit  panel in json_file_path
         json_file_path = filedialog.askopenfilename(
         title="Select JSON File",
         filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
         )
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
             new_image_path = file_path
             new_image_position = (0, 0)  # Start at the top-left corner
@@ -302,6 +300,8 @@ def add_Switch(DB_file_path,panel,update):
 
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
             switch.json_file_path= json_file_path
+            switch.scale = new_scale
+            print("scale",switch.scale)
             select_switch_name(DB_file_path,panel, switch)                      
             switch_name = switch.imageName
             print("here "  + switch_name)
@@ -313,38 +313,44 @@ def add_Switch(DB_file_path,panel,update):
             update_info_label()
 
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False)#, f"{width}x{height}",panel)
+            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False,new_scale)#, f"{width}x{height}",panel)
 
-def combine_images(rotation_angle):
-    global current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
-    if base_img and new_image_path:
+def combine_images():
+
+    #global new_scale, current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
+    global tempData, switch
+    if tempData.base_img and tempData.new_image_path:
         # Open the new image
-        new_img = Image.open(new_image_path)
+        new_img = Image.open(tempData.new_image_path)
+       # Resize the new image according to the scale factor
+        new_width = int(new_img.width * tempData.new_scale)
+        new_height = int(new_img.height * tempData.new_scale)
+        new_img = new_img.resize((new_width, new_height), Image.LANCZOS)
 
         # Calculate the center of the original image
-        original_center_x = new_image_position[0] + new_img.width // 2
-        original_center_y = new_image_position[1] + new_img.height // 2
+        original_center_x = tempData.new_image_position[0] + new_img.width // 2
+        original_center_y = tempData.new_image_position[1] + new_img.height // 2
 
         # Rotate the image
-        rotated_new_img = new_img.rotate(rotation_angle, expand=True)
+        tempData.rotated_new_img = new_img.rotate(tempData.rotation_angle, expand=True)
 
         # Calculate the new position to keep the rotated image centered
-        new_x = original_center_x - rotated_new_img.width // 2
-        new_y = original_center_y - rotated_new_img.height // 2
-        new_position = (new_x, new_y)
+        new_x = original_center_x - tempData.rotated_new_img.width // 2
+        new_y = original_center_y - tempData.rotated_new_img.height // 2
+        tempData.new_position = (new_x, new_y)
 
         # Create a copy of the base image to avoid modifying the original
-        combined_img = base_img.copy()
+        combined_img = tempData.base_img.copy()
 
         # Paste the rotated new image on top of the base image at the current position
-        combined_img.paste(rotated_new_img, new_position, rotated_new_img if rotated_new_img.mode == 'RGBA' else None)
+        combined_img.paste(tempData.rotated_new_img, tempData.new_position, tempData.rotated_new_img if tempData.rotated_new_img.mode == 'RGBA' else None)
 
         # Save the combined image to a temporary file
-        combined_image_path = os.path.join(os.path.dirname(current_image_path), "combined_image.png")
+        combined_image_path = os.path.join(os.path.dirname(tempData.current_image_path), "combined_image.png")
         combined_img.save(combined_image_path)
 
         # Update the current image path to the combined image
-        current_image_path = combined_image_path
+        tempData.current_image_path = combined_image_path
 
         # Update the image label with the combined image
         img_tk = ImageTk.PhotoImage(combined_img)
@@ -353,59 +359,100 @@ def combine_images(rotation_angle):
 
 # Function to update the info label
 def update_info_label():
-    global current_image_path, new_image_position
+    #global current_image_path, new_image_position
     if current_image_path:
         # Assuming switch is an object with image_id and file_path attributes
         switch = type('switch', (object,), {'image_id': 1, 'file_path': current_image_path})()
         info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}\nNew Image Position: {new_image_position}")
 
 def set_move_pixels():
-    global move_pixels
+    global tempData
     pixels = simpledialog.askinteger("Input", "Enter the number of pixels to move:", minvalue=1)
     if pixels:
-        move_pixels = pixels
-        step_size_label.config(text=f"Step : {move_pixels} pixels")
+        tempData.move_pixels = pixels
+        step_size_label.config(text=f"Step : {tempData.move_pixels} pixels")
 
 def set_rotate_degree():
-    global rotate_degree, disp_rotation_angle
+    global tempData
     degree = simpledialog.askinteger("Input", "Enter the roattion degree step:", minvalue=1)
     if degree:
-        rotate_degree = degree
-        step_angle_label.config(text=f"step: {rotate_degree} degree")
+        tempData.rotate_degree = degree
+        step_angle_label.config(text=f"step: {tempData.rotate_degree} degree")
 
 def save_image():
-    global combined_image_path
-    if combined_image_path:
+    global tempData
+    if tempData.combined_image_path:
         # Open file dialog to select save location
         save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
         if save_path:
             # Save the combined image to the specified location
-            img = Image.open(combined_image_path)
+            img = Image.open(tempData.combined_image_path)
             img.save(save_path)
             print(f"Image saved to {save_path}")
 
+
 def handle_move_image(event):
-    global new_image_position
+    global tempData,switch
     small_step = 1
     if event.state & 0x0001:  # Check if Shift key is pressed
         small_step = 10
-    new_image_position = move_image(event, new_image_position, move_pixels, new_image_path, small_step, combine_images, update_info_label,rotation_angle,switch)
 
-def handle_rotate_image(event, direction):
-    global rotation_angle
+    if tempData.new_image_path:
+        if event.keysym == 'Right':
+            tempData.new_image_position = (tempData.new_image_position[0] + tempData.move_pixels // small_step, tempData.new_image_position[1])
+        elif event.keysym == 'Left':
+            tempData.new_image_position = (tempData.new_image_position[0] - tempData.move_pixels // small_step, tempData.new_image_position[1])
+        elif event.keysym == 'Up':
+            tempData.new_image_position = (tempData.new_image_position[0], tempData.new_image_position[1] - tempData.move_pixels // small_step)
+        elif event.keysym == 'Down':
+            tempData.new_image_position = (tempData.new_image_position[0], tempData.new_image_position[1] + tempData.move_pixels // small_step)
+        elif event.keysym == 'd':
+            tempData.new_image_position = (-100, -100 + tempData.move_pixels // tempData.small_Step)
+        combine_images()
+        update_info_label()
+        switch.x = tempData.new_image_position[0]
+        switch.y = tempData.new_image_position[1]
+
+        update_image_position_entry(tempData)
+
+ 
+def handle_rotate_image(event):
+    global tempData,switch
     small_rotate = 1
     if event.state & 0x0004:  # Check if Ctrl key is pressed
         small_rotate = 10
-    if direction == "left":
-        rotation_angle = rotate_image(event, img, rotation_angle, -rotate_degree // small_rotate, image_label, combine_images)# , update_info_label)
-    elif direction == "right":
-        rotation_angle = rotate_image(event, img, rotation_angle, rotate_degree // small_rotate, image_label, combine_images)#, update_info_label)
 
-def handle_rotate_left(event):
-    handle_rotate_image(event, "left")
+    if event.keysym == 'r':
+        tempData.rotation_angle = (tempData.rotation_angle - tempData.rotate_degree// small_rotate) % 360
+    elif event.keysym == 't':
+        tempData.rotation_angle = (tempData.rotation_angle + tempData.rotate_degree// small_rotate) % 360
 
-def handle_rotate_right(event):
-    handle_rotate_image(event, "right")
+    combine_images()
+
+    if tempData.rotation_angle < 180:
+        tempData.disp_rotation_angle = 0 - tempData.rotation_angle
+    else:
+        tempData.disp_rotation_angle = 360- tempData.rotation_angle
+
+    update_rotation_entry(tempData)
+
+
+def handle_scale_image(event):
+    global tempData,switch
+
+    if event.keysym == 'plus':
+        switch.scale = switch.scale + 0.05
+        switch.width = int(switch.width  + switch.width *0.05)
+        switch.height = int(switch.height + switch.height *0.05)
+    elif event.keysym == 'minus':
+        switch.scale = switch.scale - 0.05
+        switch.width = int(switch.width  - switch.width *0.05)
+        switch.height = int(switch.height - switch.height *0.05)
+
+    combine_images()
+    tempData.new_scale = switch.scale
+    update_scale_image(switch)
+
 
 def save_and_close():
     # Read data from alpha_data.json
@@ -429,14 +476,16 @@ def save_and_close():
     root.destroy()
 
 
+######################################## Start ####################################################
 # Create the main window
+
+tempData = None
+switch = None
+
 root = tk.Tk()
 root.title("Image Browser")
 
 current_image_path = None
-new_image_path = None
-new_image_position = (0, 0)
-combined_image_path = None
 
 # Create a frame to hold the widgets
 name_frame = ttk.Frame(root)
@@ -446,7 +495,7 @@ name_frame.grid(row=0, column=0, padx=10, pady=10)
 image_label = tk.Label(root)
 image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 
-
+tempData = TempData()
 
 # Create a button to browse files
 browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),image_label), state=tk.DISABLED)
@@ -462,10 +511,11 @@ browse_db_button = ttk.Button(name_frame, text="Browse DB", command=lambda: brow
 browse_db_button.grid(row=0, column=3, padx=10, pady=10)
 
 # Create the DB_name label with a default value
-db_name_var = tk.StringVar(value="No DB selected yet")
+json_file_path = 'InitValues.json'
+defualt_db_name_var = get_default_db_path(json_file_path)
+db_name_var = tk.StringVar(value=defualt_db_name_var)
 db_name_label = ttk.Label(name_frame, textvariable=db_name_var)
 db_name_label.grid(row=0, column=4, padx=10, pady=10)
-
 
 # Create a label to display the image_id and file_path
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
@@ -477,25 +527,24 @@ switchbuttonframe = ttk.Frame(root)
 switchbuttonframe.grid(row=3, column=0, padx=10, pady=10)
 
 # Create a button to add another image on top
-add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1), state=tk.DISABLED, bg="lightgreen")
+add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1,panel_name_label.cget("text")), state=tk.DISABLED, bg="lightgreen")
 add_button.grid(row=3, column=0, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2), state=tk.DISABLED , bg="lightyellow")
+update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(current_image_path,db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button.grid(row=3, column=1, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 3), state=tk.DISABLED , bg="lightyellow")
+update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch(current_image_path, db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 4), state=tk.DISABLED , bg="lightyellow")
+update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch(current_image_path, db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_add_switch.grid(row=3, column=3, padx=5, pady=5)
 
 # Create a button to add delete switch from the Jason file 
 delete_button = tk.Button(switchbuttonframe, text="delete switch", command=delete_item, state=tk.DISABLED,bg="lightcoral")
 delete_button.grid(row=3, column=4, padx=5, pady=5)
-
 
 
 # Create a frame to hold the widgets
@@ -506,7 +555,7 @@ frame.grid(row=4, column=0, padx=10, pady=10)
 set_pixels_button = tk.Button(frame, text="Set Move Pixels", command=set_move_pixels)
 set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 
-step_size_label = tk.Label(frame, text=f" Step : {move_pixels} pixels")
+step_size_label = tk.Label(frame, text=f" Step : {tempData.move_pixels} pixels")
 step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
 step_info_label = tk.Label(frame, text=f"arrows for move, shift for 0.1 step")
@@ -517,7 +566,7 @@ step_info_label.grid(row=1, column=0, padx=0, pady=5)
 set_angle_button = tk.Button(frame, text="Set angle rotation", command=set_rotate_degree)
 set_angle_button.grid(row=0, column=2, padx=1, pady=5)
 
-step_angle_label = tk.Label(frame, text=f" Angle : {rotate_degree} degree")
+step_angle_label = tk.Label(frame, text=f" Angle : {tempData.rotate_degree} degree")
 step_angle_label.grid(row=0, column=3, padx=1, pady=5)
 
 step_angle_info_label = tk.Label(frame, text=f"R rotate  right\T rotate left , CTRL 0.1 step")
@@ -527,20 +576,16 @@ step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
 step_angle_info_label = tk.Label(frame, text=f"press D to move image out of the presentation area")
 step_angle_info_label.grid(row=2, column=2, padx=0, pady=5)
 
-
-
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
 root.bind('<Left>', handle_move_image)
 root.bind('<Up>', handle_move_image)
 root.bind('<Down>', handle_move_image)
-root.bind('<d>', handle_move_image)
-
-# Bind the "R" key to rotate the image to the left
-root.bind("<r>", handle_rotate_left)
-
-# Bind the "T" key to rotate the image to the right
-root.bind("<t>", handle_rotate_right)
+root.bind('<d>', handle_move_image) # move the image out of the screen 
+root.bind("<r>", handle_rotate_image) # rotate the image to the right 
+root.bind("<t>", handle_rotate_image) # rotate the image to the left 
+root.bind("<plus>", handle_scale_image) # scale up the image symetric way  
+root.bind("<minus>", handle_scale_image) # scale down the image symetric way
 
 # Create a button to close the form
 close_button = tk.Button(root, text="Save and Close", command=save_and_close)

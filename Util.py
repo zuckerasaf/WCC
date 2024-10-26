@@ -3,6 +3,7 @@ from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, St
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 
+
 def load_backend_names():
     try:
         with open("alpha_data.json", "r") as file:
@@ -12,62 +13,25 @@ def load_backend_names():
     except FileNotFoundError:
         return []
 
-def move_image(event, new_image_position, move_pixels, new_image_path, small_Step, combine_images, update_info_label,rotation_angle,Picture):
-    
-    if new_image_path:
-        if event.keysym == 'Right':
-            new_image_position = (new_image_position[0] + move_pixels // small_Step, new_image_position[1])
-        elif event.keysym == 'Left':
-            new_image_position = (new_image_position[0] - move_pixels // small_Step, new_image_position[1])
-        elif event.keysym == 'Up':
-            new_image_position = (new_image_position[0], new_image_position[1] - move_pixels // small_Step)
-        elif event.keysym == 'Down':
-            new_image_position = (new_image_position[0], new_image_position[1] + move_pixels // small_Step)
-        elif event.keysym == 'd':
-            new_image_position = (-100, -100 + move_pixels // small_Step)
-        combine_images(rotation_angle)
-        update_info_label()
-        Picture.x = new_image_position[0]
-        Picture.y = new_image_position[1]
+def update_image_position_entry(tempData):
+    global image_position_entry
+    if image_position_entry:
+        image_position_entry.delete(0, tk.END)
+        image_position_entry.insert(0, str(tempData.new_image_position))
 
-
-        if image_position_entry:
-            image_position_entry.delete(0, tk.END)
-            image_position_entry.insert(0, str(new_image_position))
-    return new_image_position
-
-
-def rotate_image(event, img, rotation_angle, rotate_degree, image_label,combine_images):#, update_info_label):
-    disp_rotation_angle = 0
-    # Check if img is not None
-    if img is None:
-        print("No image loaded to rotate.")
-        return rotation_angle
-
-    # rotation_angle = (rotation_angle + rotate_degree // small_Step) % 360
-    # Increment the rotation angle by 30 degrees  
-    rotation_angle = (rotation_angle + rotate_degree) % 360
-
-
-    # Rotate the image
-    rotated_img = img.rotate(rotation_angle, expand=True)
-    img_tk = ImageTk.PhotoImage(rotated_img)
-    image_label.config(image=img_tk)
-    image_label.image = img_tk  # Keep a reference to avoid garbage collection
-
-    # Update the rotation value in the alpha form
+def update_rotation_entry(tempData):
+    global rotation_entry
     if rotation_entry:
         rotation_entry.delete(0, tk.END)
-        if rotation_angle < 180:
-            disp_rotation_angle = 0 - rotation_angle
-        else:
-            disp_rotation_angle = 360- rotation_angle
-        rotation_entry.insert(0, str(disp_rotation_angle))
+        rotation_entry.insert(0, str(tempData.disp_rotation_angle))
 
-    combine_images(rotation_angle)
+def update_scale_image(switch):
+    global image_scale_entry
+    if image_scale_entry:
+        image_scale_entry.delete(0, tk.END)
+        image_scale_entry.insert(0, f"{switch.scale:.2f}")
 
-    return rotation_angle 
-
+        
 
 def Bring_File_path ():
     global file_path
@@ -89,9 +53,11 @@ def load_switch_names(DB_file_path,panel_name):
                 return list(panel.get("Items", {}).values())
         return []
 
-def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Switch):
-    global rotation_entry,image_position_entry,file_path
-    # print("panel_name",panel_name)
+def open_alpha_form(root,add_Switch,tempData, picture):
+
+    global image_position_entry, rotation_entry, image_scale_entry
+
+    print("new_scale - open_alpha_form",tempData.new_scale)
     def on_bring_file_path(var):
         file_path = Bring_File_path()
         if file_path:
@@ -147,6 +113,7 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
         backend_name = switch_name_entry.get()
         image_size = image_size_entry.get()
         image_position = image_position_entry.get()
+        image_scale = image_scale_entry.get()
         type_value = type_var.get()
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
@@ -222,10 +189,15 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
         #     width, height = image_size.split('x')
         # except ValueError:
         #     width, height = "0", "0"  # Default values in case of error
+        if type_value == "string":
+                ElementType = "String"
+        else:
+                ElementType = "Integer"
 
         data = {
             "type": type_value,
             "backend_name": backend_name,
+            "scale": image_scale,
             "img_width": picture.width,
             "img_height": picture.height,
             "pos_left": picture.x,#image_position[0],
@@ -295,6 +267,13 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
 
             "blinking": {
                 "color": color_value
+            },
+            "DBSIM_Props": {
+                    "Key":  backend_name+"_IN",
+                    "StationName": "",
+                    "BlockName": "IOToHost."+ picture.InPanelName,
+                    "ElementName": "Data." + backend_name,
+                    "ElementType": ElementType
             },
         }
         if add_Switch == True:
@@ -384,21 +363,27 @@ def open_alpha_form(root,new_image_position, disp_rotation_angle, picture,add_Sw
     image_size_entry.grid(row=1, column=1)
     image_size_entry.insert(0, str(picture.width)+" X "+str(picture.height))  # Assuming the resized image size
 
+    Label(alpha_form, text="Image scale:").grid(row=1, column=2)
+    image_scale_entry = Entry(alpha_form)
+    image_scale_entry.grid(row=1, column=3)
+    image_scale_entry.insert(0, str(picture.scale))  # Assuming the resized image size
+
+
     Label(alpha_form, text="Image Position:").grid(row=2, column=0)
     image_position_entry = Entry(alpha_form)
     image_position_entry.grid(row=2, column=1)
-    image_position_entry.insert(0, str(new_image_position))
+    image_position_entry.insert(0, str(picture.x)+","+str(picture.y))  # Initial position
 
 
     Label(alpha_form, text="Rotation:").grid(row=2, column=2)
     rotation_entry = Entry(alpha_form)
     rotation_entry.grid(row=2, column=3)
-    rotation_entry.insert(0, str(disp_rotation_angle))  # Initial rotation 
+    rotation_entry.insert(0, str(tempData.disp_rotation_angle))  # Initial rotation 
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
     type_var.set(picture.type_value)  # Default type value
-    type_options = ["state2" , "stateN" , "knobInteger" , "analog" , "string" , "number"]
+    type_options = ["static" , "stateN" , "knobInteger" , "analog_rotation" , "analog_vertical_translation" , "analog_horizontal_translation" , "string" , "number"]
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
 

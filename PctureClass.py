@@ -32,9 +32,10 @@ class Switch:
         self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]  
-        self.scale = "100" 
+        self.scale = 1 
         self.IMG_rotation = "100"   
         self.json_file_path = "none"  
+        self.InPanelName = "In_panel_name"
 
 # Method to resize the picture
     def resize(self, new_width, new_height):
@@ -125,3 +126,22 @@ class Switch:
             print(f"File {json_file_path} not found")
         except json.JSONDecodeError:
             print(f"Error decoding JSON from {json_file_path}")   
+
+class TempData:
+    def __init__(self):
+        self.new_scale = 1.0
+        self.new_position= (0, 0)
+        self.rotation_angle = 0
+        self.disp_rotation_angle = 0
+        self.current_image_path = None
+        self.new_image_path = None
+        self.rotated_new_img = None
+        self.new_image_position = (0, 0)
+        self.combined_image_path = None
+        self.base_img = None  # Add a global variable to store the base image
+        self.move_pixels = 10  # Default number of pixels to move
+        self.rotate_degree = 10
+        self.image_position_entry = None  # Reference to the image position entry field in the alpha form
+        self.img = None  # Add a global variable to store the image
+        self.image_label = None  # Add a global variable to store the image label
+        self.panel_name_label_String = None  # Add a global variable to store the panel name label
