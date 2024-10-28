@@ -206,12 +206,10 @@ def add_Switch(DB_file_path,panel,update,panelName):
     #global new_scale, current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
     if tempData.current_image_path and update==1:
-        # add new image to the panel 
+        # add new image to new panel 
         file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
             tempData.new_image_path = file_path
-            # new_image_position = (0, 0)  # Start at the top-left corner
-            # new_scale = 1.0
             tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
             image_id = os.path.basename(file_path)
             img = Image.open(file_path)
@@ -227,13 +225,11 @@ def add_Switch(DB_file_path,panel,update,panelName):
 
             tempData.new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
 
-            # Combine images and update info label
             combine_images()
             update_info_label()
 
-            # Open the alpha form
-            open_alpha_form(root,True,tempData,switch)#, f"{width}x{height}",panel)
-    elif current_image_path and update==2:
+            open_alpha_form(root,True,tempData,switch)
+    elif tempData.current_image_path and update==2:
         # up date switch data  in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
@@ -242,65 +238,71 @@ def add_Switch(DB_file_path,panel,update,panelName):
         switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
         json_file_path, selected_name = update_item()
         switch.update_parameters_from_json(json_file_path, selected_name)
-        
+        tempData.new_scale=switch.scale
 
-        new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
-
-        new_image_position = (switch.x, switch.y)
-        base_img = Image.open(current_image_path)  # Open and store the base image
+        tempData.new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
+        tempData.new_image_position = (switch.x, switch.y)
+        tempData.base_img = Image.open(tempData.current_image_path)
 
             # Combine images and update info label
-        combine_images(rotation_angle)
+        combine_images()
         update_info_label()
 
-            # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
-    elif current_image_path and update==3:
+        open_alpha_form(root,False,tempData,switch)
+        #open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
+    elif tempData.current_image_path and update==3:
         # up date switch image in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
         
         file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
-        new_image_path = file_path
+        tempData.new_image_path = file_path
 
         # Create an instance of PctureClass and update parameters from JSON
         switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
         json_file_path, selected_name = update_item()
         switch.update_parameters_from_json(json_file_path, selected_name)
-        switch.file_path = new_image_path
-        switch.image_id = new_image_path
-        switch.scale = new_scale
-        print("scale",switch.scale)
+        switch.file_path = tempData.new_image_path
+        switch.image_id = tempData.new_image_path
+        tempData.new_scale=switch.scale
+        #switch.scale = new_scale
 
-        new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
-
-        new_image_position = (switch.x, switch.y)
-        base_img = Image.open(current_image_path)  # Open and store the base image
+        tempData.new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
+        tempData.new_image_position = (switch.x, switch.y)
+        tempData.base_img = Image.open(tempData.current_image_path)
 
             # Combine images and update info label
-        combine_images(rotation_angle)
+        combine_images()
         update_info_label()
 
             # Open the alpha form
-        open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
-    elif current_image_path and update==4:
+        #open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
+        open_alpha_form(root,False,tempData,switch)
+    elif tempData.current_image_path and update==4:
+        selected_name = ""
+        json_file_path = ""
         # add new image to exsit  panel in json_file_path
         json_file_path = filedialog.askopenfilename(
-        title="Select JSON File",
+        title="Select JSON File for adding the switch",
         filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
         )
-        file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+        file_path = filedialog.askopenfilename(title="Select switch image to add",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
-            new_image_path = file_path
-            new_image_position = (0, 0)  # Start at the top-left corner
-            base_img = Image.open(current_image_path)  # Open and store the base image
+            tempData.new_image_path = file_path
+            tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
             image_id = os.path.basename(file_path)
             img = Image.open(file_path)
             width, height = img.width, img.height
+            # new_image_path = file_path
+            # new_image_position = (0, 0)  # Start at the top-left corner
+            # base_img = Image.open(current_image_path)  # Open and store the base image
+            # image_id = os.path.basename(file_path)
+            # img = Image.open(file_path)
+            # width, height = img.width, img.height
 
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
             switch.json_file_path= json_file_path
-            switch.scale = new_scale
+            switch.scale = tempData.new_scale
             print("scale",switch.scale)
             select_switch_name(DB_file_path,panel, switch)                      
             switch_name = switch.imageName
@@ -309,11 +311,12 @@ def add_Switch(DB_file_path,panel,update,panelName):
             new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
 
             # Combine images and update info label
-            combine_images(rotation_angle)
+            combine_images()
             update_info_label()
 
             # Open the alpha form
-            open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False,new_scale)#, f"{width}x{height}",panel)
+            open_alpha_form(root,False,tempData,switch)
+            #open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False,new_scale)#, f"{width}x{height}",panel)
 
 def combine_images():
 
@@ -323,8 +326,8 @@ def combine_images():
         # Open the new image
         new_img = Image.open(tempData.new_image_path)
        # Resize the new image according to the scale factor
-        new_width = int(new_img.width * tempData.new_scale)
-        new_height = int(new_img.height * tempData.new_scale)
+        new_width = int(new_img.width * float(tempData.new_scale))
+        new_height = int(new_img.height * float(tempData.new_scale))
         new_img = new_img.resize((new_width, new_height), Image.LANCZOS)
 
         # Calculate the center of the original image
@@ -441,11 +444,11 @@ def handle_scale_image(event):
     global tempData,switch
 
     if event.keysym == 'plus':
-        switch.scale = switch.scale + 0.05
+        switch.scale = float(switch.scale) + 0.05
         switch.width = int(switch.width  + switch.width *0.05)
         switch.height = int(switch.height + switch.height *0.05)
     elif event.keysym == 'minus':
-        switch.scale = switch.scale - 0.05
+        switch.scale = float(switch.scale) - 0.05
         switch.width = int(switch.width  - switch.width *0.05)
         switch.height = int(switch.height - switch.height *0.05)
 
@@ -531,15 +534,15 @@ add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add
 add_button.grid(row=3, column=0, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(current_image_path,db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button.grid(row=3, column=1, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch(current_image_path, db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch(current_image_path, db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_add_switch.grid(row=3, column=3, padx=5, pady=5)
 
 # Create a button to add delete switch from the Jason file 
