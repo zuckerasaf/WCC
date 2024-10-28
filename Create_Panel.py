@@ -410,7 +410,7 @@ def handle_move_image(event):
         elif event.keysym == 'Down':
             tempData.new_image_position = (tempData.new_image_position[0], tempData.new_image_position[1] + tempData.move_pixels // small_step)
         elif event.keysym == 'd':
-            tempData.new_image_position = (-100, -100 + tempData.move_pixels // tempData.small_Step)
+            tempData.new_image_position = (-100, -100)
         combine_images()
         update_info_label()
         switch.x = tempData.new_image_position[0]
@@ -486,7 +486,7 @@ tempData = None
 switch = None
 
 root = tk.Tk()
-root.title("Image Browser")
+root.title("configure Json for panel")
 
 current_image_path = None
 
@@ -561,7 +561,7 @@ set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 step_size_label = tk.Label(frame, text=f" Step : {tempData.move_pixels} pixels")
 step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
-step_info_label = tk.Label(frame, text=f"arrows for move, shift for 0.1 step")
+step_info_label = tk.Label(frame, text=f"arrows for move, with ""shift"" for 0.1 step")
 step_info_label.grid(row=1, column=0, padx=0, pady=5)
 
 
@@ -572,12 +572,16 @@ set_angle_button.grid(row=0, column=2, padx=1, pady=5)
 step_angle_label = tk.Label(frame, text=f" Angle : {tempData.rotate_degree} degree")
 step_angle_label.grid(row=0, column=3, padx=1, pady=5)
 
-step_angle_info_label = tk.Label(frame, text=f"R rotate  right\T rotate left , CTRL 0.1 step")
+step_angle_info_label = tk.Label(frame, text=f" ""R"" rotate  right ""T"" rotate left , with ""CTRL"" 0.1 step")
 step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
 
 
-step_angle_info_label = tk.Label(frame, text=f"press D to move image out of the presentation area")
+step_angle_info_label = tk.Label(frame, text=f" ""D"" to move image to -100/-100")
+step_angle_info_label.grid(row=2, column=0, padx=0, pady=5)
+
+step_angle_info_label = tk.Label(frame, text=f" ""+"" or ""-"" foor scale up and down the image in 5%")
 step_angle_info_label.grid(row=2, column=2, padx=0, pady=5)
+
 
 # Bind arrow keys to the move_image function
 root.bind('<Right>', handle_move_image)
