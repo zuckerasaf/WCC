@@ -487,6 +487,8 @@ switch = None
 
 root = tk.Tk()
 root.title("configure Json for panel")
+# Set the position of the root window to the top-left corner of the screen
+root.geometry("+10+10")
 
 current_image_path = None
 

@@ -2,6 +2,32 @@
     {
         "DB_Default_Folder": "C:\\projectPython\\WCC\\DB",
         "DB_Default_file": "PLAF_DB_switch.json",
-        "Image_Switch_Folder": "C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public"
+        "Image_Switch_Folder": "C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public",
+        "Switch_type": [
+            "static",
+            "stateN", 
+            "knobInteger",
+            "analog_rotation",
+            "analog_vertical_translation",
+            "analog_horizontal_translation",
+            "string",
+            "number"
+        ],
+        "color": [
+           "yellow",
+           "green", 
+           "blue",
+           "red",
+           "white",
+           "black",
+           "orange",
+           "purple"
+        ],
+        "logger": [
+            "true",
+            "opt1", 
+            "opt2",
+            "false"
+        ]
     }
 ]

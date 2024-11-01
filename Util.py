@@ -4,6 +4,24 @@ from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 
 
+import json
+
+def load_parameters_from_Jason(param):
+    try:
+        with open("InitValues.json", "r", encoding='utf-8') as file:
+            data = json.load(file)
+            if isinstance(data, list):
+                return data[0].get(param, [])
+            else:
+                raise TypeError("Expected a list of dictionaries in the JSON file")
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        return []
+    except TypeError as e:
+        print(f"Error: {e}")
+        return []
+
 def load_backend_names():
     try:
         with open("alpha_data.json", "r") as file:
@@ -196,85 +214,92 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
         data = {
             "type": type_value,
-            "backend_name": backend_name,
-            "scale": image_scale,
-            "img_width": picture.width,
-            "img_height": picture.height,
-            "pos_left": picture.x,#image_position[0],
-            "pos_top": picture.y,#image_position[1],
-            "offset_on": offset_on_value,
-            "offset_off": offset_off_value,
-            "Logger": Loggerstate,
-            "Z_index" : Z_Index,
-
-            "imageProps": {
-                "imageDefault": imageDefault_value,#picture.file_path,
-                "additionalImageData": {
-                    conversion_1_Key : conversion_1_file_path,
-                    conversion_2_Key : conversion_2_file_path,
-                    conversion_3_Key : conversion_3_file_path,
-                    conversion_4_Key : conversion_4_file_path,
-                    conversion_5_Key : conversion_5_file_path,
-                    conversion_6_Key : conversion_6_file_path,
-                    conversion_7_Key : conversion_7_file_path,
-                    conversion_8_Key : conversion_8_file_path,
-                    conversion_9_Key : conversion_9_file_path,
-                    conversion_10_Key : conversion_10_file_path,
-                 }
-            },
-            
-            # "image_off": "/CMDSPanel/SWITCH_10_DOWN_1.png",
-            "debugMode": debugMode_value,
-            "is_clickable": is_clickable_value,
-            "click_props": {
-                "click_bounds_height_factor": click_bounds_height_factor_value,
-                "click_bounds_width_factor": click_bounds_width_factor_value,
-                "mapping": {
-                    "map_top": top,
-                    "map_right": right,
-                    "map_bottom": bottom,
-                    "map_left ": left,
-                    "map_press_pull1 ": press_pull1,
-                    "map_press_pull2 ": press_pull2,
-                }
-            },
-            "knob_props": {
-                    "conversion": {
-                    rotation_1_Key :  rotation_1_angle, 
-                    rotation_2_Key :  rotation_2_angle,
-                    rotation_3_Key :  rotation_3_angle, 
-                    rotation_4_Key :  rotation_4_angle,
-                    rotation_5_Key :  rotation_5_angle, 
-                    rotation_6_Key :  rotation_6_angle,
-                    rotation_7_Key :  rotation_7_angle, 
-                    rotation_8_Key :  rotation_8_angle,
-                    rotation_9_Key :  rotation_9_angle, 
-                    rotation_10_Key :  rotation_10_angle,
+            "backend_name" : backend_name,
+            "backend": {
+                "Key":  backend_name+"_IN",
+                "dbsimProps": {
+                    "stationName": "",
+                    "blockName": "IOToHost."+ picture.InPanelName,
+                    "elementName": "Data." + backend_name,
+                    "elementType": ElementType,
+                    "enumMapping": "any"                    
                     }
-            },
-            "analog_props": {
-                    "Value_conversion": {
-                    Value_conversion_1_Key :  Value_conversion_1_angle, 
-                    Value_conversion_2_Key :  Value_conversion_2_angle,
-                    Value_conversion_3_Key :  Value_conversion_3_angle, 
-                    Value_conversion_4_Key :  Value_conversion_4_angle,
-                    Value_conversion_5_Key :  Value_conversion_5_angle, 
-                }
-            },
-            "string_props": {
-                "maxStringLength": String_Length
-            },
+                },
+            "component": {
+                "debugMode": debugMode_value,
+                "isClickable": is_clickable_value,
+                "position":{
+                    "img_width": picture.width,
+                    "img_height": picture.height,
+                    "pos_left": picture.x,#image_position[0],
+                    "pos_top": picture.y,#image_position[1],
+                    "Z_index" : Z_Index,
+                    "scale": image_scale,
+                },
+                "imageProps": {
+                    "imageDefault": imageDefault_value,#picture.file_path,
+                    "additionalImageData": {
+                        conversion_1_Key : conversion_1_file_path,
+                        conversion_2_Key : conversion_2_file_path,
+                        conversion_3_Key : conversion_3_file_path,
+                        conversion_4_Key : conversion_4_file_path,
+                        conversion_5_Key : conversion_5_file_path,
+                        conversion_6_Key : conversion_6_file_path,
+                        conversion_7_Key : conversion_7_file_path,
+                        conversion_8_Key : conversion_8_file_path,
+                        conversion_9_Key : conversion_9_file_path,
+                        conversion_10_Key : conversion_10_file_path,
+                    }
+                },
+                "clickProps": {
+                    "clickBoundsHeightFactor": click_bounds_height_factor_value,
+                    "clickBoundsWidthFactor": click_bounds_width_factor_value,
+                    "mapping": {
+                        "map_top": top,
+                        "map_right": right,
+                        "map_bottom": bottom,
+                        "map_left ": left,
+                        "map_press_pull1 ": press_pull1,
+                        "map_press_pull2 ": press_pull2,
+                    }
+                },
+                "knob_props": {
+                        "rotation": {
+                        rotation_1_Key :  rotation_1_angle, 
+                        rotation_2_Key :  rotation_2_angle,
+                        rotation_3_Key :  rotation_3_angle, 
+                        rotation_4_Key :  rotation_4_angle,
+                        rotation_5_Key :  rotation_5_angle, 
+                        rotation_6_Key :  rotation_6_angle,
+                        rotation_7_Key :  rotation_7_angle, 
+                        rotation_8_Key :  rotation_8_angle,
+                        rotation_9_Key :  rotation_9_angle, 
+                        rotation_10_Key :  rotation_10_angle,
+                        }
+                },
+                "analog_props": {
+                        "conversion": {
+                        Value_conversion_1_Key :  Value_conversion_1_angle, 
+                        Value_conversion_2_Key :  Value_conversion_2_angle,
+                        Value_conversion_3_Key :  Value_conversion_3_angle, 
+                        Value_conversion_4_Key :  Value_conversion_4_angle,
+                        Value_conversion_5_Key :  Value_conversion_5_angle, 
+                    }
+                },
+                "string_props": {
+                    "maxStringLength": String_Length
+                },
 
-            "blinking": {
-                "color": color_value
-            },
-            "DBSIM_Props": {
-                    "Key":  backend_name+"_IN",
-                    "StationName": "",
-                    "BlockName": "IOToHost."+ picture.InPanelName,
-                    "ElementName": "Data." + backend_name,
-                    "ElementType": ElementType
-            },
+                "blinking": {
+                    "color": color_value
+                },
+                "logger": {
+                    "display": Loggerstate,
+                }
+                # "offset_on": offset_on_value,
+                # "offset_off": offset_off_value,
+            }
+
         }
         if add_Switch == True:
             # Read existing data from the JSON file
@@ -333,7 +358,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                 Switch_name_listbox.insert(tk.END, name)
             
                 # Configure grid to expand the listbox
-            root.grid_rowconfigure(8, weight=1)
+            root.grid_rowconfigure(5, weight=1)
             root.grid_columnconfigure(0, weight=1)
         Switch_name_listbox(root)
         alpha_form.destroy()
@@ -383,7 +408,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
     type_var.set(picture.type_value)  # Default type value
-    type_options = ["static" , "stateN" , "knobInteger" , "analog_rotation" , "analog_vertical_translation" , "analog_horizontal_translation" , "string" , "number"]
+    type_options = load_parameters_from_Jason("Switch_type")
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
 
@@ -410,7 +435,8 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     Label(alpha_form, text="Blinking color:").grid(row=20, column=0)
     color_var= StringVar(alpha_form)
     color_var.set(picture.color)  # Default type value
-    color_options = ["yellow", "red", "blue"]
+    color_options = load_parameters_from_Jason("color")
+    #color_options = ["yellow", "red", "blue"]
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
     color_menu.grid(row=20, column=1)
 
@@ -419,7 +445,8 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     Label(alpha_form, text="Logger caption:").grid(row=23, column=0)
     Logger_var = StringVar(alpha_form)
     Logger_var.set(picture.Logger)  # Default type value
-    Logger_options = ["true" , "opt1" , "opt2" , "false"]
+    Logger_options = load_parameters_from_Jason("logger")
+    #Logger_options = ["true" , "opt1" , "opt2" , "false"]
     Logger_menu = OptionMenu(alpha_form, Logger_var, *Logger_options)
     Logger_menu.grid(row=23, column=1)
 

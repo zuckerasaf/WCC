@@ -6,12 +6,13 @@ class Switch:
         self.imageName = "switch"
         self.image_id = image_id
         self.file_path = file_path
+        self.scale = 1.0
         self.width = width
         self.height = height
         self.x = 0
         self.y = 0
         self.rotation = 0
-        self.type_value = "state2"
+        self.type_value = "stateN"
         self.offset_on_value = "0"
         self.offset_off_value = "0"
         self.debugMode_value = "false"
@@ -63,22 +64,35 @@ class Switch:
                 data = json.load(file)
                 item = next((item for item in data if item['backend_name'] == item_name), None)
                 if item:
+                    self.type_value = item.get('type', self.type_value)
                     self.imageName = item.get('backend_name', self.imageName)  
-                    self.image_id = item.get('imageDefault', self.image_id) 
-                    imageProps = item.get('imageProps', {})
-                    self.file_path = imageProps.get('imageDefault', self.file_path) 
-                    self.width = item.get('img_width', self.width) 
-                    self.height = item.get('img_height', self.height) 
-                    self.x = item.get('pos_left', self.x) 
-                    self.y = item.get('pos_top', self.y) 
-                    self.rotation = "0" 
-                    self.type_value = item.get('type', self.type_value) 
-                    self.offset_on_value = item.get('offset_on', self.offset_on_value) 
-                    self.offset_off_value = item.get('offset_off', self.offset_off_value) 
-                    self.debugMode_value = item.get('debugMode', self.debugMode_value) 
-                    self.is_clickable_value = item.get('is_clickable', self.is_clickable_value)
-                    # Read the "click_props" dictionary
-                    click_props = item.get('click_props', {})
+                    
+                    backend = item.get('backend', {})
+                    
+                    component = item.get('component', {})
+                    self.debugMode_value = component.get('debugMode', self.debugMode_value) 
+                    self.is_clickable_value = component.get('is_clickable', self.is_clickable_value)
+                    
+                    position = component.get('position', {})
+                    self.width = position.get('img_width', self.width) 
+                    self.height = position.get('img_height', self.height) 
+                    self.x = position.get('pos_left', self.x) 
+                    self.y = position.get('pos_top', self.y) 
+                    self.scale = position.get('scale', self.scale)  
+                    self.Z_index = position.get('Z_index', self.Z_index) 
+                    
+                    imageProps = component.get('imageProps', {})
+                    self.image_id = imageProps.get('imageDefault', self.image_id) 
+                    self.file_path = imageProps.get('imageDefault', self.file_path)
+                                   # Read and update the "additionalImageData" dictionary
+                    self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
+                    additionalImageData = imageProps.get('additionalImageData')
+                    updated_additionalImageData = [[Pic, Path] for Pic, Path in additionalImageData.items()]
+                    for j in range(len(updated_additionalImageData)):
+                        self.conversion[j] = updated_additionalImageData[j]
+
+
+                    click_props = component.get('click_props', {})
                     self.click_bounds_height_factor_value = click_props.get('click_bounds_height_factor', self.click_bounds_height_factor_value) 
                     self.click_bounds_width_factor_value = click_props.get('click_bounds_width_factor', self.click_bounds_width_factor_value) 
                     mapping = click_props.get('mapping', {})
@@ -88,35 +102,43 @@ class Switch:
                     self.left = mapping.get('map_left', self.left)
                     self.press_pull1 = mapping.get('map_press_pull1', self.press_pull1)
                     self.press_pull2 = mapping.get('map_press_pull2', self.press_pull2)
-                    blinking = item.get('string_props', {})
-                    self.color = blinking.get('color', self.color) 
-                    self.grid_direction = "ud"
-                    string_props = item.get('string_props', {})
-                    self.String_Length = string_props.get('maxStringLength', self.String_Length) 
-                    self.Z_index = item.get('Z_index', self.Z_index) 
-                    # Read and update the "knob_props" dictionary
+
+                                        # Read and update the "knob_props" dictionary
                     self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-                    knob_props = item.get('knob_props')
-                    conversion = knob_props.get('conversion')
-                    updated_rotation = [[angle, value] for angle, value in conversion.items()]
+                    knob_props = component.get('knob_props')
+                    rotation_conversion = knob_props.get('rotation')
+                    updated_rotation = [[angle, value] for angle, value in rotation_conversion.items()]
                     for i in range(len(updated_rotation)):
                         self.rotation[i] = updated_rotation[i]
 
-                    # Read and update the "additionalImageData" dictionary
-                    self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-                    imageProps = item.get('imageProps')
-                    additionalImageData = imageProps.get('additionalImageData')
-                    updated_additionalImageData = [[Pic, Path] for Pic, Path in additionalImageData.items()]
-                    for j in range(len(updated_additionalImageData)):
-                        self.conversion[j] = updated_additionalImageData[j]
-
                     self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]   
-                    analog_props = item.get('analog_props')
-                    Value_conversion = analog_props.get('Value_conversion')
+                    analog_props = component.get('analog_props')
+                    Value_conversion = analog_props.get('conversion')
                     updated_value_conversion = [[ang1, ang2] for ang1, ang2 in Value_conversion.items()]
                     for k in range(len(updated_value_conversion)):
                         self.value_conversion[k] = updated_value_conversion[k]
 
+                    string_props = component.get('string_props', {})
+                    self.String_Length = string_props.get('maxStringLength', self.String_Length) 
+                    
+                    blinking = component.get('blinking', {})
+                    self.color = blinking.get('color', self.color) 
+                    
+                    logger = component.get('logger', {})
+                    self.Logger = logger.get('display', self.Logger)
+
+                    # self.type_value = item.get('type', self.type_value) 
+                    # self.offset_on_value = item.get('offset_on', self.offset_on_value) 
+                    # self.offset_off_value = item.get('offset_off', self.offset_off_value) 
+                    # self.grid_direction = "ud"
+                    # self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]   
+                    # analog_props = item.get('analog_props')
+                    # Value_conversion = analog_props.get('Value_conversion')
+                    # updated_value_conversion = [[ang1, ang2] for ang1, ang2 in Value_conversion.items()]
+                    # for k in range(len(updated_value_conversion)):
+                    #     self.value_conversion[k] = updated_value_conversion[k]
+                    self.grid_direction = "ud"
+                    self.IMG_rotation = "0" 
                     self.json_file_path = json_file_path
 
                     print(f"Updated parameters for {item_name} from {json_file_path}")
