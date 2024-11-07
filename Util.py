@@ -2,9 +2,14 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
-
-
 import json
+
+def str2DBSIMelement (elemnets):
+    str2DBsim = ""
+    for elment in elemnets:
+        pass
+
+    return str2DBsim
 
 def load_parameters_from_Jason(param):
     try:
@@ -62,6 +67,7 @@ def load_panel_names(DB_file_path):
         return data["panel_names"]
     
 def load_switch_names(DB_file_path,panel_name):
+
     print("panel_name", panel_name)
     with open(DB_file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
@@ -375,7 +381,10 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     height = root.winfo_height()
 
     # Set the position of the alpha_form window to the right of the Image Browser window
+    width = 800
+    height = 1000
     alpha_form.geometry(f"+{x + width + 10}+{y}")
+    alpha_form.geometry(f"{width}x{height}")
 
     # Create a label to display the selected panel name
     Label(alpha_form, text="switch name :").grid(row=0, column=0)
@@ -425,12 +434,29 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, picture.press_pull1)
     press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, picture.press_pull2)
     
-    Label(alpha_form, text="grid direction:").grid(row=19, column=0)
-    grid_direction_var = StringVar(alpha_form)
-    grid_direction_var.set( picture.grid_direction)  # Default type value
-    grid_direction_options = ["ud", "lr", "none"]
-    grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
-    grid_direction_menu.grid(row=19, column=1)
+    # Label(alpha_form, text="grid direction:").grid(row=19, column=0)
+    # grid_direction_var = StringVar(alpha_form)
+    # grid_direction_var.set( picture.grid_direction)  # Default type value
+    # grid_direction_options = ["ud", "lr", "none"]
+    # grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
+    # grid_direction_menu.grid(row=19, column=1)
+
+    Label(alpha_form, text="DBSIM Element:").grid(row=19, column=0)
+    DBSIM_Element_entry = Entry(alpha_form)
+    DBSIM_Element_entry.grid(row=19, column=1)
+    DBSIM_Element_entry.insert(0, str(picture.DBSIM_Element))  # Initial position
+
+    Label(alpha_form, text="DBSIM Mapping:").grid(row=19, column=2)
+    #DBSIM_Mapping_entry = Entry(alpha_form)
+    DBSIM_Mapping_entry = tk.Text(alpha_form, wrap=tk.WORD, width=35)
+    stringDBSimElementValues = "".join(picture.DBSimElementValues)
+    DBSIM_Mapping_entry.insert(tk.END, stringDBSimElementValues)  # Initial position
+    num_lines = stringDBSimElementValues.count('\n') + 1
+    DBSIM_Mapping_entry.config(height=num_lines)
+    DBSIM_Mapping_entry.grid(row=19, column=3)
+
+
+
 
     Label(alpha_form, text="Blinking color:").grid(row=20, column=0)
     color_var= StringVar(alpha_form)

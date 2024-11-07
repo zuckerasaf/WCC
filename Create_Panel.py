@@ -1,3 +1,4 @@
+from lxml import etree
 import tkinter as tk
 from tkinter import messagebox
 from  PctureClass import Switch, TempData
@@ -6,7 +7,7 @@ from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
-from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names  # Import the move_image function
+from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names,str2DBSIMelement  # Import the move_image function
 from Delete_Update import delete_item, update_item
 
 
@@ -14,17 +15,25 @@ def hello_world():
     print("Hello, World!")
 
 # Function to read the JSON file and extract the default DB path
-def get_default_db_path(json_file):
+def get_default_db_path(json_file,type):
     try:
         with open(json_file, 'r') as file:
             data = json.load(file)
             db_default_folder = data[0]["DB_Default_Folder"]
             db_default_file = data[0]["DB_Default_file"]
-            full_path = os.path.join(db_default_folder, db_default_file)
-            if os.path.exists(full_path):
-                browse_button.config(state=tk.NORMAL)
-                return full_path
-            else: return "No DB selected yet"
+            dbsim_default_file = data[0]["DBSIM_Default_file"]
+            if type == "ORS":
+                full_path = os.path.join(db_default_folder, db_default_file)
+                if os.path.exists(full_path):
+                    browse_button.config(state=tk.NORMAL)
+                    return full_path
+                else: return "No DB selected yet"
+            elif type == "DBSIM":
+                full_path = os.path.join(db_default_folder, dbsim_default_file)
+                if os.path.exists(full_path):
+                    browse_button.config(state=tk.NORMAL)
+                    return full_path
+
     except FileNotFoundError:
         return "No DB selected yet"
 
@@ -39,7 +48,7 @@ def browse_DB(db_name_var):
         browse_button.config(state=tk.NORMAL)
         db_name_var.set(file_path)
 
-def browse_image(DB_file_path,image_label):
+def browse_image(DB_file_path,DBSIM_file_Path,image_label):
     global tempData, switch
     # global img, img_tk, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
 
@@ -59,7 +68,7 @@ def browse_image(DB_file_path,image_label):
         # Get the image size
         width, height = img.width, img.height
 
-        select_panel_name(DB_file_path)
+        select_panel_name(DB_file_path,DBSIM_file_Path)
 
         # Create a switch instance with the image name as the ID
         image_id = os.path.basename(file_path)
@@ -70,9 +79,9 @@ def browse_image(DB_file_path,image_label):
         print(f"Created switch instance: ID={switch.image_id}, Path={switch.file_path}")
        
 
-def select_switch_name(DB_file_path,panel_name, switch):
+def select_switch_name(DB_file_path,panel_name, switch,elements,DBSIM_file_Path):
     print("panel_name",panel_name)
-   
+    tree = etree.parse(DBSIM_file_Path)
     if panel_name is None:
         print("No panel selected")
         return
@@ -81,6 +90,7 @@ def select_switch_name(DB_file_path,panel_name, switch):
     
     # Sort the switch names alphabetically
     switch_names_sorted = sorted(switch_names)
+    elements_sorted = (elements)
 
     # Create a new window for switch name selection
     switch_window = tk.Toplevel(root)
@@ -88,22 +98,40 @@ def select_switch_name(DB_file_path,panel_name, switch):
 
     # Set the width of the switch_window to twice its default width
     default_width = 200  # Example default width, adjust as needed
-    switch_window.geometry(f"{default_width * 2}x150")  # Adjust height as needed
+    switch_window.geometry(f"{default_width * 2}x180")  # Adjust height as needed
 
     # Create a StringVar to track the selected switch name
     selected_switch_name = tk.StringVar()
+    selected_switch_name_DBSIM = tk.StringVar()
 
         # Create a label and combobox for panel name selection
-    Switch_label = ttk.Label(switch_window, text="Select switch Name:")
+    Switch_label = ttk.Label(switch_window, text="Select switch Name ORS:")
     Switch_label.pack(padx=10, pady=5)
 
     Switch_combobox = ttk.Combobox(switch_window, textvariable=selected_switch_name, values=switch_names_sorted, width=40)
     Switch_combobox.pack(padx=10, pady=5)
 
+            # Create a label and combobox for panel name selection
+    Switch_label_DBSIM = ttk.Label(switch_window, text="Select switch Name DBSIM:")
+    Switch_label_DBSIM.pack(padx=10, pady=5)
+
+    Switch_combobox_DBSIM = ttk.Combobox(switch_window, textvariable=selected_switch_name_DBSIM, values=elements_sorted, width=40)
+    Switch_combobox_DBSIM.pack(padx=10, pady=5)
+
+
     # Function to proceed after switch name is selected
     def proceed():
+        DBSimElementValues = []
+        i = 0
         if selected_switch_name.get():
             switch.imageName = selected_switch_name.get()
+            switch.DBSIM_Element = selected_switch_name_DBSIM.get()
+            elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{switch.DBSIM_Element}"]/TypeDefinition')
+            listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
+            listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
+            for i in range(len(listEngValueelme)):
+                DBSimElementValues.append("Logic Value " + listnameelme[i] + " = ENG Value " + listEngValueelme[i].text + "\n") 
+            switch.DBSimElementValues = DBSimElementValues
             print(switch.imageName)
             switch_window.destroy()
             
@@ -116,12 +144,19 @@ def select_switch_name(DB_file_path,panel_name, switch):
     switch_window.wait_window()
 
 # Function to select a panel name
-def select_panel_name(DB_file_path):
+
+def select_panel_name(DB_file_path,DBSIM_file_Path):
+    tree = etree.parse(DBSIM_file_Path)
+    #root = tree.getroot()
  
     panel_names = load_panel_names(DB_file_path)
+
+    panel_name_DBISM = tree.xpath('//MessageDefinitions/MessageDefinition/@Name')
         
     # Sort the switch names alphabetically
     panel_names_sorted = sorted(panel_names)
+
+    panel_name_DBISM_sortes = sorted(panel_name_DBISM) 
 
     # Create a new window for panel name selection
     panel_window = tk.Toplevel(root)
@@ -129,23 +164,32 @@ def select_panel_name(DB_file_path):
 
     # Set the width of the panel_window to twice its default width
     default_width = 200  # Example default width, adjust as needed
-    panel_window.geometry(f"{default_width * 2}x120")  # Adjust height as needed
+    panel_window.geometry(f"{default_width * 2}x180")  # Adjust height as needed
 
     # Create a StringVar to track the selected panel name
     selected_panel_name = tk.StringVar()
+    selected_panel_name_DBsim = tk.StringVar()
 
     # Create a label and combobox for panel name selection
-    panel_label = ttk.Label(panel_window, text="Select Panel Name:")
+    panel_label = ttk.Label(panel_window, text="Select Panel Name from ORS :")
     panel_label.pack(padx=10, pady=5)
 
     panel_combobox = ttk.Combobox(panel_window, textvariable=selected_panel_name, values=panel_names_sorted, width=40)
     panel_combobox.pack(padx=10, pady=5)
+
+        # Create a label and combobox for panel name selection
+    panel_label_DBsim = ttk.Label(panel_window, text="Select Panel Name from DBSIM :")
+    panel_label_DBsim.pack(padx=10, pady=5)
+
+    panel_DBsim_combobox = ttk.Combobox(panel_window, textvariable=selected_panel_name_DBsim, values=panel_name_DBISM_sortes, width=40)
+    panel_DBsim_combobox.pack(padx=10, pady=5)
 
     # Function to proceed after panel name is selected
     def proceed():
         if selected_panel_name.get():
             panel_window.destroy()
             panel_name_label.config(text=selected_panel_name.get())
+            panel_name_label_DBSim.config(text=selected_panel_name_DBsim.get())
             add_button.config(state=tk.NORMAL)
             update_button.config(state=tk.NORMAL)
             delete_button.config(state=tk.NORMAL)
@@ -200,7 +244,11 @@ def transform_file_path(file_path, text ):
     new_file_path = os.path.join(new_directory, new_filename)
     return new_file_path
 
-def add_Switch(DB_file_path,panel,update,panelName):
+def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel):
+
+    tree = etree.parse(DBSIM_file_Path)
+    switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+    elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
 
     global tempData, switch
     #global new_scale, current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
@@ -219,7 +267,7 @@ def add_Switch(DB_file_path,panel,update,panelName):
             switch.InPanelName = panelName
             switch.scale = tempData.new_scale
             print("scale",switch.scale)
-            select_switch_name(DB_file_path,panel, switch)                      
+            select_switch_name(DB_file_path,panel, switch,elements,DBSIM_file_Path)                      
             switch_name = switch.imageName
             print("here "  + switch_name)
 
@@ -304,7 +352,7 @@ def add_Switch(DB_file_path,panel,update,panelName):
             switch.json_file_path= json_file_path
             switch.scale = tempData.new_scale
             print("scale",switch.scale)
-            select_switch_name(DB_file_path,panel, switch)                      
+            select_switch_name(DB_file_path,panel, switch,elements)                      
             switch_name = switch.imageName
             print("here "  + switch_name)
 
@@ -503,24 +551,37 @@ image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
 tempData = TempData()
 
 # Create a button to browse files
-browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),image_label), state=tk.DISABLED)
+browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),dbsim_name_label.cget("text"),image_label), state=tk.DISABLED)
 browse_button.grid(row=0, column=0)
 
 # Create a label to display the selected panel name
-panel_name_label = ttk.Label(name_frame, text="No panel selected")
-panel_name_label.grid(row=0, column=1, padx=5, pady=5)
+panel_name_label = ttk.Label(name_frame, text="No ORS panel selected")
+panel_name_label.grid(row=1, column=0, padx=5, pady=5)
 
+panel_name_label_DBSim = ttk.Label(name_frame, text="No DBSIM panel selected")
+panel_name_label_DBSim.grid(row=1, column=2, padx=5, pady=5)
+
+json_file_path = 'InitValues.json'
 
 # Create the "browse_DB" button
-browse_db_button = ttk.Button(name_frame, text="Browse DB", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
+browse_db_button = ttk.Button(name_frame, text="Browse ORS DB", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
 browse_db_button.grid(row=0, column=3, padx=10, pady=10)
 
 # Create the DB_name label with a default value
-json_file_path = 'InitValues.json'
-defualt_db_name_var = get_default_db_path(json_file_path)
+defualt_db_name_var = get_default_db_path(json_file_path, "ORS")
 db_name_var = tk.StringVar(value=defualt_db_name_var)
 db_name_label = ttk.Label(name_frame, textvariable=db_name_var)
 db_name_label.grid(row=0, column=4, padx=10, pady=10)
+
+# Create the "browse_DBSIM" button
+browse_dbSIM_button = ttk.Button(name_frame, text="Browse DBSIM", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
+browse_dbSIM_button.grid(row=0, column=5, padx=10, pady=10)
+
+# Create the DB_name label with a default value
+defualt_dbsim_name_var = get_default_db_path(json_file_path, "DBSIM")
+dbsim_name_var = tk.StringVar(value=defualt_dbsim_name_var)
+dbsim_name_label = ttk.Label(name_frame, textvariable=dbsim_name_var)
+dbsim_name_label.grid(row=0, column=6, padx=10, pady=10)
 
 # Create a label to display the image_id and file_path
 info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
@@ -532,19 +593,19 @@ switchbuttonframe = ttk.Frame(root)
 switchbuttonframe.grid(row=3, column=0, padx=10, pady=10)
 
 # Create a button to add another image on top
-add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1,panel_name_label.cget("text")), state=tk.DISABLED, bg="lightgreen")
+add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text")), state=tk.DISABLED, bg="lightgreen")
 add_button.grid(row=3, column=0, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button.grid(row=3, column=1, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
 
 # Create a button to add update switch from the Jason file
-update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text")), state=tk.DISABLED , bg="lightyellow")
+update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text")), state=tk.DISABLED , bg="lightyellow")
 update_button_add_switch.grid(row=3, column=3, padx=5, pady=5)
 
 # Create a button to add delete switch from the Jason file 

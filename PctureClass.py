@@ -37,6 +37,8 @@ class Switch:
         self.IMG_rotation = "100"   
         self.json_file_path = "none"  
         self.InPanelName = "In_panel_name"
+        self.DBSIM_Element = "none"
+        self.DBSimElementValues = []
 
 # Method to resize the picture
     def resize(self, new_width, new_height):
