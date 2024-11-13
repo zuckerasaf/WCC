@@ -50,6 +50,8 @@ def browse_DB(db_name_var):
 
 def browse_image(DB_file_path,DBSIM_file_Path,image_label):
     global tempData, switch
+    tempData.DB_Default_File_Path = DB_file_path
+    tempData.DBSIM_Default_file = DBSIM_file_Path
     # global img, img_tk, new_image_path, current_image_path, image_id,rotated_new_img,  new_image_path, new_image_position, combined_image_path
 
     # Create a new, empty alpha_data.json file
@@ -122,16 +124,23 @@ def select_switch_name(DB_file_path,panel_name, switch,elements,DBSIM_file_Path)
     # Function to proceed after switch name is selected
     def proceed():
         DBSimElementValues = []
+        DBSimElementValues_Display = []
         i = 0
         if selected_switch_name.get():
             switch.imageName = selected_switch_name.get()
             switch.DBSIM_Element = selected_switch_name_DBSIM.get()
-            elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{switch.DBSIM_Element}"]/TypeDefinition')
-            listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
-            listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
-            for i in range(len(listEngValueelme)):
-                DBSimElementValues.append("Logic Value " + listnameelme[i] + " = ENG Value " + listEngValueelme[i].text + "\n") 
-            switch.DBSimElementValues = DBSimElementValues
+            if switch.DBSIM_Element != "" or switch.DBSIM_Element == "none":
+                elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{switch.DBSIM_Element}"]/TypeDefinition')
+                listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
+                listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
+                for i in range(len(listEngValueelme)):
+                    DBSimElementValues_Display.append(listnameelme[i] + " = " + listEngValueelme[i].text + "\n") 
+                    DBSimElementValues.append(listnameelme[i] + " = " + listEngValueelme[i].text) 
+                switch.DBSimElementValues = DBSimElementValues
+                switch.DBSimElementValues_Display = DBSimElementValues_Display
+                
+            else:
+                switch.DBSIM_Element = "none"
             print(switch.imageName)
             switch_window.destroy()
             
@@ -245,12 +254,17 @@ def transform_file_path(file_path, text ):
     return new_file_path
 
 def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel):
-
-    tree = etree.parse(DBSIM_file_Path)
-    switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
-    elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+    if DBSIM_panel !="":
+        tree = etree.parse(DBSIM_file_Path)
+        switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+        elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+    else:
+       elements = ["none"] 
+        
 
     global tempData, switch
+    tempData.DBSIM_panel = DBSIM_panel
+    tempData.panelName = DBSIM_panel
     #global new_scale, current_image_path, new_image_path, rotated_new_img, new_image_position, base_img, img, img_tk, image_id, rotation_angle,switch
     rotation_angle = 0
     if tempData.current_image_path and update==1:
@@ -441,22 +455,35 @@ def save_image():
             img.save(save_path)
             print(f"Image saved to {save_path}")
 
+def smallstep_handle(event):
+    small_step = 1
+    print(f"event.state: {event.state}")
+    if event.state & 0x20000:  # Check if Shift key is pressed
+        small_step = 10
+    elif event.state & 0x0004:  # Check if Ctrl key is pressed
+        small_step = 0.1
+    return small_step
+
 
 def handle_move_image(event):
     global tempData,switch
-    small_step = 1
-    if event.state & 0x0001:  # Check if Shift key is pressed
-        small_step = 10
+    # small_step = 1
+    # print(f"event.state: {event.state}")
+    # if event.state & 0x0001:  # Check if Shift key is pressed
+    #     small_step = 10
+    # elif event.state & 0x0004:  # Check if Ctrl key is pressed
+    #     small_step = 0.1
+    small_step=smallstep_handle(event)
 
     if tempData.new_image_path:
         if event.keysym == 'Right':
-            tempData.new_image_position = (tempData.new_image_position[0] + tempData.move_pixels // small_step, tempData.new_image_position[1])
+            tempData.new_image_position = (int(tempData.new_image_position[0] + tempData.move_pixels // small_step), tempData.new_image_position[1])
         elif event.keysym == 'Left':
-            tempData.new_image_position = (tempData.new_image_position[0] - tempData.move_pixels // small_step, tempData.new_image_position[1])
+            tempData.new_image_position = (int(tempData.new_image_position[0] - tempData.move_pixels // small_step), tempData.new_image_position[1])
         elif event.keysym == 'Up':
-            tempData.new_image_position = (tempData.new_image_position[0], tempData.new_image_position[1] - tempData.move_pixels // small_step)
+            tempData.new_image_position = (tempData.new_image_position[0], int(tempData.new_image_position[1] - tempData.move_pixels // small_step))
         elif event.keysym == 'Down':
-            tempData.new_image_position = (tempData.new_image_position[0], tempData.new_image_position[1] + tempData.move_pixels // small_step)
+            tempData.new_image_position = (tempData.new_image_position[0], int(tempData.new_image_position[1] + tempData.move_pixels // small_step))
         elif event.keysym == 'd':
             tempData.new_image_position = (-100, -100)
         combine_images()
@@ -469,14 +496,18 @@ def handle_move_image(event):
  
 def handle_rotate_image(event):
     global tempData,switch
-    small_rotate = 1
-    if event.state & 0x0004:  # Check if Ctrl key is pressed
-        small_rotate = 10
+    # print(f"event.state: {event.state}")
+    # small_rotate = 1
+    # if event.state & 0x0001:  # Check if Shift key is pressed
+    #     small_rotate = 10
+    # elif event.state & 0x0004:  # Check if Ctrl key is pressed
+    #     small_rotate = 0.1
+    small_rotate = smallstep_handle(event)
 
     if event.keysym == 'r':
-        tempData.rotation_angle = (tempData.rotation_angle - tempData.rotate_degree// small_rotate) % 360
+        tempData.rotation_angle = int((tempData.rotation_angle - tempData.rotate_degree// small_rotate)) % 360
     elif event.keysym == 't':
-        tempData.rotation_angle = (tempData.rotation_angle + tempData.rotate_degree// small_rotate) % 360
+        tempData.rotation_angle = int((tempData.rotation_angle + tempData.rotate_degree// small_rotate)) % 360
 
     combine_images()
 
@@ -555,11 +586,15 @@ browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:brows
 browse_button.grid(row=0, column=0)
 
 # Create a label to display the selected panel name
-panel_name_label = ttk.Label(name_frame, text="No ORS panel selected")
-panel_name_label.grid(row=1, column=0, padx=5, pady=5)
+ORS_label = tk.Label(name_frame, text=f" name from ORS -> ")
+ORS_label.grid(row=1, column=0, padx=0, pady=0)
+panel_name_label = ttk.Label(name_frame, text="No ORS panel selected", anchor='w')
+panel_name_label.grid(row=1, column=1, padx=0, pady=0, sticky='w')
 
-panel_name_label_DBSim = ttk.Label(name_frame, text="No DBSIM panel selected")
-panel_name_label_DBSim.grid(row=1, column=2, padx=5, pady=5)
+DBSIM_label = tk.Label(name_frame, text=f" name from DBSIM -> ")
+DBSIM_label.grid(row=1, column=4, padx=0, pady=0)
+panel_name_label_DBSim = ttk.Label(name_frame, text="No DBSIM panel selected", anchor='w')
+panel_name_label_DBSim.grid(row=1, column=5, padx=0, pady=0, sticky='w')
 
 json_file_path = 'InitValues.json'
 
@@ -624,7 +659,7 @@ set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
 step_size_label = tk.Label(frame, text=f" Step : {tempData.move_pixels} pixels")
 step_size_label.grid(row=0, column=1, padx=0, pady=5)
 
-step_info_label = tk.Label(frame, text=f"arrows for move, with ""shift"" for 0.1 step")
+step_info_label = tk.Label(frame, text=f"arrows for move, \n with ""ALT"" * 0.1, with  ""CTRL"" * 10 step")
 step_info_label.grid(row=1, column=0, padx=0, pady=5)
 
 
@@ -635,7 +670,7 @@ set_angle_button.grid(row=0, column=2, padx=1, pady=5)
 step_angle_label = tk.Label(frame, text=f" Angle : {tempData.rotate_degree} degree")
 step_angle_label.grid(row=0, column=3, padx=1, pady=5)
 
-step_angle_info_label = tk.Label(frame, text=f" ""R"" rotate  right ""T"" rotate left , with ""CTRL"" 0.1 step")
+step_angle_info_label = tk.Label(frame, text=f" ""R"" rotate  right ""T"" rotate left \n with ""ALT"" * 0.1, with  ""CTRL"" * 0.1 step")
 step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
 
 
@@ -651,9 +686,9 @@ root.bind('<Right>', handle_move_image)
 root.bind('<Left>', handle_move_image)
 root.bind('<Up>', handle_move_image)
 root.bind('<Down>', handle_move_image)
-root.bind('<d>', handle_move_image) # move the image out of the screen 
-root.bind("<r>", handle_rotate_image) # rotate the image to the right 
-root.bind("<t>", handle_rotate_image) # rotate the image to the left 
+root.bind('<KeyPress-d>', handle_move_image) # move the image out of the screen 
+root.bind('<KeyPress-r>', handle_rotate_image) # rotate the image to the right 
+root.bind('<KeyPress-t>', handle_rotate_image) # rotate the image to the left 
 root.bind("<plus>", handle_scale_image) # scale up the image symetric way  
 root.bind("<minus>", handle_scale_image) # scale down the image symetric way
 

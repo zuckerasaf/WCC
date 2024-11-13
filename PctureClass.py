@@ -3,6 +3,7 @@ import json
 
 class Switch:
     def __init__(self, image_id, file_path, width, height):
+        emptyList = [["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.imageName = "switch"
         self.image_id = image_id
         self.file_path = file_path
@@ -30,16 +31,17 @@ class Switch:
         self.grid_direction = "ud"
         self.String_Length = "0"
         self.Z_index = "0"
-        self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-        self.conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-        self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]  
+        self.rotation =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
+        self.conversion =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
+        self.value_conversion =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]  
         self.scale = 1 
         self.IMG_rotation = "100"   
         self.json_file_path = "none"  
         self.InPanelName = "In_panel_name"
         self.DBSIM_Element = "none"
-        self.DBSimElementValues = []
-
+        self.DBSimElementValues = emptyList
+        self.DBSimElementValues_Display = []
+        
 # Method to resize the picture
     def resize(self, new_width, new_height):
         self.width = new_width
@@ -70,6 +72,11 @@ class Switch:
                     self.imageName = item.get('backend_name', self.imageName)  
                     
                     backend = item.get('backend', {})
+                    dbsimProps = backend.get('dbsimProps', {})
+                    self.DBSimElementValues = dbsimProps.get('enumMapping', {})
+                    for i in range(len(self.DBSimElementValues)):
+                        self.DBSimElementValues_Display.append(self.DBSimElementValues[i] + "\n") 
+                    self.DBSIM_Element =  self.imageName
                     
                     component = item.get('component', {})
                     self.debugMode_value = component.get('debugMode', self.debugMode_value) 
@@ -142,7 +149,8 @@ class Switch:
                     self.grid_direction = "ud"
                     self.IMG_rotation = "0" 
                     self.json_file_path = json_file_path
-
+                    
+                    
                     print(f"Updated parameters for {item_name} from {json_file_path}")
                 else:
                     print(f"Item with name {item_name} not found in {json_file_path}")
@@ -169,3 +177,8 @@ class TempData:
         self.img = None  # Add a global variable to store the image
         self.image_label = None  # Add a global variable to store the image label
         self.panel_name_label_String = None  # Add a global variable to store the panel name label
+        self.DBSIM_Default_file = None
+        self.DB_Default_File_Path = None
+        self.DBSIM_panel = None
+        self.panelName = None
+

@@ -1,8 +1,78 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
+from tkinter import filedialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
-import json
+from lxml import etree
+
+
+def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry):
+    global DBSimElementValues_Display_update_var
+    DBSimElementValues_Display_update_var = []
+#    pass
+    tree = etree.parse(tempData.DBSIM_Default_file)
+    switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{tempData.DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+    elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+    if tempData.DBSIM_Default_file is None:
+         print("No panel selected")
+         return
+    
+    print (elements)   
+#     # Sort the switch names alphabetically
+#     switch_names_sorted = sorted(switch_names)
+    elements_sorted = sorted(elements)
+
+    # Create a new window for switch name selection
+    switch_window_Updtae = tk.Toplevel(root)
+    switch_window_Updtae.title("update DBSIM value for the current wwitch")
+
+    # Set the width of the switch_window to twice its default width
+    default_width = 200  # Example default width, adjust as needed
+    switch_window_Updtae.geometry(f"{default_width * 2}x120")  # Adjust height as needed
+
+    # Create a StringVar to track the selected switch name
+    selected_switch_name_DBSIM_Update = tk.StringVar()
+
+            # Create a label and combobox for panel name selection
+    Switch_label_DBSIM = ttk.Label(switch_window_Updtae, text="Select switch Name DBSIM:")
+    Switch_label_DBSIM.pack(padx=10, pady=5)
+
+    Switch_combobox_DBSIM_Update = ttk.Combobox(switch_window_Updtae, textvariable=selected_switch_name_DBSIM_Update, values=elements_sorted, width=40)
+    Switch_combobox_DBSIM_Update.pack(padx=10, pady=5)
+
+
+    # Function to proceed after switch name is selected
+    def proceed(DBSIM_Mapping_entry,DBSIM_Element_entry):
+        i = 0
+        if selected_switch_name_DBSIM_Update.get():
+            if selected_switch_name_DBSIM_Update.get() != "" or selected_switch_name_DBSIM_Update.get() == "none":
+                elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{selected_switch_name_DBSIM_Update.get()}"]/TypeDefinition')
+                listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
+                listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
+                for i in range(len(listEngValueelme)):
+                    DBSimElementValues_Display_update_var.append(listnameelme[i] + " = " + listEngValueelme[i].text + "\n")
+
+                DBSIM_Mapping_entry.delete("1.0", tk.END)  # Clear the Text widget
+                DBSIM_Mapping_entry.insert(tk.END, "".join(DBSimElementValues_Display_update_var))
+                num_lines = "".join(DBSimElementValues_Display_update_var).count('\n') + 1
+                DBSIM_Mapping_entry.config(height=num_lines)
+
+                DBSIM_Element_entry.delete(0, tk.END)  # Clear the Text widget
+                DBSIM_Element_entry.insert(0, selected_switch_name_DBSIM_Update.get())
+
+            switch_window_Updtae.destroy()
+            
+    
+
+    # Create a button to proceed
+    # command=lambda: browse_DB(db_name_var)
+    proceed_button = ttk.Button(switch_window_Updtae, text="Proceed", command=lambda: proceed(DBSIM_Mapping_entry,DBSIM_Element_entry))
+    #proceed_button = ttk.Button(switch_window_Updtae, text="Proceed", command=proceed)
+    proceed_button.pack(padx=10, pady=10)
+
+    switch_window_Updtae.wait_window()
+
+# # Function to select a panel name
+
 
 def str2DBSIMelement (elemnets):
     str2DBsim = ""
@@ -139,6 +209,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         image_position = image_position_entry.get()
         image_scale = image_scale_entry.get()
         type_value = type_var.get()
+        DBSimElementValues = DBSIM_Mapping_entry.get()
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
         debugMode_value = debugMode_var.get()
@@ -206,6 +277,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         String_Length = String_Length_Var.get()
         Loggerstate = Logger_var.get()
         Z_Index = Z_index_var.get()
+        #DBSimElementValues = DBSIM_Mapping_entry.get()
 
         # add_switch_name_to_Image(backend_name, image, x, y)
 
@@ -220,41 +292,41 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
         data = {
             "type": type_value,
-            "backend_name" : backend_name,
+            "backend_name": backend_name,
             "backend": {
-                "Key":  backend_name+"_IN",
+                "Key": backend_name + "_IN",
                 "dbsimProps": {
                     "stationName": "",
-                    "blockName": "IOToHost."+ picture.InPanelName,
+                    "blockName": "IOToHost." + picture.InPanelName,
                     "elementName": "Data." + backend_name,
                     "elementType": ElementType,
-                    "enumMapping": "any"                    
-                    }
-                },
+                    "enumMapping": DBSimElementValues,
+                }
+            },
             "component": {
                 "debugMode": debugMode_value,
                 "isClickable": is_clickable_value,
-                "position":{
+                "position": {
                     "img_width": picture.width,
                     "img_height": picture.height,
-                    "pos_left": picture.x,#image_position[0],
-                    "pos_top": picture.y,#image_position[1],
-                    "Z_index" : Z_Index,
+                    "pos_left": picture.x,  # image_position[0],
+                    "pos_top": picture.y,  # image_position[1],
+                    "Z_index": Z_Index,
                     "scale": image_scale,
                 },
                 "imageProps": {
-                    "imageDefault": imageDefault_value,#picture.file_path,
+                    "imageDefault": imageDefault_value,  # picture.file_path,
                     "additionalImageData": {
-                        conversion_1_Key : conversion_1_file_path,
-                        conversion_2_Key : conversion_2_file_path,
-                        conversion_3_Key : conversion_3_file_path,
-                        conversion_4_Key : conversion_4_file_path,
-                        conversion_5_Key : conversion_5_file_path,
-                        conversion_6_Key : conversion_6_file_path,
-                        conversion_7_Key : conversion_7_file_path,
-                        conversion_8_Key : conversion_8_file_path,
-                        conversion_9_Key : conversion_9_file_path,
-                        conversion_10_Key : conversion_10_file_path,
+                        conversion_1_Key: conversion_1_file_path,
+                        conversion_2_Key: conversion_2_file_path,
+                        conversion_3_Key: conversion_3_file_path,
+                        conversion_4_Key: conversion_4_file_path,
+                        conversion_5_Key: conversion_5_file_path,
+                        conversion_6_Key: conversion_6_file_path,
+                        conversion_7_Key: conversion_7_file_path,
+                        conversion_8_Key: conversion_8_file_path,
+                        conversion_9_Key: conversion_9_file_path,
+                        conversion_10_Key: conversion_10_file_path,
                     }
                 },
                 "clickProps": {
@@ -264,48 +336,44 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                         "map_top": top,
                         "map_right": right,
                         "map_bottom": bottom,
-                        "map_left ": left,
-                        "map_press_pull1 ": press_pull1,
-                        "map_press_pull2 ": press_pull2,
+                        "map_left": left,
+                        "map_press_pull1": press_pull1,
+                        "map_press_pull2": press_pull2,
                     }
                 },
                 "knob_props": {
-                        "rotation": {
-                        rotation_1_Key :  rotation_1_angle, 
-                        rotation_2_Key :  rotation_2_angle,
-                        rotation_3_Key :  rotation_3_angle, 
-                        rotation_4_Key :  rotation_4_angle,
-                        rotation_5_Key :  rotation_5_angle, 
-                        rotation_6_Key :  rotation_6_angle,
-                        rotation_7_Key :  rotation_7_angle, 
-                        rotation_8_Key :  rotation_8_angle,
-                        rotation_9_Key :  rotation_9_angle, 
-                        rotation_10_Key :  rotation_10_angle,
-                        }
+                    "rotation": {
+                        rotation_1_Key: rotation_1_angle,
+                        rotation_2_Key: rotation_2_angle,
+                        rotation_3_Key: rotation_3_angle,
+                        rotation_4_Key: rotation_4_angle,
+                        rotation_5_Key: rotation_5_angle,
+                        rotation_6_Key: rotation_6_angle,
+                        rotation_7_Key: rotation_7_angle,
+                        rotation_8_Key: rotation_8_angle,
+                        rotation_9_Key: rotation_9_angle,
+                        rotation_10_Key: rotation_10_angle,
+                    }
                 },
                 "analog_props": {
-                        "conversion": {
-                        Value_conversion_1_Key :  Value_conversion_1_angle, 
-                        Value_conversion_2_Key :  Value_conversion_2_angle,
-                        Value_conversion_3_Key :  Value_conversion_3_angle, 
-                        Value_conversion_4_Key :  Value_conversion_4_angle,
-                        Value_conversion_5_Key :  Value_conversion_5_angle, 
+                    "conversion": {
+                        Value_conversion_1_Key: Value_conversion_1_angle,
+                        Value_conversion_2_Key: Value_conversion_2_angle,
+                        Value_conversion_3_Key: Value_conversion_3_angle,
+                        Value_conversion_4_Key: Value_conversion_4_angle,
+                        Value_conversion_5_Key: Value_conversion_5_angle,
                     }
                 },
                 "string_props": {
                     "maxStringLength": String_Length
                 },
-
                 "blinking": {
                     "color": color_value
                 },
                 "logger": {
                     "display": Loggerstate,
                 }
-                # "offset_on": offset_on_value,
-                # "offset_off": offset_off_value,
             }
-
         }
         if add_Switch == True:
             # Read existing data from the JSON file
@@ -391,28 +459,33 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     switch_name_entry = Entry(alpha_form)
     switch_name_entry.grid(row=0, column=1)
     switch_name_entry.insert(0, picture.imageName)
-    
+    switch_name_entry.config(background='grey')
+
     Label(alpha_form, text="Image Size:").grid(row=1, column=0)
     image_size_entry = Entry(alpha_form)
     image_size_entry.grid(row=1, column=1)
     image_size_entry.insert(0, str(picture.width)+" X "+str(picture.height))  # Assuming the resized image size
+    image_size_entry.config(background='grey')
 
     Label(alpha_form, text="Image scale:").grid(row=1, column=2)
     image_scale_entry = Entry(alpha_form)
     image_scale_entry.grid(row=1, column=3)
     image_scale_entry.insert(0, str(picture.scale))  # Assuming the resized image size
+    image_scale_entry.config(background='grey')
 
 
     Label(alpha_form, text="Image Position:").grid(row=2, column=0)
     image_position_entry = Entry(alpha_form)
     image_position_entry.grid(row=2, column=1)
     image_position_entry.insert(0, str(picture.x)+","+str(picture.y))  # Initial position
+    image_position_entry.config(background='grey')
 
 
     Label(alpha_form, text="Rotation:").grid(row=2, column=2)
     rotation_entry = Entry(alpha_form)
     rotation_entry.grid(row=2, column=3)
     rotation_entry.insert(0, str(tempData.disp_rotation_angle))  # Initial rotation 
+    rotation_entry.config(background='grey')
 
     Label(alpha_form, text="Type:").grid(row=3, column=0)
     type_var = StringVar(alpha_form)
@@ -434,49 +507,44 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, picture.press_pull1)
     press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, picture.press_pull2)
     
-    # Label(alpha_form, text="grid direction:").grid(row=19, column=0)
-    # grid_direction_var = StringVar(alpha_form)
-    # grid_direction_var.set( picture.grid_direction)  # Default type value
-    # grid_direction_options = ["ud", "lr", "none"]
-    # grid_direction_menu = OptionMenu(alpha_form, grid_direction_var, *grid_direction_options)
-    # grid_direction_menu.grid(row=19, column=1)
+    global DBSimElementValues_Display_update_var
+    
+    Update_DBSim_Button = Button(alpha_form, text="Update Data from DBSim ", command=lambda: Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry))
+    Update_DBSim_Button.grid(row=20, column=0)
 
-    Label(alpha_form, text="DBSIM Element:").grid(row=19, column=0)
+    Label(alpha_form, text="DBSIM Element:").grid(row=21, column=0)
     DBSIM_Element_entry = Entry(alpha_form)
-    DBSIM_Element_entry.grid(row=19, column=1)
-    DBSIM_Element_entry.insert(0, str(picture.DBSIM_Element))  # Initial position
+    DBSIM_Element_entry.grid(row=21, column=1)
+    DBSIM_Element_entry.insert(0, str(picture.DBSIM_Element))  
+    DBSIM_Element_entry.config(background='grey')
 
-    Label(alpha_form, text="DBSIM Mapping:").grid(row=19, column=2)
+    Label(alpha_form, text="DBSIM Mapping:").grid(row=21, column=2)
     #DBSIM_Mapping_entry = Entry(alpha_form)
     DBSIM_Mapping_entry = tk.Text(alpha_form, wrap=tk.WORD, width=35)
-    stringDBSimElementValues = "".join(picture.DBSimElementValues)
-    DBSIM_Mapping_entry.insert(tk.END, stringDBSimElementValues)  # Initial position
+    stringDBSimElementValues = "".join(picture.DBSimElementValues_Display)
+    DBSIM_Mapping_entry.insert(tk.END, stringDBSimElementValues)  
     num_lines = stringDBSimElementValues.count('\n') + 1
     DBSIM_Mapping_entry.config(height=num_lines)
-    DBSIM_Mapping_entry.grid(row=19, column=3)
+    DBSIM_Mapping_entry.grid(row=21, column=3)
+    DBSIM_Mapping_entry.config(background='grey')
 
-
-
-
-    Label(alpha_form, text="Blinking color:").grid(row=20, column=0)
+    Label(alpha_form, text="Blinking color:").grid(row=23, column=0)
     color_var= StringVar(alpha_form)
     color_var.set(picture.color)  # Default type value
     color_options = load_parameters_from_Jason("color")
-    #color_options = ["yellow", "red", "blue"]
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
-    color_menu.grid(row=20, column=1)
+    color_menu.grid(row=23, column=1)
 
-    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 22, 0, picture.String_Length)
+    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 24, 0, picture.String_Length)
 
-    Label(alpha_form, text="Logger caption:").grid(row=23, column=0)
+    Label(alpha_form, text="Logger caption:").grid(row=25, column=0)
     Logger_var = StringVar(alpha_form)
     Logger_var.set(picture.Logger)  # Default type value
     Logger_options = load_parameters_from_Jason("logger")
-    #Logger_options = ["true" , "opt1" , "opt2" , "false"]
     Logger_menu = OptionMenu(alpha_form, Logger_var, *Logger_options)
-    Logger_menu.grid(row=23, column=1)
+    Logger_menu.grid(row=25, column=1)
 
-    Z_index_var = create_label_entry_pair(alpha_form, "Z_index:", 24, 0, picture.Z_index)
+    Z_index_var = create_label_entry_pair(alpha_form, "Z_index:", 26, 0, picture.Z_index)
 
     # Create a frame for rotation commands
     knob_props_frame = ttk.Frame(alpha_form, padding="10")
@@ -569,8 +637,8 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
 
 
-    imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 26, 0, picture.file_path)
+    imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 27, 0, picture.file_path)
     
     save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture, root))
-    save_button.grid(row=27, columnspan=1)
+    save_button.grid(row=28, columnspan=1)
 
