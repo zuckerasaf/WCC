@@ -41,6 +41,9 @@ class Switch:
         self.DBSIM_Element = "none"
         self.DBSimElementValues = emptyList
         self.DBSimElementValues_Display = []
+        self.DBSimelementType = "Integer"
+        self.panelName = "none"
+        self.panel_Image_Path= "none"
         
 # Method to resize the picture
     def resize(self, new_width, new_height):
@@ -70,6 +73,8 @@ class Switch:
                 if item:
                     self.type_value = item.get('type', self.type_value)
                     self.imageName = item.get('backend_name', self.imageName)  
+                    self.panelName = item.get('Panel_name', self.imageName)  
+                    self.panel_Image_Path = item.get('Panel_name_Path', self.imageName)  
                     
                     backend = item.get('backend', {})
                     dbsimProps = backend.get('dbsimProps', {})
@@ -78,6 +83,8 @@ class Switch:
                         self.DBSimElementValues_Display.append(self.DBSimElementValues[i] + "\n") 
                     self.DBSIM_Element =  self.imageName
                     
+                    self.DBSimelementType = dbsimProps.get('elementType', {})
+
                     component = item.get('component', {})
                     self.debugMode_value = component.get('debugMode', self.debugMode_value) 
                     self.is_clickable_value = component.get('is_clickable', self.is_clickable_value)
@@ -136,16 +143,6 @@ class Switch:
                     logger = component.get('logger', {})
                     self.Logger = logger.get('display', self.Logger)
 
-                    # self.type_value = item.get('type', self.type_value) 
-                    # self.offset_on_value = item.get('offset_on', self.offset_on_value) 
-                    # self.offset_off_value = item.get('offset_off', self.offset_off_value) 
-                    # self.grid_direction = "ud"
-                    # self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]   
-                    # analog_props = item.get('analog_props')
-                    # Value_conversion = analog_props.get('Value_conversion')
-                    # updated_value_conversion = [[ang1, ang2] for ang1, ang2 in Value_conversion.items()]
-                    # for k in range(len(updated_value_conversion)):
-                    #     self.value_conversion[k] = updated_value_conversion[k]
                     self.grid_direction = "ud"
                     self.IMG_rotation = "0" 
                     self.json_file_path = json_file_path
@@ -181,4 +178,5 @@ class TempData:
         self.DB_Default_File_Path = None
         self.DBSIM_panel = None
         self.panelName = None
+        self.panel_Image_Path= None
 

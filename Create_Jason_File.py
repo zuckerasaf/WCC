@@ -1,19 +1,29 @@
 import json
 import os
 from tkinter import filedialog
+from tkinter import messagebox
 
 def transfer_to_json(source_file,target_file):
     panels = {}
     panel_names = set()
     newtarget_file = source_file[:-4] + ".json"
-
+    
+    # Read the text file and store the lines in a list
     try:
         with open(source_file, 'r', encoding='utf-8') as file:
             lines = file.readlines()
     except UnicodeDecodeError:
         with open(source_file, 'r', encoding='latin-1') as file:
             lines = file.readlines()
-        
+    
+    # Check if the text file is in the correct format
+    line_number=1
+    for line in lines:
+        parts = line.strip().split('\t')
+        if len(parts) != 2:  
+            messagebox.showerror("Error", f"The text file is not as it supposed to be in line number {line_number}")
+            return
+        line_number += 1
 
     # Parse the lines and organize them into the desired structure
     for line in lines:

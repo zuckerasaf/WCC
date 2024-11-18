@@ -5,7 +5,7 @@ import json
 from lxml import etree
 
 
-def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry):
+def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry):
     global DBSimElementValues_Display_update_var
     DBSimElementValues_Display_update_var = []
 #    pass
@@ -41,13 +41,14 @@ def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Eleme
 
 
     # Function to proceed after switch name is selected
-    def proceed(DBSIM_Mapping_entry,DBSIM_Element_entry):
+    def proceed(DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry):
         i = 0
         if selected_switch_name_DBSIM_Update.get():
             if selected_switch_name_DBSIM_Update.get() != "" or selected_switch_name_DBSIM_Update.get() == "none":
                 elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{selected_switch_name_DBSIM_Update.get()}"]/TypeDefinition')
                 listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
                 listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
+                elementType = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/ElementType')[0].text
                 for i in range(len(listEngValueelme)):
                     DBSimElementValues_Display_update_var.append(listnameelme[i] + " = " + listEngValueelme[i].text + "\n")
 
@@ -59,13 +60,16 @@ def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Eleme
                 DBSIM_Element_entry.delete(0, tk.END)  # Clear the Text widget
                 DBSIM_Element_entry.insert(0, selected_switch_name_DBSIM_Update.get())
 
+                DBSIM_Element_Type_entry.delete(0, tk.END)  # Clear the Text widget
+                DBSIM_Element_Type_entry.insert(0, elementType)
+
             switch_window_Updtae.destroy()
             
     
 
     # Create a button to proceed
     # command=lambda: browse_DB(db_name_var)
-    proceed_button = ttk.Button(switch_window_Updtae, text="Proceed", command=lambda: proceed(DBSIM_Mapping_entry,DBSIM_Element_entry))
+    proceed_button = ttk.Button(switch_window_Updtae, text="Proceed", command=lambda: proceed(DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry))
     #proceed_button = ttk.Button(switch_window_Updtae, text="Proceed", command=proceed)
     proceed_button.pack(padx=10, pady=10)
 
@@ -199,7 +203,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
             frame.grid()
             button.config(text=f" {button.cget('text').split(' ')[1]} Commands")
 
-    def save_alpha_data(add_Switch,picture, root):
+    def save_alpha_data(add_Switch,picture, root,tempData):
 
         
         global rotation_angle
@@ -209,7 +213,10 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         image_position = image_position_entry.get()
         image_scale = image_scale_entry.get()
         type_value = type_var.get()
-        DBSimElementValues = DBSIM_Mapping_entry.get()
+
+        DBSimElementValues = DBSIM_Mapping_entry.get("1.0", tk.END)
+        enumMapping_list = [line for line in DBSimElementValues.split('\n') if line]
+
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
         debugMode_value = debugMode_var.get()
@@ -277,22 +284,18 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         String_Length = String_Length_Var.get()
         Loggerstate = Logger_var.get()
         Z_Index = Z_index_var.get()
-        #DBSimElementValues = DBSIM_Mapping_entry.get()
+        ElementType = DBSIM_Element_Type_entry.get()
 
-        # add_switch_name_to_Image(backend_name, image, x, y)
-
-        # try:
-        #     width, height = image_size.split('x')
-        # except ValueError:
-        #     width, height = "0", "0"  # Default values in case of error
-        if type_value == "string":
-                ElementType = "String"
+        if picture.panelName == "none":
+                Panel_name = picture.panelName
         else:
-                ElementType = "Integer"
+                Panel_name = tempData.panelName
 
         data = {
             "type": type_value,
             "backend_name": backend_name,
+            "Panel_name": Panel_name,
+            "Panel_name_Path": tempData.panel_Image_Path,
             "backend": {
                 "Key": backend_name + "_IN",
                 "dbsimProps": {
@@ -300,7 +303,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                     "blockName": "IOToHost." + picture.InPanelName,
                     "elementName": "Data." + backend_name,
                     "elementType": ElementType,
-                    "enumMapping": DBSimElementValues,
+                    "enumMapping": enumMapping_list,
                 }
             },
             "component": {
@@ -453,99 +456,121 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     height = 1000
     alpha_form.geometry(f"+{x + width + 10}+{y}")
     alpha_form.geometry(f"{width}x{height}")
-
+    rNum = 0 #relative row number
+    cNum = 0 #relative column number
     # Create a label to display the selected panel name
-    Label(alpha_form, text="switch name :").grid(row=0, column=0)
+    Label(alpha_form, text="switch name :").grid(row=rNum, column=0)
     switch_name_entry = Entry(alpha_form)
-    switch_name_entry.grid(row=0, column=1)
+    switch_name_entry.grid(row=rNum, column=1)
     switch_name_entry.insert(0, picture.imageName)
     switch_name_entry.config(background='grey')
-
-    Label(alpha_form, text="Image Size:").grid(row=1, column=0)
+    rNum += 1
+    Label(alpha_form, text="Image Size:").grid(row=rNum, column=0)
     image_size_entry = Entry(alpha_form)
-    image_size_entry.grid(row=1, column=1)
+    image_size_entry.grid(row=rNum, column=1)
     image_size_entry.insert(0, str(picture.width)+" X "+str(picture.height))  # Assuming the resized image size
     image_size_entry.config(background='grey')
-
-    Label(alpha_form, text="Image scale:").grid(row=1, column=2)
+  
+    Label(alpha_form, text="Image scale:").grid(row=rNum, column=2)
     image_scale_entry = Entry(alpha_form)
-    image_scale_entry.grid(row=1, column=3)
+    image_scale_entry.grid(row=rNum, column=3)
     image_scale_entry.insert(0, str(picture.scale))  # Assuming the resized image size
     image_scale_entry.config(background='grey')
-
-
-    Label(alpha_form, text="Image Position:").grid(row=2, column=0)
+    rNum += 1
+    Label(alpha_form, text="Image Position:").grid(row=rNum, column=0)
     image_position_entry = Entry(alpha_form)
-    image_position_entry.grid(row=2, column=1)
+    image_position_entry.grid(row=rNum, column=1)
     image_position_entry.insert(0, str(picture.x)+","+str(picture.y))  # Initial position
     image_position_entry.config(background='grey')
 
-
-    Label(alpha_form, text="Rotation:").grid(row=2, column=2)
+    Label(alpha_form, text="Rotation:").grid(row=rNum, column=2)
     rotation_entry = Entry(alpha_form)
-    rotation_entry.grid(row=2, column=3)
+    rotation_entry.grid(row=rNum, column=3)
     rotation_entry.insert(0, str(tempData.disp_rotation_angle))  # Initial rotation 
     rotation_entry.config(background='grey')
+    rNum += 1   
 
-    Label(alpha_form, text="Type:").grid(row=3, column=0)
+    Label(alpha_form, text="Type:").grid(row=rNum, column=0)
     type_var = StringVar(alpha_form)
     type_var.set(picture.type_value)  # Default type value
     type_options = load_parameters_from_Jason("Switch_type")
     type_menu = OptionMenu(alpha_form, type_var, *type_options)
     type_menu.grid(row=3, column=1)
-
-    offset_on_var = create_label_entry_pair(alpha_form, "offset on:", 5, 0, picture.offset_on_value)
-    offset_off_var = create_label_entry_pair(alpha_form, "offset off:", 6, 0, picture.offset_off_value)
-    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", 7, 0, picture.debugMode_value)
-    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", 8, 0, picture.is_clickable_value)
-    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", 9, 0, picture.click_bounds_height_factor_value)
-    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", 10, 0, picture.click_bounds_width_factor_value)
-    top_var = create_label_entry_pair(alpha_form, "top:", 12, 0, picture.top)
-    right_var = create_label_entry_pair(alpha_form, "right:", 13, 0, picture.right)
-    bottom_var = create_label_entry_pair(alpha_form, "bottom:", 14, 0, picture.bottom)
-    left_var = create_label_entry_pair(alpha_form, "left:", 15, 0, picture.left)
-    press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", 16, 0, picture.press_pull1)
-    press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", 17, 0, picture.press_pull2)
+    rNum += 1
+    offset_on_var = create_label_entry_pair(alpha_form, "offset on:", rNum, 0, picture.offset_on_value)
+    rNum += 1
+    offset_off_var = create_label_entry_pair(alpha_form, "offset off:", rNum, 0, picture.offset_off_value)
+    rNum += 1
+    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", rNum, 0, picture.debugMode_value)
+    rNum += 1
+    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", rNum, 0, picture.is_clickable_value)
+    rNum += 1
+    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", rNum, 0, picture.click_bounds_height_factor_value)
+    rNum += 1
+    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", rNum, 0, picture.click_bounds_width_factor_value)
+    rNum += 3
+    
+    Label(alpha_form, text="for Toggle behave define ""INCREASE\DECREASE"" :").grid(row=rNum, column=0)
+    rNum += 1
+    top_var = create_label_entry_pair(alpha_form, "top:", rNum, 0, picture.top)
+    rNum += 1
+    right_var = create_label_entry_pair(alpha_form, "right:", rNum, 0, picture.right)
+    rNum += 1
+    bottom_var = create_label_entry_pair(alpha_form, "bottom:", rNum, 0, picture.bottom)
+    rNum += 1
+    left_var = create_label_entry_pair(alpha_form, "left:", rNum, 0, picture.left)
+    rNum += 1
+    press_pull1_var = create_label_entry_pair(alpha_form, "press_pull1:", rNum, 0, picture.press_pull1)
+    rNum += 1
+    press_pull2_var = create_label_entry_pair(alpha_form, "press_pull2:", rNum, 0, picture.press_pull2)
+    rNum += 3
     
     global DBSimElementValues_Display_update_var
     
-    Update_DBSim_Button = Button(alpha_form, text="Update Data from DBSim ", command=lambda: Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry))
-    Update_DBSim_Button.grid(row=20, column=0)
-
-    Label(alpha_form, text="DBSIM Element:").grid(row=21, column=0)
+    Update_DBSim_Button = Button(alpha_form, text="Update Data from DBSim ", command=lambda: Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry))
+    Update_DBSim_Button.grid(row=rNum, column=0)
+    rNum += 1
+    Label(alpha_form, text="DBSIM Element:").grid(row=rNum, column=0)
     DBSIM_Element_entry = Entry(alpha_form)
-    DBSIM_Element_entry.grid(row=21, column=1)
+    DBSIM_Element_entry.grid(row=rNum, column=1)
     DBSIM_Element_entry.insert(0, str(picture.DBSIM_Element))  
     DBSIM_Element_entry.config(background='grey')
+    
 
-    Label(alpha_form, text="DBSIM Mapping:").grid(row=21, column=2)
+    Label(alpha_form, text="DBSIM Mapping:").grid(row=rNum, column=2)
     #DBSIM_Mapping_entry = Entry(alpha_form)
     DBSIM_Mapping_entry = tk.Text(alpha_form, wrap=tk.WORD, width=35)
     stringDBSimElementValues = "".join(picture.DBSimElementValues_Display)
     DBSIM_Mapping_entry.insert(tk.END, stringDBSimElementValues)  
     num_lines = stringDBSimElementValues.count('\n') + 1
     DBSIM_Mapping_entry.config(height=num_lines)
-    DBSIM_Mapping_entry.grid(row=21, column=3)
+    DBSIM_Mapping_entry.grid(row=rNum, column=3)
     DBSIM_Mapping_entry.config(background='grey')
-
-    Label(alpha_form, text="Blinking color:").grid(row=23, column=0)
+    rNum += 1
+    Label(alpha_form, text="DBSIM Element type:").grid(row=rNum, column=0)
+    DBSIM_Element_Type_entry = Entry(alpha_form)
+    DBSIM_Element_Type_entry.grid(row=rNum, column=1)
+    DBSIM_Element_Type_entry.insert(0, str(picture.DBSimelementType))  
+    DBSIM_Element_Type_entry.config(background='grey')
+    rNum += 3
+    Label(alpha_form, text="Blinking color:").grid(row=rNum, column=0)
     color_var= StringVar(alpha_form)
     color_var.set(picture.color)  # Default type value
     color_options = load_parameters_from_Jason("color")
     color_menu = OptionMenu(alpha_form, color_var, *color_options)
-    color_menu.grid(row=23, column=1)
-
-    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", 24, 0, picture.String_Length)
-
-    Label(alpha_form, text="Logger caption:").grid(row=25, column=0)
+    color_menu.grid(row=rNum, column=1)
+    rNum += 1
+    String_Length_Var = create_label_entry_pair(alpha_form, "String Length:", rNum, 0, picture.String_Length)
+    rNum += 1
+    Label(alpha_form, text="Logger caption:").grid(row=rNum, column=0)
     Logger_var = StringVar(alpha_form)
     Logger_var.set(picture.Logger)  # Default type value
     Logger_options = load_parameters_from_Jason("logger")
     Logger_menu = OptionMenu(alpha_form, Logger_var, *Logger_options)
-    Logger_menu.grid(row=25, column=1)
-
-    Z_index_var = create_label_entry_pair(alpha_form, "Z_index:", 26, 0, picture.Z_index)
-
+    Logger_menu.grid(row=rNum, column=1)
+    rNum += 1
+    Z_index_var = create_label_entry_pair(alpha_form, "Z_index:", rNum, 0, picture.Z_index)
+    rNum += 1
     # Create a frame for rotation commands
     knob_props_frame = ttk.Frame(alpha_form, padding="10")
     knob_props_frame.grid(row=4, column=2, columnspan=3, sticky="nsew")
@@ -637,8 +662,8 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
 
 
-    imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", 27, 0, picture.file_path)
-    
-    save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture, root))
-    save_button.grid(row=28, columnspan=1)
+    imageDefault_var = create_label_entry_pair(alpha_form, " Switch IMG Path Var: ", rNum, 0, picture.file_path)
+    rNum += 3
+    save_button = Button(alpha_form, text="Save", command=lambda: save_alpha_data(add_Switch,picture, root,tempData))
+    save_button.grid(row=rNum, columnspan=1)
 
