@@ -43,7 +43,9 @@ class Switch:
         self.DBSimElementValues_Display = []
         self.DBSimelementType = "Integer"
         self.panelName = "none"
+        self.panelNameORS = "none"
         self.panel_Image_Path= "none"
+       
         
 # Method to resize the picture
     def resize(self, new_width, new_height):
@@ -74,6 +76,7 @@ class Switch:
                     self.type_value = item.get('type', self.type_value)
                     self.imageName = item.get('backend_name', self.imageName)  
                     self.panelName = item.get('Panel_name', self.imageName)  
+                    self.panelNameORS = item.get('Panel_name_ORS', self.imageName)
                     self.panel_Image_Path = item.get('Panel_name_Path', self.imageName)  
                     
                     backend = item.get('backend', {})
@@ -173,10 +176,10 @@ class TempData:
         self.image_position_entry = None  # Reference to the image position entry field in the alpha form
         self.img = None  # Add a global variable to store the image
         self.image_label = None  # Add a global variable to store the image label
-        self.panel_name_label_String = None  # Add a global variable to store the panel name label
-        self.DBSIM_Default_file = None
-        self.DB_Default_File_Path = None
-        self.DBSIM_panel = None
-        self.panelName = None
-        self.panel_Image_Path= None
+        self.panel_name_label_String = ""  # Add a global variable to store the panel name label
+        self.DBSIM_Default_file = ""
+        self.DB_Default_File_Path = ""
+        self.DBSIM_panel = ""
+        self.panelName = ""
+        self.panel_Image_Path= ""
 

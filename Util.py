@@ -286,15 +286,16 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         Z_Index = Z_index_var.get()
         ElementType = DBSIM_Element_Type_entry.get()
 
-        if picture.panelName == "none":
-                Panel_name = picture.panelName
-        else:
-                Panel_name = tempData.panelName
+        # if picture.panelName == "none":
+        #         Panel_name = picture.panelName
+        # else:
+        #         Panel_name = tempData.panelName
 
         data = {
             "type": type_value,
             "backend_name": backend_name,
-            "Panel_name": Panel_name,
+            "Panel_name": picture.panelName,
+            "Panel_name_ORS": picture.panelNameORS,
             "Panel_name_Path": tempData.panel_Image_Path,
             "backend": {
                 "Key": backend_name + "_IN",
@@ -397,20 +398,27 @@ def open_alpha_form(root,add_Switch,tempData, picture):
             # Read existing data from the JSON file
             with open(picture.json_file_path, 'r', encoding='utf-8') as file:
                 olddata = json.load(file)
-            
-             # Delete the selected item from the existing JSON data
-            olddata = [item for item in olddata if item['backend_name'] != picture.imageName]
-            olddata.append(data)
 
             try:
+                with open("alpha_data.json", "w") as file:
+                    json.dump([], file)
                 with open("alpha_data.json", "r") as file:
                     existing_data = json.load(file)
             except FileNotFoundError:
-                existing_data = []
+                existing_data = []    
+            
+             # update  the selected item from the existing JSON data
+            olddata = [item for item in olddata if item['backend_name'] != picture.imageName]
+            if len(olddata) != 0:
+                existing_data.extend(olddata)
+                #olddata.append(data)
+            else:
+                existing_data.append(data) #olddata = data # prevert duplication of data in case no aditional (other switches) data in the json file
 
-            existing_data.extend(olddata)
 
-             # Write the updated data back to the JSON file
+            #existing_data.extend(olddata)
+
+             # Write the updated data back to the temp JSON file
             with open("alpha_data.json", "w") as file:
                 json.dump(existing_data, file, indent=4)
             
@@ -427,10 +435,15 @@ def open_alpha_form(root,add_Switch,tempData, picture):
             backend_names = load_backend_names()
 
             # Create a listbox to display the backend names
-            Switch_name_listbox = tk.Listbox(root)
-            Switch_name_listbox.grid(row=8, column=0, padx=5, pady=5, sticky="nsew")
+            Switch_name_listbox = tk.Listbox(root,selectmode=tk.SINGLE, width=10, height=5)
+            # Create a Scrollbar widget
+            scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=Switch_name_listbox.yview)
+            Switch_name_listbox.config(yscrollcommand=scrollbar.set)
+            Switch_name_listbox.grid(row=2, column=1, padx=5, pady=5)#, sticky="nsew")
+            scrollbar.grid(row=2, column=2, sticky="ns")
 
-            # Add backend names to the listbox
+            # update the backend names to the listbox
+            Switch_name_listbox.delete(0, tk.END)
             for name in backend_names:
                 Switch_name_listbox.insert(tk.END, name)
             
