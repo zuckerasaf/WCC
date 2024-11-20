@@ -85,7 +85,7 @@ class Switch:
                     for i in range(len(self.DBSimElementValues)):
                         self.DBSimElementValues_Display.append(self.DBSimElementValues[i] + "\n") 
                     self.DBSIM_Element =  self.imageName
-                    
+                    self.DBSimElementValues = dbsimProps.get('blockName', {})
                     self.DBSimelementType = dbsimProps.get('elementType', {})
 
                     component = item.get('component', {})

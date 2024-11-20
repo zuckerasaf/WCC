@@ -1,6 +1,6 @@
 [
     {
-        "DB_Default_Folder": "C:\\projectPython\\WCC\\DB",
+        "DB_Default_Folder": "C:\\project\\WCC\\DB",
         "DB_Default_file": "PLAF_DB_switch.json",
         "DBSIM_Default_file": "IOToHost.lrux",
         "Image_Switch_Folder": "C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public",

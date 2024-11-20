@@ -110,6 +110,30 @@ def load_backend_names():
     except FileNotFoundError:
         return []
 
+def Switch_name_listbox(root):
+    # Load backend names from the JSON file
+    backend_names = load_backend_names()
+
+    Switch_List = tk.Label(root, text=f" the avaliable swtich for this panel ")
+    Switch_List.grid(row=3, column=1, padx=5, pady=5,sticky="w")
+
+    # Create a listbox to display the backend names
+    Switch_name_listbox = tk.Listbox(root,selectmode=tk.SINGLE, width=20, height=5)
+    # Create a Scrollbar widget
+    scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=Switch_name_listbox.yview)
+    Switch_name_listbox.config(yscrollcommand=scrollbar.set)
+    Switch_name_listbox.grid(row=2, column=1, padx=5, pady=5,sticky="w")#, sticky="nsew")
+    scrollbar.grid(row=2, column=2, sticky="w")
+
+    # update the backend names to the listbox
+    Switch_name_listbox.delete(0, tk.END)
+    for name in backend_names:
+        Switch_name_listbox.insert(tk.END, name)
+            
+    # Configure grid to expand the listbox
+    root.grid_rowconfigure(5, weight=1)
+    root.grid_columnconfigure(0, weight=1)
+
 def update_image_position_entry(tempData):
     global image_position_entry
     if image_position_entry:
@@ -301,7 +325,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                 "Key": backend_name + "_IN",
                 "dbsimProps": {
                     "stationName": "",
-                    "blockName": "IOToHost." + picture.InPanelName,
+                    "blockName": "IOToHost." + picture.panelName,
                     "elementName": "Data." + backend_name,
                     "elementType": ElementType,
                     "enumMapping": enumMapping_list,
@@ -411,7 +435,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
             olddata = [item for item in olddata if item['backend_name'] != picture.imageName]
             if len(olddata) != 0:
                 existing_data.extend(olddata)
-                #olddata.append(data)
+                existing_data.append(data) # insert the new data 
             else:
                 existing_data.append(data) #olddata = data # prevert duplication of data in case no aditional (other switches) data in the json file
 
@@ -429,27 +453,6 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         # Reset the rotation angle to 0
         rotation_angle = 0
 
-
-        def Switch_name_listbox(root):
-            # Load backend names from the JSON file
-            backend_names = load_backend_names()
-
-            # Create a listbox to display the backend names
-            Switch_name_listbox = tk.Listbox(root,selectmode=tk.SINGLE, width=10, height=5)
-            # Create a Scrollbar widget
-            scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=Switch_name_listbox.yview)
-            Switch_name_listbox.config(yscrollcommand=scrollbar.set)
-            Switch_name_listbox.grid(row=2, column=1, padx=5, pady=5)#, sticky="nsew")
-            scrollbar.grid(row=2, column=2, sticky="ns")
-
-            # update the backend names to the listbox
-            Switch_name_listbox.delete(0, tk.END)
-            for name in backend_names:
-                Switch_name_listbox.insert(tk.END, name)
-            
-                # Configure grid to expand the listbox
-            root.grid_rowconfigure(5, weight=1)
-            root.grid_columnconfigure(0, weight=1)
         Switch_name_listbox(root)
         alpha_form.destroy()
 

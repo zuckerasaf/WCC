@@ -7,7 +7,7 @@ from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk , ImageFont, ImageDraw
 import os
 import json
-from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names,str2DBSIMelement  # Import the move_image function
+from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names,Switch_name_listbox  # Import the move_image function
 from Delete_Update import delete_item, update_item
 
 
@@ -27,12 +27,15 @@ def get_default_db_path(json_file,type):
                 if os.path.exists(full_path):
                     browse_button.config(state=tk.NORMAL)
                     return full_path
-                else: return "No DB selected yet"
+                else: 
+                    return "No DB selected yet"
             elif type == "DBSIM":
                 full_path = os.path.join(db_default_folder, dbsim_default_file)
                 if os.path.exists(full_path):
                     browse_button.config(state=tk.NORMAL)
                     return full_path
+                else: 
+                    return "No DBSIM selected yet"
 
     except FileNotFoundError:
         return "No DB selected yet"
@@ -81,8 +84,17 @@ def browse_image(DB_file_path,DBSIM_file_Path,image_label):
        
         # Update the text label with image_id and file_path
         info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}")
-        print(f"Created switch instance: ID={switch.image_id}, Path={switch.file_path}")
-       
+        #print(f"Created switch instance: ID={switch.image_id}, Path={switch.file_path}")
+
+def list_of_DBSIM_elemnt (DBSIM_panel,DBSIM_file_Path):
+    if DBSIM_panel !="" and DBSIM_panel != "No DBSIM panel selected":
+        tree = etree.parse(DBSIM_file_Path)
+        switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+        elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+    else:
+       elements = ["none"] 
+    return elements
+           
 
 def select_switch_name(DB_file_path,panel_name, switch,elements,DBSIM_file_Path):
     print("panel_name",panel_name)
@@ -246,7 +258,7 @@ def combine_switch_name_with_image(file_path, switch_name, position):
 
     img.save(modified_file_path)
 
-    print(f"Saved modified image with switch name '{switch_name}' at position {position}")
+    #print(f"Saved modified image with switch name '{switch_name}' at position {position}")
     return modified_file_path
 
 def transform_file_path(file_path, text ):
@@ -270,24 +282,18 @@ def transform_file_path(file_path, text ):
 def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,image_label,panel_name_label,panel_name_label_DBSim):
     global tempData, switch
     
-    # # Check if a panel is selected
-    # if panel == "No ORS panel selected" and DBSIM_panel == "No DBSIM panel selected":
-    #     messagebox.showwarning("Warning", "No panel selected")
-    #     return
-    
-    if DBSIM_panel !="" and DBSIM_panel != "No DBSIM panel selected" and (update==1 or update==4):
-        tree = etree.parse(DBSIM_file_Path)
-        switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
-        elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
-    else:
-       elements = ["none"] 
+    Switch_name_listbox(root)
     
     tempData.DBSIM_panel = DBSIM_panel
     tempData.panelName = panelName
 
     # add new image to new panel 
     if tempData.current_image_path and update==1:
+        if DBSIM_panel != 'No DBSIM panel selected' and panelName != 'No ORS panel selected':
+            print("No panel selected")
+            return
         
+        elements = list_of_DBSIM_elemnt(DBSIM_panel,DBSIM_file_Path)
         file_path = filedialog.askopenfilename(title="Select switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
             tempData.new_image_path = file_path
@@ -310,10 +316,10 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 
             switch.InPanelName = panelName
             switch.scale = tempData.new_scale
-            print("scale",switch.scale)
+            #print("scale",switch.scale)
             select_switch_name(DB_file_path,panel, switch,elements,DBSIM_file_Path)                      
             switch_name = switch.imageName
-            print("here "  + switch_name)
+            #print("here "  + switch_name)
 
             tempData.new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
             combine_images()
@@ -360,7 +366,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 
         open_alpha_form(root,False,tempData,switch)
         #open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
-    elif tempData.current_image_path and update==3:
+    elif update==3:
         # up date switch image in  exsit  panel in json_file_path
         selected_name = ""
         json_file_path = ""
@@ -393,7 +399,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
     elif update==4:
         selected_name = ""
         json_file_path = ""
-
+        
         #pick the json to work with 
         json_file_path = filedialog.askopenfilename(
         title="Select JSON File for adding the switch",
@@ -409,6 +415,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
         except:
             messagebox.showwarning("Warning", "no panel name in the selected Jason file ")
             return
+        elements = list_of_DBSIM_elemnt(tempData.DBSIM_panel,DBSIM_file_Path)
 
         file_path = filedialog.askopenfilename(title="Select switch image to add",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
         if file_path:
@@ -430,12 +437,12 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
             switch.scale = tempData.new_scale
             switch.panelName = tempData.DBSIM_panel 
             switch.panelNameORS = tempData.panelName
-            print("scale",switch.scale)
+            #print("scale",switch.scale)
             panel = tempData.panelName
             select_switch_name(DB_file_path,panel, switch,elements,DBSIM_file_Path)
             #select_switch_name(DB_file_path,panel, switch,elements)                      
             switch_name = switch.imageName
-            print("here "  + switch_name)
+           # print("here "  + switch_name)
 
             new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
 
@@ -520,11 +527,11 @@ def save_image():
             # Save the combined image to the specified location
             img = Image.open(tempData.combined_image_path)
             img.save(save_path)
-            print(f"Image saved to {save_path}")
+            #print(f"Image saved to {save_path}")
 
 def smallstep_handle(event):
     small_step = 1
-    print(f"event.state: {event.state}")
+    #print(f"event.state: {event.state}")
     if event.state & 0x20000:  # Check if Shift key is pressed
         small_step = 10
     elif event.state & 0x0004:  # Check if Ctrl key is pressed
@@ -603,7 +610,8 @@ def handle_scale_image(event):
     update_scale_image(switch)
 
 
-def save_and_close():
+def save(image_label,panel_name_label,panel_name_label_DBSim):
+    global tempData,switch
     # Read data from alpha_data.json
     try:
         with open("alpha_data.json", 'r') as json_file:
@@ -622,6 +630,14 @@ def save_and_close():
         with open("alpha_data.json", "w") as file:
             json.dump([], file)
     # Close the form
+    panel_name_label.config(text="No ORS panel selected")
+    panel_name_label_DBSim.config(text="No DBSIM panel selected")
+    image_label.config(image='')
+    #tempData = None
+    #switch = None
+
+
+def close():
     root.destroy()
 
 
@@ -761,9 +777,13 @@ root.bind('<KeyPress-t>', handle_rotate_image) # rotate the image to the left
 root.bind("<plus>", handle_scale_image) # scale up the image symetric way  
 root.bind("<minus>", handle_scale_image) # scale down the image symetric way
 
-# Create a button to close the form
-close_button = tk.Button(root, text="Save and Close", command=save_and_close)
-close_button.grid(row=8, column=1, padx=5, pady=5)
+
+save_button = tk.Button(root, text="Save", command=lambda: save(image_label,panel_name_label,panel_name_label_DBSim))
+save_button.grid(row=8, column=1, padx=5, pady=5, sticky='e')
+
+
+close_button = tk.Button(root, text="Close", command=close)
+close_button.grid(row=8, column=0, padx=5, pady=5, sticky='w')
 
 # Configure grid rows and columns
 for i in range(8):
