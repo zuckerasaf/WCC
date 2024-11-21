@@ -40,12 +40,12 @@ def get_default_db_path(json_file,type):
     except FileNotFoundError:
         return "No DB selected yet"
 
-def browse_DB(db_name_var):
+def browse_DB(db_name_var, Type):
     # Open a file dialog to select a new database file
     file_path = filedialog.askopenfilename(
         title="Select Database File",
         initialdir=r'C:\projectPython\WCC\DB',  # Set the initial directory
-        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
+        filetypes=(("DB Files", Type), ("All Files", "*.*"))
     )
     if file_path:
         browse_button.config(state=tk.NORMAL)
@@ -288,8 +288,8 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
     tempData.panelName = panelName
 
     # add new image to new panel 
-    if tempData.current_image_path and update==1:
-        if DBSIM_panel != 'No DBSIM panel selected' and panelName != 'No ORS panel selected':
+    if update==1:
+        if DBSIM_panel == 'No DBSIM panel selected' and panelName == 'No ORS panel selected':
             print("No panel selected")
             return
         
@@ -682,7 +682,7 @@ browse_button.grid(row=0, column=0)
 json_file_path = 'InitValues.json'
 
 # Create the "browse_DB" button
-browse_db_button = ttk.Button(name_frame, text="Browse ORS DB", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
+browse_db_button = ttk.Button(name_frame, text="Browse ORS DB", command=lambda: browse_DB(db_name_var, "*.json"), state=tk.NORMAL)
 browse_db_button.grid(row=0, column=3, padx=10, pady=10)
 
 # Create the DB_name label with a default value
@@ -692,7 +692,7 @@ db_name_label = ttk.Label(name_frame, textvariable=db_name_var)
 db_name_label.grid(row=0, column=4, padx=10, pady=10)
 
 # Create the "browse_DBSIM" button
-browse_dbSIM_button = ttk.Button(name_frame, text="Browse DBSIM", command=lambda: browse_DB(db_name_var), state=tk.NORMAL)
+browse_dbSIM_button = ttk.Button(name_frame, text="Browse DBSIM", command=lambda: browse_DB(db_name_var, "*.lrux"), state=tk.NORMAL)
 browse_dbSIM_button.grid(row=0, column=5, padx=10, pady=10)
 
 # Create the DB_name label with a default value

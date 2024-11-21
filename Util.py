@@ -4,6 +4,9 @@ from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 from lxml import etree
 
+def Update_switch_Picture():
+    pass
+
 
 def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry):
     global DBSimElementValues_Display_update_var
@@ -480,6 +483,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     switch_name_entry.grid(row=rNum, column=1)
     switch_name_entry.insert(0, picture.imageName)
     switch_name_entry.config(background='grey')
+
     rNum += 1
     Label(alpha_form, text="Image Size:").grid(row=rNum, column=0)
     image_size_entry = Entry(alpha_form)
