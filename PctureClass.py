@@ -177,9 +177,9 @@ class TempData:
         self.img = None  # Add a global variable to store the image
         self.image_label = None  # Add a global variable to store the image label
         self.panel_name_label_String = ""  # Add a global variable to store the panel name label
-        self.DBSIM_Default_file = ""
-        self.DB_Default_File_Path = ""
-        self.DBSIM_panel = ""
-        self.panelName = ""
+        self.DBSIM_Default_file = "none"
+        self.DB_Default_File_Path = "No DBSIM selected yet"
+        self.DBSIM_panel = "No DBSIM panel selected"
+        self.panelName = "No ORS panel selected"
         self.panel_Image_Path= ""
 

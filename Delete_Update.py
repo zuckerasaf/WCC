@@ -9,7 +9,7 @@ from Util import Bring_File_path
 def delete_item():
     # Browse for the JSON file
     json_file_path = filedialog.askopenfilename(
-    title="Select JSON File",
+    title="Select JSON File to delete from",
     filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
     )
     if not json_file_path:
@@ -50,6 +50,9 @@ def delete_item():
             json.dump(data, file, indent=4)
             
         messagebox.showinfo("Info", f"Item '{selected_name}' deleted successfully")
+
+        with open("alpha_data.json", "w") as file:
+                json.dump(data, file, indent=4)
         list_window.destroy()
         
     delete_button = ttk.Button(list_window, text="Delete", command=lambda: confirm_delete(data))

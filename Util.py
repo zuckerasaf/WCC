@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, Toplevel, Label, Entry, Button, StringVar, OptionMenu, ttk
+from tkinter import messagebox
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import json
 from lxml import etree
@@ -11,12 +12,17 @@ def Update_switch_Picture():
 def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Element_entry,DBSIM_Element_Type_entry):
     global DBSimElementValues_Display_update_var
     DBSimElementValues_Display_update_var = []
-#    pass
-    tree = etree.parse(tempData.DBSIM_Default_file)
-    switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{tempData.DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
-    elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
-    if tempData.DBSIM_Default_file is None:
-         print("No panel selected")
+    if tempData.DBSIM_Default_file != "No DBSIM selected yet": 
+        if not(tempData.DBSIM_panel == "none" or tempData.DBSIM_panel == "No DBSIM panel selected"or tempData.DBSIM_panel == ""):
+            tree = etree.parse(tempData.DBSIM_Default_file)
+            switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{tempData.DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+            elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+        else:
+            elements = ["none"] 
+            messagebox.showwarning("Warning", "No Panel from DBSIM selected yet \n first update DBSIM panel name in main window")
+            return
+    else :
+         messagebox.showwarning("Warning", "No DBSIM file selected yet")
          return
     
     print (elements)   
@@ -51,7 +57,8 @@ def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Eleme
                 elemtypDef  = tree.xpath(f'//Types/TypeDefinition/Elements/Element[@Name="{selected_switch_name_DBSIM_Update.get()}"]/TypeDefinition')
                 listnameelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/@Name')
                 listEngValueelme = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/Enumerators/Enumerator/EngValue')
-                elementType = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/ElementType')[0].text
+                #elementType = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/ElementType')[0].text
+                elementType = tree.xpath(f'//Types/TypeDefinition[@Name="{elemtypDef[0].text}"]/EngType')[0].text
                 for i in range(len(listEngValueelme)):
                     DBSimElementValues_Display_update_var.append(listnameelme[i] + " = " + listEngValueelme[i].text + "\n")
 
@@ -243,6 +250,10 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
         DBSimElementValues = DBSIM_Mapping_entry.get("1.0", tk.END)
         enumMapping_list = [line for line in DBSimElementValues.split('\n') if line]
+        enumMapping_dict = {}
+        for item in enumMapping_list:
+            key, value = item.split(' = ')
+            enumMapping_dict[key.strip()] = int(value.strip())
 
         offset_on_value = offset_on_var.get()
         offset_off_value = offset_off_var.get()
@@ -321,17 +332,20 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         data = {
             "type": type_value,
             "backend_name": backend_name,
-            "Panel_name": picture.panelName,
+            #"Panel_name": picture.panelName,
+            "Panel_name":tempData.DBSIM_panel,
             "Panel_name_ORS": picture.panelNameORS,
             "Panel_name_Path": tempData.panel_Image_Path,
             "backend": {
                 "Key": backend_name + "_IN",
                 "dbsimProps": {
                     "stationName": "",
-                    "blockName": "IOToHost." + picture.panelName,
+                    #"blockName": "IOToHost." + picture.panelName,
+                    "blockName": "IOToHost." + tempData.DBSIM_panel,
                     "elementName": "Data." + backend_name,
                     "elementType": ElementType,
-                    "enumMapping": enumMapping_list,
+                    #"enumMapping": enumMapping_list,
+                    "enumMapping": enumMapping_dict,
                 }
             },
             "component": {
@@ -471,9 +485,9 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     height = root.winfo_height()
 
     # Set the position of the alpha_form window to the right of the Image Browser window
-    width = 800
+    width = 1000
     height = 1000
-    alpha_form.geometry(f"+{x + width + 10}+{y}")
+    alpha_form.geometry(f"+{x + width + 10}+{y+20}")
     alpha_form.geometry(f"{width}x{height}")
     rNum = 0 #relative row number
     cNum = 0 #relative column number

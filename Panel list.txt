@@ -1,0 +1,4 @@
+
+AIDWES111.json	C:/projectPython/WCC/Cockpit-Control/frontend/public/AIDEWSPanel/AIDWES111.json
+AIDWES_FWD.json	C:/projectPython/WCC/Cockpit-Control/frontend/public/AIDEWSPanel/AIDWES_FWD.json
+AIDWES_AFT.json	C:/projectPython/WCC/Cockpit-Control/frontend/public/AIDEWSPanel/AIDWES_AFT.json
