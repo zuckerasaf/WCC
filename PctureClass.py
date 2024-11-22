@@ -82,8 +82,14 @@ class Switch:
                     backend = item.get('backend', {})
                     dbsimProps = backend.get('dbsimProps', {})
                     self.DBSimElementValues = dbsimProps.get('enumMapping', {})
-                    for i in range(len(self.DBSimElementValues)):
-                        self.DBSimElementValues_Display.append(self.DBSimElementValues[i] + "\n") 
+                    
+                    if isinstance(self.DBSimElementValues, dict):
+                        for key, value in self.DBSimElementValues.items():
+                            self.DBSimElementValues_Display.append(f"{key} = {value}\n")
+                    else:
+                        for i in range(len(self.DBSimElementValues)):
+                            self.DBSimElementValues_Display.append(self.DBSimElementValues[i] + "\n") 
+                            
                     self.DBSIM_Element =  self.imageName
                     self.DBSimElementValues = dbsimProps.get('blockName', {})
                     self.DBSimelementType = dbsimProps.get('elementType', {})
