@@ -59,12 +59,12 @@ def delete_item():
     delete_button.pack(pady=10)
 
 
-def update_item() :
+def update_item(json_file_path) :
     # Browse for the JSON file
-    json_file_path = filedialog.askopenfilename(
-        title="Select JSON File",
-        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
-        )
+    # json_file_path = filedialog.askopenfilename(
+    #     title="Select JSON File",
+    #     filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
+    #     )
     if not json_file_path:
         return
         

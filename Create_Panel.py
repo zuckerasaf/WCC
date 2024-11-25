@@ -14,6 +14,64 @@ from Delete_Update import delete_item, update_item
 def hello_world():
     print("Hello, World!")
 
+def show_panel(image_label):
+    json_file_path = filedialog.askopenfilename(title="Select JSON File present the panel from", filetypes=(("JSON Files", "*.json"), ("All Files", "*.*")))
+    base_combine_panel_Img = Draw_panel_from_Jason(json_file_path)
+    image_path = base_combine_panel_Img #'C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public\\CMDSPanel\\CMDS.png'
+    img = Image.open(image_path)
+    img_tk = ImageTk.PhotoImage(img)
+    image_label.config(image=img_tk)
+    image_label.image = img_tk  # Keep a reference to avoid garbage collection
+    
+    file_name = os.path.basename(json_file_path)
+    info_label.config(text=f"Image ID: {file_name}\nFile Path: {json_file_path}")
+
+
+def Draw_panel_from_Jason(file):
+    with open(file, 'r', encoding='utf-8') as file_Json:
+        data = json.load(file_Json)
+        first = True
+        #item = next((item for item in data if item['backend_name'] != item_name), None)
+        for item in data:
+            #if item['backend_name'] != item_name:
+            if first == True:
+                tempData.base_img = item.get('Panel_name_Path', {}) 
+                tempData.current_image_path = tempData.base_img
+                first = False
+
+            component = item.get('component', {})
+            position = component.get('position', {})
+            new_width = int(position.get('img_width',{}))
+            new_height = int(position.get('img_height', {}))
+            #new_img = new_img.resize((new_width, new_height), Image.LANCZOS)
+            tempData.new_scale = float(position.get('scale', {}))
+            imageProps = component.get('imageProps', {})
+            new_img = Image.open(imageProps.get('imageDefault', {}))
+            new_img = new_img.resize((int(new_width*tempData.new_scale), int(new_height*tempData.new_scale)), Image.LANCZOS)
+            tempData.new_position = (position.get('pos_left', {}) , position.get('pos_top',{}))
+
+            tempData.base_img = Image.open(tempData.base_img)
+            combined_img = tempData.base_img.copy()
+
+            tempData.rotated_new_img = new_img.rotate(0, expand=True)
+
+            # Paste the rotated new image on top of the base image at the current position
+            combined_img.paste(tempData.rotated_new_img, tempData.new_position, tempData.rotated_new_img if tempData.rotated_new_img.mode == 'RGBA' else None)
+
+            # Save the combined image to a temporary file
+            combined_image_path = os.path.join(os.path.dirname(tempData.current_image_path), "combined_image.png")
+            combined_img.save(combined_image_path)
+
+            # Update the current image path to the combined image
+            tempData.current_image_path = combined_image_path
+            tempData.base_img = combined_image_path 
+
+            # # Update the image label with the combined image
+            # img_tk = ImageTk.PhotoImage(combined_img)
+            # image_label.config(image=img_tk)
+            # image_label.image = img_tk  # Keep a reference to avoid garbage collection
+    #print("Done")
+    return combined_image_path
 # Function to read the JSON file and extract the default DB path
 def get_default_db_path(json_file,type):
     try:
@@ -350,6 +408,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
         # init the temp data for the new switch 
         tempData.new_scale = 1.0
         tempData.new_image_position = (0, 0)
+        tempData.rotation_angle = 0
 
         if file_path:
             tempData.new_image_path = file_path
@@ -388,10 +447,13 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
        
         selected_name = ""
         json_file_path = ""
+        image_label.config(image='')
         
         # Create an instance of PctureClass and update parameters from JSON
         switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
-        json_file_path, selected_name = update_item()
+        json_file_path = filedialog.askopenfilename(title="Select JSON File for update ", filetypes=(("JSON Files", "*.json"), ("All Files", "*.*")))
+        base_combine_panel_Img = Draw_panel_from_Jason(json_file_path)
+        json_file_path, selected_name = update_item(json_file_path)
         switch.update_parameters_from_json(json_file_path, selected_name)
         tempData.current_image_path = switch.panel_Image_Path
         tempData.panel_Image_Path = switch.panel_Image_Path
@@ -414,9 +476,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
             switch.file_path = tempData.new_image_path
             switch.image_id = tempData.new_image_path
 
-        #img = Image.open(switch.panel_Image_Path)
-        #image_path = 'C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public\\CMDSPanel\\CMDS.png'
-        image_path = switch.panel_Image_Path #'C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public\\CMDSPanel\\CMDS.png'
+        image_path = base_combine_panel_Img #'C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public\\CMDSPanel\\CMDS.png'
         img = Image.open(image_path)
         img_tk = ImageTk.PhotoImage(img)
         image_label.config(image=img_tk)
@@ -426,7 +486,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 
         tempData.new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
         tempData.new_image_position = (switch.x, switch.y)
-        tempData.base_img = Image.open(tempData.current_image_path)
+        tempData.base_img = Image.open(base_combine_panel_Img)
 
             # Combine images and update info label
         combine_images()
@@ -434,41 +494,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 
         open_alpha_form(root,False,tempData,switch)
         Switch_name_listbox(root)
-        #open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
-    # elif update==3:
-    #     # up date switch image in  exsit  panel in json_file_path
-    #     selected_name = ""
-    #     json_file_path = ""
 
-    #     # Create an instance of PctureClass and update parameters from JSON
-    #     switch = Switch(image_id="image_id", file_path="file_path", width="width", height="height") 
-    #     json_file_path, selected_name = update_item()
-    #     switch.update_parameters_from_json(json_file_path, selected_name)
-    #     tempData.current_image_path = switch.panel_Image_Path
-    #     tempData.panel_Image_Path = switch.panel_Image_Path
-    #     # Update the switch data to contain the panel name and the panel image path image_id and file_path
-    #     file_path = filedialog.askopenfilename(title="Select image for up date  ",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
-    #     tempData.new_image_path = file_path
-
-
-    #     switch.file_path = tempData.new_image_path
-    #     switch.image_id = tempData.new_image_path
-    #     tempData.new_scale=switch.scale
-    #     #switch.scale = new_scale
-
-    #     tempData.new_image_path = combine_switch_name_with_image(switch.file_path, switch.imageName, [0,0])
-    #     tempData.new_image_position = (switch.x, switch.y)
-    #     tempData.base_img = Image.open(tempData.current_image_path)
-
-    #         # Combine images and update info label
-    #     combine_images()
-    #     update_info_label()
-
-    #         # Open the alpha form
-    #     #open_alpha_form(root,(switch.x,switch.y), disp_rotation_angle, switch,False,new_scale)#, f"{width}x{height}",panel)
-    #     open_alpha_form(root,False,tempData,switch)
-    #     Switch_name_listbox(root)
-   
     # add new switch to exsit  panel in json_file_path
     elif update==4:
         selected_name = ""
@@ -478,6 +504,8 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
         json_file_path = filedialog.askopenfilename(
         title="Select JSON File for adding the switch",
         filetypes=(("JSON Files", "*.json"), ("All Files", "*.*")))
+
+        base_combine_panel_Img = Draw_panel_from_Jason(json_file_path)
 
         #get the panel name from the json file
         with open(json_file_path, "r") as file:
@@ -492,23 +520,22 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
         elements = list_of_DBSIM_elemnt(tempData.DBSIM_panel,DBSIM_file_Path)
 
         file_path = filedialog.askopenfilename(title="Select switch image to add",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
+
         if file_path:
             
             tempData.new_image_path = file_path
-            tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
+            #tempData.base_img = Image.open(tempData.current_image_path) 
+            tempData.base_img = Image.open(base_combine_panel_Img)  # Open and store the base image 
             image_id = os.path.basename(file_path)
             img = Image.open(file_path)
             width, height = img.width, img.height
-            # new_image_path = file_path
-            # new_image_position = (0, 0)  # Start at the top-left corner
-            # base_img = Image.open(current_image_path)  # Open and store the base image
-            # image_id = os.path.basename(file_path)
-            # img = Image.open(file_path)
-            # width, height = img.width, img.height
 
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
             switch.json_file_path= json_file_path
-            switch.scale = tempData.new_scale
+            switch.scale = 1.0
+            switch.x = 0
+            switch.y = 0
+            switch.rotation = 0
             switch.panelName = tempData.DBSIM_panel 
             switch.panelNameORS = tempData.panelName
             #print("scale",switch.scale)
@@ -673,12 +700,12 @@ def handle_scale_image(event):
 
     if event.keysym == 'plus':
         switch.scale = float(switch.scale) + 0.05
-        switch.width = int(switch.width  + switch.width *0.05)
-        switch.height = int(switch.height + switch.height *0.05)
+        # switch.width = int(switch.width  + switch.width *0.05)
+        # switch.height = int(switch.height + switch.height *0.05)
     elif event.keysym == 'minus':
         switch.scale = float(switch.scale) - 0.05
-        switch.width = int(switch.width  - switch.width *0.05)
-        switch.height = int(switch.height - switch.height *0.05)
+        # switch.width = int(switch.width  - switch.width *0.05)
+        # switch.height = int(switch.height - switch.height *0.05)
 
     combine_images()
     tempData.new_scale = switch.scale
@@ -785,9 +812,15 @@ panel_name_label_DBSim.grid(row=1, column=5, padx=0, pady=0, sticky='w')
 browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),dbsim_name_label.cget("text"),image_label), state=tk.DISABLED)
 browse_button.grid(row=0, column=0)
 
+# Create a button to browse files
+Show_panel = tk.Button(name_frame, text="present exsit panel", command=lambda:show_panel(image_label))
+Show_panel.grid(row=0, column=1)
+
 # Create a Panel DBSIM Update button 
 Panel_DBSIM_Update = tk.Button(name_frame, text="Panel DBSIM Update ", command=Update_Panel_DBSIM_Name)
 Panel_DBSIM_Update.grid(row=1, column=6)
+
+
 
 json_file_path = 'InitValues.json'
 
