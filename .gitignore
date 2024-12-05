@@ -9,3 +9,26 @@
 
 # Ignore all files and directories under .venv
 .venv/
+Folder_Boris/alpha_data.json
+Folder_Boris/Create_Jason_File.py
+Folder_Boris/Create_Panel.py
+Folder_Boris/Delete_Update.py
+Folder_Boris/InitValues.json
+Folder_Boris/PctureClass.py
+Folder_Boris/Util.py
+Folder_Boris/DB/MTC2_DB_Switch.json
+Folder_Boris/DB/PLAF_DB_switch.json
+__pycache__/Create_Jason_File.cpython-310.pyc
+__pycache__/Delete_Update.cpython-310.pyc
+__pycache__/PctureClass.cpython-310.pyc
+__pycache__/Util.cpython-310.pyc
+Old/___Create_Panel.exe
+PLAF/~$AF MTC - Cockpit Monitor-v31-20241010_152939.docx
+PLAF/Panel_Switch_DB.json
+PLAF/PLAF MTC - Cockpit Monitor-v31-20241010_152939.docx
+PLAF/PLAF_DB_switch.json
+PLAF/PLAF_DB_switch.txt
+PLAF/PLAF_DB_switch.xlsx
+PLAF/test.json
+Images/L2/IFF/L2IFF/1.json
+Images/L2/IFF/L2IFF/IFF.json

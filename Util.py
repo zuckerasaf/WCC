@@ -115,7 +115,7 @@ def load_backend_names():
     try:
         with open("alpha_data.json", "r") as file:
             data = json.load(file)
-            backend_names = [item["backend_name"] for item in data]
+            backend_names = [item["backendName"] for item in data]
             return backend_names
     except FileNotFoundError:
         return []
@@ -197,11 +197,11 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
     # Function to create label and entry pair
     def create_label_entry_pair(parent, label_text, row, column, default_value):
-        label = Label(parent, text=label_text)
+        label = Label(parent, text=label_text,width=15)
         label.grid(row=row, column=column)
         
         entry_var = StringVar()
-        entry = Entry(parent, textvariable=entry_var)
+        entry = Entry(parent, textvariable=entry_var,width=10)
         entry.grid(row=row, column=column + 1)
         entry_var.set(default_value)
     
@@ -324,20 +324,19 @@ def open_alpha_form(root,add_Switch,tempData, picture):
         Z_Index = Z_index_var.get()
         ElementType = DBSIM_Element_Type_entry.get()
 
-        # if picture.panelName == "none":
-        #         Panel_name = picture.panelName
-        # else:
-        #         Panel_name = tempData.panelName
+
+        debugMode_value = True if debugMode_value == "True" else False
+        is_clickable_value = True if is_clickable_value == "True" else False
 
         data = {
             "type": type_value,
-            "backend_name": backend_name,
-            #"Panel_name": picture.panelName,
-            "Panel_name":tempData.DBSIM_panel,
-            "Panel_name_ORS": picture.panelNameORS,
-            "Panel_name_Path": tempData.panel_Image_Path,
+            "backendName": backend_name,
+            #"panelName": picture.panelName,
+            "panelName":tempData.DBSIM_panel,
+            "panelNameORS": picture.panelNameORS,
+            "panelNamePath": tempData.panel_Image_Path,
             "backend": {
-                "Key": backend_name + "_IN",
+                "key": backend_name + "_IN",
                 "dbsimProps": {
                     "stationName": "",
                     #"blockName": "IOToHost." + picture.panelName,
@@ -352,12 +351,12 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                 "debugMode": debugMode_value,
                 "isClickable": is_clickable_value,
                 "position": {
-                    "img_width": picture.width,
-                    "img_height": picture.height,
-                    "pos_left": picture.x,  # image_position[0],
-                    "pos_top": picture.y,  # image_position[1],
-                    "Z_index": Z_Index,
-                    "scale": image_scale,
+                    "imgWidth": picture.width,
+                    "imgHeight": picture.height,
+                    "posLeft": picture.x,  # image_position[0],
+                    "posTop": picture.y,  # image_position[1],
+                    "zIndex": int(Z_Index),
+                    "imgScale": float(image_scale),
                 },
                 "imageProps": {
                     "imageDefault": imageDefault_value,  # picture.file_path,
@@ -378,15 +377,15 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                     "clickBoundsHeightFactor": click_bounds_height_factor_value,
                     "clickBoundsWidthFactor": click_bounds_width_factor_value,
                     "mapping": {
-                        "map_top": top,
-                        "map_right": right,
-                        "map_bottom": bottom,
-                        "map_left": left,
-                        "map_press_pull1": press_pull1,
-                        "map_press_pull2": press_pull2,
+                        "mapTop": top,
+                        "mapRight": right,
+                        "mapBottom": bottom,
+                        "mapLeft": left,
+                        "mapPressPull1": press_pull1,
+                        "mapPressPull2": press_pull2,
                     }
                 },
-                "knob_props": {
+                "knobProps": {
                     "rotation": {
                         rotation_1_Key: rotation_1_angle,
                         rotation_2_Key: rotation_2_angle,
@@ -400,7 +399,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                         rotation_10_Key: rotation_10_angle,
                     }
                 },
-                "analog_props": {
+                "analogProps": {
                     "conversion": {
                         Value_conversion_1_Key: Value_conversion_1_angle,
                         Value_conversion_2_Key: Value_conversion_2_angle,
@@ -409,7 +408,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                         Value_conversion_5_Key: Value_conversion_5_angle,
                     }
                 },
-                "string_props": {
+                "stringProps": {
                     "maxStringLength": String_Length
                 },
                 "blinking": {
@@ -449,7 +448,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
                 existing_data = []    
             
              # update  the selected item from the existing JSON data
-            olddata = [item for item in olddata if item['backend_name'] != picture.imageName]
+            olddata = [item for item in olddata if item['backendName'] != picture.imageName]
             if len(olddata) != 0:
                 existing_data.extend(olddata)
                 existing_data.append(data) # insert the new data 
@@ -479,16 +478,14 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
     # Get the position and size of the Image Browser window
     root.update_idletasks()
-    x = root.winfo_x()
-    y = root.winfo_y()
     width = root.winfo_width()
     height = root.winfo_height()
 
     # Set the position of the alpha_form window to the right of the Image Browser window
-    width = 1000
-    height = 1000
-    alpha_form.geometry(f"+{x + width + 10}+{y+20}")
-    alpha_form.geometry(f"{width}x{height}")
+    alpha_width = 700
+    alpha_height = 900
+    alpha_form.geometry(f"+{width}+10")
+    alpha_form.geometry(f"{alpha_width}x{alpha_height}")
     rNum = 0 #relative row number
     cNum = 0 #relative column number
     # Create a label to display the selected panel name
@@ -500,25 +497,26 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
     rNum += 1
     Label(alpha_form, text="Image Size:").grid(row=rNum, column=0)
-    image_size_entry = Entry(alpha_form)
+    image_size_entry = Entry(alpha_form, width=10)
     image_size_entry.grid(row=rNum, column=1)
     image_size_entry.insert(0, str(picture.width)+" X "+str(picture.height))  # Assuming the resized image size
     image_size_entry.config(background='grey')
   
     Label(alpha_form, text="Image scale:").grid(row=rNum, column=2)
-    image_scale_entry = Entry(alpha_form)
+    image_scale_entry = Entry(alpha_form, width=10)
     image_scale_entry.grid(row=rNum, column=3)
-    image_scale_entry.insert(0, str(picture.scale))  # Assuming the resized image size
+    image_scale_entry.insert(0, picture.scale)  # Assuming the resized image size
+    #image_scale_entry.insert(0, str(picture.scale))  # Assuming the resized image size
     image_scale_entry.config(background='grey')
     rNum += 1
     Label(alpha_form, text="Image Position:").grid(row=rNum, column=0)
-    image_position_entry = Entry(alpha_form)
+    image_position_entry = Entry(alpha_form, width=10)
     image_position_entry.grid(row=rNum, column=1)
     image_position_entry.insert(0, str(picture.x)+","+str(picture.y))  # Initial position
     image_position_entry.config(background='grey')
 
     Label(alpha_form, text="Rotation:").grid(row=rNum, column=2)
-    rotation_entry = Entry(alpha_form)
+    rotation_entry = Entry(alpha_form, width=10)
     rotation_entry.grid(row=rNum, column=3)
     rotation_entry.insert(0, str(tempData.disp_rotation_angle))  # Initial rotation 
     rotation_entry.config(background='grey')
@@ -535,16 +533,32 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     rNum += 1
     offset_off_var = create_label_entry_pair(alpha_form, "offset off:", rNum, 0, picture.offset_off_value)
     rNum += 1
-    debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", rNum, 0, picture.debugMode_value)
+
+    Label(alpha_form, text="debug Mode:").grid(row=rNum, column=0)
+    debugMode_var = StringVar(alpha_form)
+    debugMode_var.set("False")  # Default type value
+    debugMode_var_options = ("False", "True")
+    debugMode_var_menu = OptionMenu(alpha_form, debugMode_var, *debugMode_var_options)
+    debugMode_var_menu.grid(row=rNum, column=1)
+
+    #debugMode_var = create_label_entry_pair(alpha_form, "debug Mode:", rNum, 0, picture.debugMode_value)
     rNum += 1
-    is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", rNum, 0, picture.is_clickable_value)
+
+    Label(alpha_form, text="is clickable:").grid(row=rNum, column=0)
+    is_clickable_var = StringVar(alpha_form)
+    is_clickable_var.set("True")  # Default type value
+    is_clickable_var_options = ("False", "True")
+    is_clickable_var_menu = OptionMenu(alpha_form, is_clickable_var, *is_clickable_var_options)
+    is_clickable_var_menu.grid(row=rNum, column=1)
+
+    #is_clickable_var = create_label_entry_pair(alpha_form, "is clickable:", rNum, 0, picture.is_clickable_value)
     rNum += 1
-    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "click bounds height factor:", rNum, 0, picture.click_bounds_height_factor_value)
+    click_bounds_height_factor_var = create_label_entry_pair(alpha_form, "bounds height factor:", rNum, 0, picture.click_bounds_height_factor_value)
     rNum += 1
-    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "click bounds width factor:", rNum, 0, picture.click_bounds_width_factor_value)
+    click_bounds_width_factor_var = create_label_entry_pair(alpha_form, "bounds width factor:", rNum, 0, picture.click_bounds_width_factor_value)
     rNum += 3
     
-    Label(alpha_form, text="for Toggle behave define ""INCREASE\DECREASE"" :").grid(row=rNum, column=0)
+    Label(alpha_form, text="for Toggle behave define \n ""INCREASE\DECREASE"" :").grid(row=rNum, column=0)
     rNum += 1
     top_var = create_label_entry_pair(alpha_form, "top:", rNum, 0, picture.top)
     rNum += 1
@@ -571,14 +585,14 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     DBSIM_Element_entry.config(background='grey')
     
 
-    Label(alpha_form, text="DBSIM Mapping:").grid(row=rNum, column=2)
+    Label(alpha_form, text="DBSIM Mapping:").grid(row=rNum-1, column=2)
     #DBSIM_Mapping_entry = Entry(alpha_form)
-    DBSIM_Mapping_entry = tk.Text(alpha_form, wrap=tk.WORD, width=35)
+    DBSIM_Mapping_entry = tk.Text(alpha_form, wrap=tk.WORD, width=20)
     stringDBSimElementValues = "".join(picture.DBSimElementValues_Display)
     DBSIM_Mapping_entry.insert(tk.END, stringDBSimElementValues)  
     num_lines = stringDBSimElementValues.count('\n') + 1
     DBSIM_Mapping_entry.config(height=num_lines)
-    DBSIM_Mapping_entry.grid(row=rNum, column=3)
+    DBSIM_Mapping_entry.grid(row=rNum, column=2)
     DBSIM_Mapping_entry.config(background='grey')
     rNum += 1
     Label(alpha_form, text="DBSIM Element type:").grid(row=rNum, column=0)
@@ -618,25 +632,25 @@ def open_alpha_form(root,add_Switch,tempData, picture):
 
 
     # Use the function to create label and entry pairs
-    rotation_1_Key_Var = create_label_entry_pair(knob_props_frame, " 1 rotation command: ", 4, 2, picture.rotation[0][0])
+    rotation_1_Key_Var = create_label_entry_pair(knob_props_frame, " 1 command: ", 4, 2, picture.rotation[0][0])
     rotation_1_angle_Var = create_label_entry_pair(knob_props_frame, " 1 angle: ", 4, 4, picture.rotation[0][1])
-    rotation_2_Key_Var = create_label_entry_pair(knob_props_frame, " 2 rotation command: ", 5, 2, picture.rotation[1][0])
+    rotation_2_Key_Var = create_label_entry_pair(knob_props_frame, " 2 command: ", 5, 2, picture.rotation[1][0])
     rotation_2_angle_Var = create_label_entry_pair(knob_props_frame, " 2 angle: ", 5, 4, picture.rotation[1][1])
-    rotation_3_Key_Var = create_label_entry_pair(knob_props_frame, " 3 rotation command: ", 6, 2, picture.rotation[2][0])
+    rotation_3_Key_Var = create_label_entry_pair(knob_props_frame, " 3 command: ", 6, 2, picture.rotation[2][0])
     rotation_3_angle_Var = create_label_entry_pair(knob_props_frame, " 3 angle: ", 6, 4, picture.rotation[2][1])
-    rotation_4_Key_Var = create_label_entry_pair(knob_props_frame, " 4 rotation command: ", 7, 2, picture.rotation[3][0])
+    rotation_4_Key_Var = create_label_entry_pair(knob_props_frame, " 4 command: ", 7, 2, picture.rotation[3][0])
     rotation_4_angle_Var = create_label_entry_pair(knob_props_frame, " 4 angle: ", 7, 4,   picture.rotation[3][1])
-    rotation_5_Key_Var = create_label_entry_pair(knob_props_frame, " 5 rotation command: ", 8, 2, picture.rotation[4][0])
+    rotation_5_Key_Var = create_label_entry_pair(knob_props_frame, " 5 command: ", 8, 2, picture.rotation[4][0])
     rotation_5_angle_Var = create_label_entry_pair(knob_props_frame, " 5 angle: ", 8, 4,    picture.rotation[4][1])
-    rotation_6_Key_Var = create_label_entry_pair(knob_props_frame, " 6 rotation command: ", 9, 2, picture.rotation[5][0])
+    rotation_6_Key_Var = create_label_entry_pair(knob_props_frame, " 6 command: ", 9, 2, picture.rotation[5][0])
     rotation_6_angle_Var = create_label_entry_pair(knob_props_frame, " 6 angle: ", 9, 4,    picture.rotation[5][1])
-    rotation_7_Key_Var = create_label_entry_pair(knob_props_frame, " 7 rotation command: ", 10, 2, picture.rotation[6][0])
+    rotation_7_Key_Var = create_label_entry_pair(knob_props_frame, " 7 command: ", 10, 2, picture.rotation[6][0])
     rotation_7_angle_Var = create_label_entry_pair(knob_props_frame, " 7 angle: ", 10, 4,  picture.rotation[6][1])
-    rotation_8_Key_Var = create_label_entry_pair(knob_props_frame, " 8 rotation command: ", 11, 2, picture.rotation[7][0])
+    rotation_8_Key_Var = create_label_entry_pair(knob_props_frame, " 8 command: ", 11, 2, picture.rotation[7][0])
     rotation_8_angle_Var = create_label_entry_pair(knob_props_frame, " 8 angle: ", 11, 4, picture.rotation[7][1])
-    rotation_9_Key_Var = create_label_entry_pair(knob_props_frame, " 9 rotation command: ", 12, 2, picture.rotation[8][0])
+    rotation_9_Key_Var = create_label_entry_pair(knob_props_frame, " 9 command: ", 12, 2, picture.rotation[8][0])
     rotation_9_angle_Var = create_label_entry_pair(knob_props_frame, " 9 angle: ", 12, 4, picture.rotation[8][1])
-    rotation_10_Key_Var = create_label_entry_pair(knob_props_frame, " 10 rotation command: ", 13, 2, picture.rotation[9][0])
+    rotation_10_Key_Var = create_label_entry_pair(knob_props_frame, " 10 command: ", 13, 2, picture.rotation[9][0])
     rotation_10_angle_Var = create_label_entry_pair(knob_props_frame, " 10 angle: ", 13, 4, picture.rotation[9][1])
 
 
@@ -651,25 +665,25 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     toggle_additional_button = ttk.Button(alpha_form, text="Knob Image", command=lambda: toggle_frame(imageProps_frame, toggle_additional_button))
     toggle_additional_button.grid(row=5, column=2, columnspan=3, padx=5, pady=5)
 
-    conversion_1_Key_Var = create_label_entry_pair(imageProps_frame, " 1 pos command: ", 14, 2, picture.conversion[0][0])
+    conversion_1_Key_Var = create_label_entry_pair(imageProps_frame, " 1 command: ", 14, 2, picture.conversion[0][0])
     conversion_1_file_path_Var = create_file_path_entry(imageProps_frame, 14, 4, picture.conversion[0][1])
-    conversion_2_Key_Var = create_label_entry_pair(imageProps_frame, " 2 pos command: ", 15, 2, picture.conversion[1][0])
+    conversion_2_Key_Var = create_label_entry_pair(imageProps_frame, " 2 command: ", 15, 2, picture.conversion[1][0])
     conversion_2_file_path_Var = create_file_path_entry(imageProps_frame, 15, 4, picture.conversion[1][1])
-    conversion_3_Key_Var = create_label_entry_pair(imageProps_frame, " 3 pos command: ", 16, 2, picture.conversion[2][0])
+    conversion_3_Key_Var = create_label_entry_pair(imageProps_frame, " 3 command: ", 16, 2, picture.conversion[2][0])
     conversion_3_file_path_Var = create_file_path_entry(imageProps_frame, 16, 4, picture.conversion[2][1])
-    conversion_4_Key_Var = create_label_entry_pair(imageProps_frame, " 4 pos command: ", 17, 2, picture.conversion[3][0])
+    conversion_4_Key_Var = create_label_entry_pair(imageProps_frame, " 4 command: ", 17, 2, picture.conversion[3][0])
     conversion_4_file_path_Var = create_file_path_entry(imageProps_frame, 17, 4, picture.conversion[3][1])
-    conversion_5_Key_Var = create_label_entry_pair(imageProps_frame, " 5 pos command: ", 18, 2, picture.conversion[4][0])
+    conversion_5_Key_Var = create_label_entry_pair(imageProps_frame, " 5 command: ", 18, 2, picture.conversion[4][0])
     conversion_5_file_path_Var = create_file_path_entry(imageProps_frame, 18, 4, picture.conversion[4][1])
-    conversion_6_Key_Var = create_label_entry_pair(imageProps_frame, " 6 pos command: ", 19, 2, picture.conversion[5][0])
+    conversion_6_Key_Var = create_label_entry_pair(imageProps_frame, " 6 command: ", 19, 2, picture.conversion[5][0])
     conversion_6_file_path_Var = create_file_path_entry(imageProps_frame, 19, 4, picture.conversion[5][1])
-    conversion_7_Key_Var = create_label_entry_pair(imageProps_frame, " 7 pos command: ", 20, 2, picture.conversion[6][0])
+    conversion_7_Key_Var = create_label_entry_pair(imageProps_frame, " 7 command: ", 20, 2, picture.conversion[6][0])
     conversion_7_file_path_Var = create_file_path_entry(imageProps_frame, 20, 4, picture.conversion[6][1])
-    conversion_8_Key_Var = create_label_entry_pair(imageProps_frame, " 8 pos command: ", 21, 2, picture.conversion[7][0])
+    conversion_8_Key_Var = create_label_entry_pair(imageProps_frame, " 8 command: ", 21, 2, picture.conversion[7][0])
     conversion_8_file_path_Var = create_file_path_entry(imageProps_frame, 21, 4, picture.conversion[7][1])
-    conversion_9_Key_Var = create_label_entry_pair(imageProps_frame, " 9 pos command: ", 22, 2, picture.conversion[8][0])
+    conversion_9_Key_Var = create_label_entry_pair(imageProps_frame, " 9 command: ", 22, 2, picture.conversion[8][0])
     conversion_9_file_path_Var = create_file_path_entry(imageProps_frame, 22, 4, picture.conversion[8][1])
-    conversion_10_Key_Var = create_label_entry_pair(imageProps_frame, " 10 pos command: ", 23, 2, picture.conversion[9][0])
+    conversion_10_Key_Var = create_label_entry_pair(imageProps_frame, " 10 command: ", 23, 2, picture.conversion[9][0])
     conversion_10_file_path_Var = create_file_path_entry(imageProps_frame, 23, 4, picture.conversion[9][1])
 
     # Create a frame for rotation commands
@@ -683,16 +697,16 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     toggle_additional_button = ttk.Button(alpha_form, text="value Conversion", command=lambda: toggle_frame(Conversion_frame, toggle_additional_button))
     toggle_additional_button.grid(row=7, column=2, columnspan=3, padx=5, pady=5)
 
-    Value_conversion_1_Key_Var = create_label_entry_pair(Conversion_frame, " 1  Value command: ", 24, 2, picture.value_conversion[0][0])
-    Value_conversion_1_angle_Var = create_label_entry_pair(Conversion_frame, " 1 Conversion angle: ", 24, 4, picture.value_conversion[0][1])
-    Value_conversion_2_Key_Var = create_label_entry_pair(Conversion_frame, " 2 Value command: ", 25, 2, picture.value_conversion[1][0])
-    Value_conversion_2_angle_Var = create_label_entry_pair(Conversion_frame, " 2 Conversion angle: ", 25, 4, picture.value_conversion[1][1])
-    Value_conversion_3_Key_Var = create_label_entry_pair(Conversion_frame, " 3 Value command: ", 26, 2, picture.value_conversion[2][0])
-    Value_conversion_3_angle_Var = create_label_entry_pair(Conversion_frame, " 3 Conversion angle: ", 26, 4, picture.value_conversion[2][1])
-    Value_conversion_4_Key_Var = create_label_entry_pair(Conversion_frame, " 4 Value command: ", 27, 2, picture.value_conversion[3][0])
-    Value_conversion_4_angle_Var = create_label_entry_pair(Conversion_frame, " 4 Conversion angle: ", 27, 4, picture.value_conversion[3][1])
-    Value_conversion_5_Key_Var = create_label_entry_pair(Conversion_frame, " 5 Value command: ", 28, 2, picture.value_conversion[4][0])
-    Value_conversion_5_angle_Var = create_label_entry_pair(Conversion_frame, " 5 Conversion angle: ", 28, 4, picture.value_conversion[4][1])
+    Value_conversion_1_Key_Var = create_label_entry_pair(Conversion_frame, " 1 Value: ", 24, 2, picture.value_conversion[0][0])
+    Value_conversion_1_angle_Var = create_label_entry_pair(Conversion_frame, " 1 angle: ", 24, 4, picture.value_conversion[0][1])
+    Value_conversion_2_Key_Var = create_label_entry_pair(Conversion_frame, " 2 Value: ", 25, 2, picture.value_conversion[1][0])
+    Value_conversion_2_angle_Var = create_label_entry_pair(Conversion_frame, " 2 angle: ", 25, 4, picture.value_conversion[1][1])
+    Value_conversion_3_Key_Var = create_label_entry_pair(Conversion_frame, " 3 Value: ", 26, 2, picture.value_conversion[2][0])
+    Value_conversion_3_angle_Var = create_label_entry_pair(Conversion_frame, " 3 angle: ", 26, 4, picture.value_conversion[2][1])
+    Value_conversion_4_Key_Var = create_label_entry_pair(Conversion_frame, " 4 Value: ", 27, 2, picture.value_conversion[3][0])
+    Value_conversion_4_angle_Var = create_label_entry_pair(Conversion_frame, " 4 angle: ", 27, 4, picture.value_conversion[3][1])
+    Value_conversion_5_Key_Var = create_label_entry_pair(Conversion_frame, " 5 Value: ", 28, 2, picture.value_conversion[4][0])
+    Value_conversion_5_angle_Var = create_label_entry_pair(Conversion_frame, " 5 angle: ", 28, 4, picture.value_conversion[4][1])
 
 
 

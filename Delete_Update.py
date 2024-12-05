@@ -73,7 +73,7 @@ def update_item(json_file_path) :
         data = json.load(file)
         
         # Get the list of backend_name items
-    backend_names = [item['backend_name'] for item in data]
+    backend_names = [item['backendName'] for item in data]
         
         # Create a new window to display the list of backend_name items
     list_window = tk.Toplevel()

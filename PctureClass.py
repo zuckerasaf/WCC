@@ -16,8 +16,8 @@ class Switch:
         self.type_value = "stateN"
         self.offset_on_value = "0"
         self.offset_off_value = "0"
-        self.debugMode_value = "false"
-        self.is_clickable_value = "true"
+        self.debugMode_value = False
+        self.is_clickable_value = True
         self.click_bounds_height_factor_value = "2"
         self.click_bounds_width_factor_value = "1.5"
         self.top = "none"
@@ -30,11 +30,10 @@ class Switch:
         self.Logger = "true"
         self.grid_direction = "ud"
         self.String_Length = "0"
-        self.Z_index = "0"
+        self.Z_index = 0
         self.rotation =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.conversion =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
         self.value_conversion =emptyList #[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]  
-        self.scale = 1 
         self.IMG_rotation = "100"   
         self.json_file_path = "none"  
         self.InPanelName = "In_panel_name"
@@ -71,13 +70,13 @@ class Switch:
         try:
             with open(json_file_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
-                item = next((item for item in data if item['backend_name'] == item_name), None)
+                item = next((item for item in data if item['backendName'] == item_name), None)
                 if item:
                     self.type_value = item.get('type', self.type_value)
-                    self.imageName = item.get('backend_name', self.imageName)  
-                    self.panelName = item.get('Panel_name', self.imageName)  
-                    self.panelNameORS = item.get('Panel_name_ORS', self.imageName)
-                    self.panel_Image_Path = item.get('Panel_name_Path', self.imageName)  
+                    self.imageName = item.get('backendName', self.imageName)  
+                    self.panelName = item.get('panelName', self.imageName)  
+                    self.panelNameORS = item.get('panelNameORS', self.imageName)
+                    self.panel_Image_Path = item.get('panelNamePath', self.imageName)  
                     
                     backend = item.get('backend', {})
                     dbsimProps = backend.get('dbsimProps', {})
@@ -96,15 +95,15 @@ class Switch:
 
                     component = item.get('component', {})
                     self.debugMode_value = component.get('debugMode', self.debugMode_value) 
-                    self.is_clickable_value = component.get('is_clickable', self.is_clickable_value)
+                    self.is_clickable_value = component.get('isClickable', self.is_clickable_value)
                     
                     position = component.get('position', {})
-                    self.width = position.get('img_width', self.width) 
-                    self.height = position.get('img_height', self.height) 
-                    self.x = position.get('pos_left', self.x) 
-                    self.y = position.get('pos_top', self.y) 
-                    self.scale = position.get('scale', self.scale)  
-                    self.Z_index = position.get('Z_index', self.Z_index) 
+                    self.width = position.get('imgWidth', self.width) 
+                    self.height = position.get('imgHeight', self.height) 
+                    self.x = position.get('posLeft', self.x) 
+                    self.y = position.get('posTop', self.y) 
+                    self.scale = position.get('imgScale', self.scale)  
+                    self.Z_index = position.get('zIndex', self.Z_index) 
                     
                     imageProps = component.get('imageProps', {})
                     self.image_id = imageProps.get('imageDefault', self.image_id) 
@@ -117,33 +116,33 @@ class Switch:
                         self.conversion[j] = updated_additionalImageData[j]
 
 
-                    click_props = component.get('click_props', {})
-                    self.click_bounds_height_factor_value = click_props.get('click_bounds_height_factor', self.click_bounds_height_factor_value) 
-                    self.click_bounds_width_factor_value = click_props.get('click_bounds_width_factor', self.click_bounds_width_factor_value) 
+                    click_props = component.get('clickProps', {})
+                    self.click_bounds_height_factor_value = click_props.get('clickBoundsHeightFactor', self.click_bounds_height_factor_value) 
+                    self.click_bounds_width_factor_value = click_props.get('clickBoundsWidthFactor', self.click_bounds_width_factor_value) 
                     mapping = click_props.get('mapping', {})
-                    self.top = mapping.get('map_top', self.top)
-                    self.right = mapping.get('map_right', self.right)
-                    self.bottom = mapping.get('map_bottom',self.bottom)
-                    self.left = mapping.get('map_left', self.left)
-                    self.press_pull1 = mapping.get('map_press_pull1', self.press_pull1)
-                    self.press_pull2 = mapping.get('map_press_pull2', self.press_pull2)
+                    self.top = mapping.get('mapTop', self.top)
+                    self.right = mapping.get('mapRight', self.right)
+                    self.bottom = mapping.get('mapBottom',self.bottom)
+                    self.left = mapping.get('mapLeft', self.left)
+                    self.press_pull1 = mapping.get('mapPressPull1', self.press_pull1)
+                    self.press_pull2 = mapping.get('mapPressPull2', self.press_pull2)
 
                                         # Read and update the "knob_props" dictionary
                     self.rotation =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]
-                    knob_props = component.get('knob_props')
+                    knob_props = component.get('knobProps')
                     rotation_conversion = knob_props.get('rotation')
                     updated_rotation = [[angle, value] for angle, value in rotation_conversion.items()]
                     for i in range(len(updated_rotation)):
                         self.rotation[i] = updated_rotation[i]
 
                     self.value_conversion =[["none","none"],["none","none"],["none","none"],["none","none"],["none","none"]]   
-                    analog_props = component.get('analog_props')
+                    analog_props = component.get('analogProps')
                     Value_conversion = analog_props.get('conversion')
                     updated_value_conversion = [[ang1, ang2] for ang1, ang2 in Value_conversion.items()]
                     for k in range(len(updated_value_conversion)):
                         self.value_conversion[k] = updated_value_conversion[k]
 
-                    string_props = component.get('string_props', {})
+                    string_props = component.get('stringProps', {})
                     self.String_Length = string_props.get('maxStringLength', self.String_Length) 
                     
                     blinking = component.get('blinking', {})

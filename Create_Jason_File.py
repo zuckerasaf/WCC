@@ -3,7 +3,12 @@ import os
 from tkinter import filedialog
 from tkinter import messagebox
 
-def transfer_to_json(source_file,target_file):
+def transfer_to_json():
+
+    source_file = filedialog.askopenfilename(title="Select TXT file as data source", filetypes=[("TXT file", "*txt")])
+    target_file = filedialog.asksaveasfilename(title="Select JSON file for the SB", defaultextension=".json", filetypes=[("JSON file", "*json")])
+
+
     panels = {}
     panel_names = set()
     newtarget_file = source_file[:-4] + ".json"
@@ -52,8 +57,5 @@ def transfer_to_json(source_file,target_file):
 
 
 
-source_file = filedialog.askopenfilename(filetypes=[("TXT file", "*txt")])
-directory = r'C:\projectPython\WCC\DB'
-target_file = os.path.basename(source_file)[:-4] + '.json'
-target_file = os.path.join(directory, target_file)
-transfer_to_json(source_file,target_file)
+
+#transfer_to_json()

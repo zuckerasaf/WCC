@@ -9,6 +9,7 @@ import os
 import json
 from Util import update_scale_image, update_image_position_entry, update_rotation_entry, load_panel_names, open_alpha_form, load_switch_names,Switch_name_listbox  # Import the move_image function
 from Delete_Update import delete_item, update_item
+from Create_Jason_File import transfer_to_json
 
 
 def hello_world():
@@ -27,6 +28,18 @@ def show_panel(image_label):
     info_label.config(text=f"Image ID: {file_name}\nFile Path: {json_file_path}")
 
 
+def Pixsel_Step_Define(json_file):
+    try:
+        with open(json_file, 'r') as file:
+            data = json.load(file)
+            Move_Pixel_Step = data[0]["Move_Pixel_Step"]
+            Rotate_Pixel_Step = data[0]["Rotate_Degree_Step"]
+            return Move_Pixel_Step, Rotate_Pixel_Step
+    except FileNotFoundError:
+        return "No DB selected yet"
+
+
+
 def Draw_panel_from_Jason(file):
     with open(file, 'r', encoding='utf-8') as file_Json:
         data = json.load(file_Json)
@@ -35,20 +48,20 @@ def Draw_panel_from_Jason(file):
         for item in data:
             #if item['backend_name'] != item_name:
             if first == True:
-                tempData.base_img = item.get('Panel_name_Path', {}) 
+                tempData.base_img = item.get('panelNamePath', {}) 
                 tempData.current_image_path = tempData.base_img
                 first = False
 
             component = item.get('component', {})
             position = component.get('position', {})
-            new_width = int(position.get('img_width',{}))
-            new_height = int(position.get('img_height', {}))
+            new_width = int(position.get('imgWidth',{}))
+            new_height = int(position.get('imgHeight', {}))
             #new_img = new_img.resize((new_width, new_height), Image.LANCZOS)
-            tempData.new_scale = float(position.get('scale', {}))
+            tempData.new_scale = float(position.get('imgScale', {}))
             imageProps = component.get('imageProps', {})
             new_img = Image.open(imageProps.get('imageDefault', {}))
             new_img = new_img.resize((int(new_width*tempData.new_scale), int(new_height*tempData.new_scale)), Image.LANCZOS)
-            tempData.new_position = (position.get('pos_left', {}) , position.get('pos_top',{}))
+            tempData.new_position = (position.get('posLeft', {}) , position.get('posTop',{}))
 
             tempData.base_img = Image.open(tempData.base_img)
             combined_img = tempData.base_img.copy()
@@ -109,7 +122,7 @@ def browse_DB(db_name_var, Type):
         browse_button.config(state=tk.NORMAL)
         db_name_var.set(file_path)
 
-def browse_image(DB_file_path,DBSIM_file_Path,image_label):
+def browse_image(DB_file_path,DBSIM_file_Path,image_label,Imagecanvas):
     global tempData, switch
     panel_name_label.config(text="No ORS panel selected")
     panel_name_label_DBSim.config(text="No DBSIM panel selected")
@@ -132,7 +145,11 @@ def browse_image(DB_file_path,DBSIM_file_Path,image_label):
         img_tk = ImageTk.PhotoImage(img)
         image_label.config(image=img_tk)
         image_label.image = img_tk  # Keep a reference to avoid garbage collection
+        # Update the scroll region of the canvas when the image is loaded
+        def update_scroll_region(event=None):
+            Imagecanvas.configure(scrollregion=Imagecanvas.bbox("all"))
 
+        image_label.bind("<Configure>", update_scroll_region)
         # Get the image size
         width, height = img.width, img.height
 
@@ -397,12 +414,39 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
     tempData.panelName = panelName
 
     # add new image to new panel 
-    if update==1:
-        if DBSIM_panel == 'No DBSIM panel selected' and panelName == 'No ORS panel selected':
-            messagebox.showwarning("Warning", "No panel selected yet")
-            return
+    if update==1 or update == 4:
+        if update ==1 :
+            if DBSIM_panel == 'No DBSIM panel selected' and panelName == 'No ORS panel selected':
+                messagebox.showwarning("Warning", "No panel selected yet")
+                return
+                
+            elements = list_of_DBSIM_elemnt(DBSIM_panel,DBSIM_file_Path)
         
-        elements = list_of_DBSIM_elemnt(DBSIM_panel,DBSIM_file_Path)
+        if update == 4 :
+            selected_name = ""
+            json_file_path = ""
+            
+            #pick the json to work with 
+            json_file_path = filedialog.askopenfilename(
+            title="Select JSON File for adding the switch",
+            filetypes=(("JSON Files", "*.json"), ("All Files", "*.*")))
+
+            base_combine_panel_Img = Draw_panel_from_Jason(json_file_path)
+
+            #get the panel name from the json file
+            with open(json_file_path, "r") as file:
+                existing_data = json.load(file)
+            try:
+                tempData.current_image_path = existing_data[0]['panelNamePath']
+                tempData.DBSIM_panel = existing_data[0]['panelName']
+                tempData.panelName = existing_data[0]['panelNameORS']
+                tempData.panel_Image_Path = existing_data[0]['panelNamePath']
+
+                panel = tempData.panelName
+            except:
+                messagebox.showwarning("Warning", "no panel name in the selected Jason file ")
+                return
+            elements = list_of_DBSIM_elemnt(tempData.DBSIM_panel,DBSIM_file_Path)
         file_path = filedialog.askopenfilename(title="Select new switch image",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
 
         # init the temp data for the new switch 
@@ -412,7 +456,10 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 
         if file_path:
             tempData.new_image_path = file_path
-            tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
+            if update == 1:
+                tempData.base_img = Image.open(tempData.current_image_path)  # Open and store the base image 
+            if update == 4:
+                tempData.base_img = Image.open(base_combine_panel_Img)  # Open and store the base image 
             image_id = os.path.basename(file_path)
             img = Image.open(file_path)
             width, height = img.width, img.height
@@ -420,10 +467,10 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
             switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
 
             # Update the switch data to contain the panel name and the panel image path image_id and file_path
-            if tempData.DBSIM_panel != "":
+            if tempData.DBSIM_panel != "" :
                 switch.panelName = tempData.DBSIM_panel
                 switch.panel_Image_Path = tempData.panel_Image_Path 
-            if tempData.panelName != "":
+            if tempData.panelName != "" :
                 switch.panelNameORS = tempData.panelName
                 switch.panel_Image_Path = tempData.panel_Image_Path 
             # else:
@@ -439,8 +486,11 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
             tempData.new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
             combine_images()
             update_info_label()
-            
-            open_alpha_form(root,True,tempData,switch)
+            if update == 1 :
+                open_alpha_form(root,True,tempData,switch)
+            if update == 4 :
+                switch.json_file_path= json_file_path
+                open_alpha_form(root,False,tempData,switch)    
 #    
      # up date switch data  in  exsit  panel in json_file_path
     elif update==2 or update==3:
@@ -495,67 +545,7 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
         open_alpha_form(root,False,tempData,switch)
         Switch_name_listbox(root)
 
-    # add new switch to exsit  panel in json_file_path
-    elif update==4:
-        selected_name = ""
-        json_file_path = ""
-        
-        #pick the json to work with 
-        json_file_path = filedialog.askopenfilename(
-        title="Select JSON File for adding the switch",
-        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*")))
-
-        base_combine_panel_Img = Draw_panel_from_Jason(json_file_path)
-
-        #get the panel name from the json file
-        with open(json_file_path, "r") as file:
-            existing_data = json.load(file)
-        try:
-            tempData.current_image_path = existing_data[0]['Panel_name_Path']
-            tempData.DBSIM_panel = existing_data[0]['Panel_name']
-            tempData.panelName = existing_data[0]['Panel_name_ORS']
-        except:
-            messagebox.showwarning("Warning", "no panel name in the selected Jason file ")
-            return
-        elements = list_of_DBSIM_elemnt(tempData.DBSIM_panel,DBSIM_file_Path)
-
-        file_path = filedialog.askopenfilename(title="Select switch image to add",filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.gif")])
-
-        if file_path:
-            
-            tempData.new_image_path = file_path
-            #tempData.base_img = Image.open(tempData.current_image_path) 
-            tempData.base_img = Image.open(base_combine_panel_Img)  # Open and store the base image 
-            image_id = os.path.basename(file_path)
-            img = Image.open(file_path)
-            width, height = img.width, img.height
-
-            switch = Switch(image_id=image_id, file_path=file_path, width=width, height=height)
-            switch.json_file_path= json_file_path
-            switch.scale = 1.0
-            switch.x = 0
-            switch.y = 0
-            switch.rotation = 0
-            switch.panelName = tempData.DBSIM_panel 
-            switch.panelNameORS = tempData.panelName
-            #print("scale",switch.scale)
-            panel = tempData.panelName
-            select_switch_name(DB_file_path,panel, switch,elements,DBSIM_file_Path)
-            #select_switch_name(DB_file_path,panel, switch,elements)                      
-            switch_name = switch.imageName
-           # print("here "  + switch_name)
-
-            new_image_path = combine_switch_name_with_image(file_path, switch_name, [0,0])
-
-            # Combine images and update info label
-            combine_images()
-            update_info_label()
-
-            # Open the alpha form
-            open_alpha_form(root,False,tempData,switch)
-            Switch_name_listbox(root)
-            #open_alpha_form(root,new_image_position, disp_rotation_angle, switch, False,new_scale)#, f"{width}x{height}",panel)
-
+   
 def combine_images():
 
     #global new_scale, current_image_path,  rotated_new_img, new_image_path, new_image_path, new_image_position, combined_image_path, base_img, disp_rotation_angle
@@ -598,6 +588,11 @@ def combine_images():
         image_label.config(image=img_tk)
         image_label.image = img_tk  # Keep a reference to avoid garbage collection
 
+        def update_scroll_region(event=None):
+            Imagecanvas.configure(scrollregion=Imagecanvas.bbox("all"))
+
+        image_label.bind("<Configure>", update_scroll_region)
+
 # Function to update the info label
 def update_info_label():
     #global current_image_path, new_image_position
@@ -606,19 +601,19 @@ def update_info_label():
         switch = type('switch', (object,), {'image_id': 1, 'file_path': current_image_path})()
         info_label.config(text=f"Image ID: {switch.image_id}\nFile Path: {switch.file_path}\nNew Image Position: {new_image_position}")
 
-def set_move_pixels():
-    global tempData
-    pixels = simpledialog.askinteger("Input", "Enter the number of pixels to move:", minvalue=1)
-    if pixels:
-        tempData.move_pixels = pixels
-        step_size_label.config(text=f"Step : {tempData.move_pixels} pixels")
+# def set_move_pixels():
+#     global tempData
+#     pixels = simpledialog.askinteger("Input", "Enter the number of pixels to move:", minvalue=1)
+#     if pixels:
+#         tempData.move_pixels = pixels
+#         step_size_label.config(text=f"Step : {tempData.move_pixels} pixels")
 
-def set_rotate_degree():
-    global tempData
-    degree = simpledialog.askinteger("Input", "Enter the roattion degree step:", minvalue=1)
-    if degree:
-        tempData.rotate_degree = degree
-        step_angle_label.config(text=f"step: {tempData.rotate_degree} degree")
+# def set_rotate_degree():
+#     global tempData
+#     degree = simpledialog.askinteger("Input", "Enter the roattion degree step:", minvalue=1)
+#     if degree:
+#         tempData.rotate_degree = degree
+#         step_angle_label.config(text=f"step: {tempData.rotate_degree} degree")
 
 def save_image():
     global tempData
@@ -783,7 +778,7 @@ with open("alpha_data.json", "w") as file:
 root = tk.Tk()
 root.title("configure Json for panel")
 # Set the position of the root window to the top-left corner of the screen
-root.geometry("+10+10")
+root.geometry("+0+0")
 
 current_image_path = None
 
@@ -792,8 +787,34 @@ name_frame = ttk.Frame(root)
 name_frame.grid(row=0, column=0, padx=10, pady=10)
 
 # Create a label to display the image
-image_label = tk.Label(root)
-image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
+# image_label = tk.Label(root)
+# image_label.grid(row=1, column=0, columnspan=4, sticky="nsew")
+# Define the maximum size for the image label
+# Define the maximum size for the image label
+max_width = 1000
+max_height = 600
+
+# Create a canvas widget
+Imagecanvas = tk.Canvas(root, width=max_width, height=max_height)
+Imagecanvas.grid(row=1, column=0, columnspan=4, sticky="nsew")
+
+# Add horizontal and vertical scrollbars
+h_scrollbar = ttk.Scrollbar(root, orient="horizontal", command=Imagecanvas.xview)
+h_scrollbar.grid(row=2, column=0, columnspan=4, sticky="ew")
+
+v_scrollbar = ttk.Scrollbar(root, orient="vertical", command=Imagecanvas.yview)
+v_scrollbar.grid(row=1, column=4, sticky="ns")
+
+# Configure the canvas to use the scrollbars
+Imagecanvas.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
+
+# Create a frame inside the canvas to hold the image label
+image_frame = tk.Frame(Imagecanvas)
+Imagecanvas.create_window((0, 0), window=image_frame, anchor="nw")
+
+# Create a label to display the image inside the frame
+image_label = tk.Label(image_frame)
+image_label.pack()
 
 tempData = TempData()
 
@@ -809,7 +830,7 @@ panel_name_label_DBSim = ttk.Label(name_frame, text="No DBSIM panel selected", a
 panel_name_label_DBSim.grid(row=1, column=5, padx=0, pady=0, sticky='w')
 
 # Create a button to browse files
-browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),dbsim_name_label.cget("text"),image_label), state=tk.DISABLED)
+browse_button = tk.Button(name_frame, text="Create panel ", command=lambda:browse_image(db_name_label.cget("text"),dbsim_name_label.cget("text"),image_label,Imagecanvas), state=tk.DISABLED)
 browse_button.grid(row=0, column=0)
 
 # Create a button to browse files
@@ -819,7 +840,6 @@ Show_panel.grid(row=0, column=1)
 # Create a Panel DBSIM Update button 
 Panel_DBSIM_Update = tk.Button(name_frame, text="Panel DBSIM Update ", command=Update_Panel_DBSIM_Name)
 Panel_DBSIM_Update.grid(row=1, column=6)
-
 
 
 json_file_path = 'InitValues.json'
@@ -844,69 +864,55 @@ dbsim_name_var = tk.StringVar(value=defualt_dbsim_name_var)
 dbsim_name_label = ttk.Label(name_frame, textvariable=dbsim_name_var)
 dbsim_name_label.grid(row=0, column=6, padx=10, pady=10)
 
+# Create a button to updadte the JSON ORS DB file
+Create_JSON_ORS_DB_button = tk.Button(name_frame, text="Create ORS JSON", command=transfer_to_json)
+Create_JSON_ORS_DB_button.grid(row=0, column=7, padx=10, pady=10)
+
 # Create a label to display the image_id and file_path
-info_label = tk.Label(root, text="Image ID: \nFile Path: \nNew Image Position: (0, 0)")
-info_label.grid(row=2, column=0, padx=5, pady=5)
+info_label = tk.Label(root, text="Image ID: File Path: New Image Position: (0, 0)")
+info_label.grid(row=3, column=0, padx=5, pady=5)
 
 
 # Create a frame to hold the widgets
 switchbuttonframe = ttk.Frame(root)
-switchbuttonframe.grid(row=3, column=0, padx=10, pady=10)
+switchbuttonframe.grid(row=4, column=0, padx=10, pady=5)
 
 # panel_name_label = ttk.Label(switchbuttonframe, text="No panel selected", anchor='w')
 
 # Create a button to add another image on top
 add_button = tk.Button(switchbuttonframe, text="Add Switch", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 1,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text"),image_label,panel_name_label,panel_name_label_DBSim), state=tk.DISABLED, bg="lightgreen")
-add_button.grid(row=3, column=0, padx=100, pady=5)
+add_button.grid(row=3, column=0, padx=100, pady=0)
 
 # Create a button to add update switch from the Jason file
 update_button = tk.Button(switchbuttonframe, text="update switch data", command=lambda: add_Switch(db_name_label.cget("text"),panel_name_label.cget("text"), 2,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text"),image_label,panel_name_label,panel_name_label_DBSim), state=tk.NORMAL , bg="lightyellow")
-update_button.grid(row=3, column=1, padx=5, pady=5)
+update_button.grid(row=3, column=1, padx=5, pady=0)
 
 # Create a button to add update switch from the Jason file
 update_button_IMG = tk.Button(switchbuttonframe, text="update switch img", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 3,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text"),image_label,panel_name_label,panel_name_label_DBSim), state=tk.NORMAL , bg="lightyellow")
-update_button_IMG.grid(row=3, column=2, padx=5, pady=5)
+update_button_IMG.grid(row=3, column=2, padx=5, pady=0)
 
 # Create a button to add update switch from the Jason file
 update_button_add_switch = tk.Button(switchbuttonframe, text="add switch to exsit panel", command=lambda: add_Switch( db_name_label.cget("text"),panel_name_label.cget("text"), 4,panel_name_label.cget("text"),dbsim_name_label.cget("text"),panel_name_label_DBSim.cget("text"),image_label,panel_name_label,panel_name_label_DBSim), state=tk.NORMAL , bg="lightyellow")
-update_button_add_switch.grid(row=3, column=4, padx=5, pady=5)
+update_button_add_switch.grid(row=3, column=4, padx=5, pady=0)
 
 # Create a button to add delete switch from the Jason file 
 delete_button = tk.Button(switchbuttonframe, text="delete switch", command=delete_item, state=tk.NORMAL,bg="lightcoral")
-delete_button.grid(row=3, column=5, padx=100, pady=5)
+delete_button.grid(row=3, column=5, padx=100, pady=0)
 
 
 # Create a frame to hold the widgets
 frame = ttk.Frame(root)
-frame.grid(row=4, column=0, padx=10, pady=10)
-
-# Move the image by the specified number of pixels in the specified direction
-set_pixels_button = tk.Button(frame, text="Set Move Pixels", command=set_move_pixels)
-set_pixels_button.grid(row=0, column=0, padx=0, pady=5)
-
-step_size_label = tk.Label(frame, text=f" Step : {tempData.move_pixels} pixels")
-step_size_label.grid(row=0, column=1, padx=0, pady=5)
-
-step_info_label = tk.Label(frame, text=f"arrows for move, \n with ""ALT"" * 0.1, with  ""CTRL"" * 10 step")
-step_info_label.grid(row=1, column=0, padx=0, pady=5)
+frame.grid(row=5, column=0, padx=10, pady=5)
 
 
-# Rotate the image by the specified number of degrees in the specified direction
-set_angle_button = tk.Button(frame, text="Set angle rotation", command=set_rotate_degree)
-set_angle_button.grid(row=0, column=2, padx=1, pady=5)
+tempData.move_pixels, tempData.rotate_degree = Pixsel_Step_Define(json_file_path)
 
-step_angle_label = tk.Label(frame, text=f" Angle : {tempData.rotate_degree} degree")
-step_angle_label.grid(row=0, column=3, padx=1, pady=5)
+step_info_label = tk.Label(frame, text="""arrows for move image,"R" rotate right, "T" rotate left -> with "ALT" * 0.1, with "CTRL" * 10. "D" to move image to -100/-100""")
+step_info_label.grid(row=0, column=0, padx=0, pady=0)
 
-step_angle_info_label = tk.Label(frame, text=f" ""R"" rotate  right ""T"" rotate left \n with ""ALT"" * 0.1, with  ""CTRL"" * 0.1 step")
-step_angle_info_label.grid(row=1, column=2, padx=0, pady=5)
-
-
-step_angle_info_label = tk.Label(frame, text=f" ""D"" to move image to -100/-100")
-step_angle_info_label.grid(row=2, column=0, padx=0, pady=5)
 
 step_angle_info_label = tk.Label(frame, text=f" ""+"" or ""-"" foor scale up and down the image in 5%")
-step_angle_info_label.grid(row=2, column=2, padx=0, pady=5)
+step_angle_info_label.grid(row=1, column=0, padx=0, pady=0)
 
 
 # Bind arrow keys to the move_image function

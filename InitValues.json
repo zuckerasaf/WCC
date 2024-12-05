@@ -1,8 +1,8 @@
 [
     {
         "DB_Default_Folder": "C:\\projectPython\\WCC\\DB",
-        "DB_Default_file": "PLAF_DB_switch.json",
-        "DBSIM_Default_file": "IOToHost.lrux",
+        "DB_Default_file": "MTC2_DB_Switch.json",
+        "DBSIM_Default_file": "OwnshipPanels.lrux",
         "Image_Switch_Folder": "C:\\projectPython\\WCC\\Cockpit-Control\\frontend\\public",
         "Switch_type": [
             "static",
@@ -29,6 +29,8 @@
             "opt1", 
             "opt2",
             "false"
-        ]
+        ],
+        "Move_Pixel_Step": 10,
+        "Rotate_Degree_Step": 10
     }
 ]
