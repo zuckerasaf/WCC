@@ -32,3 +32,36 @@ PLAF/PLAF_DB_switch.xlsx
 PLAF/test.json
 Images/L2/IFF/L2IFF/1.json
 Images/L2/IFF/L2IFF/IFF.json
+__pycache__/Delete_Update.cpython-310.pyc
+__pycache__/PctureClass.cpython-310.pyc
+__pycache__/Util.cpython-310.pyc
+build/Create_Panel/Analysis-00.toc
+build/Create_Panel/Create_Panel.pkg
+build/Create_Panel/EXE-00.toc
+build/Create_Panel/PKG-00.toc
+build/Create_Panel/PYZ-00.pyz
+build/Create_Panel/PYZ-00.toc
+build/Create_Panel/Tree-00.toc
+build/Create_Panel/Tree-01.toc
+build/Create_Panel/Tree-02.toc
+build/Create_Panel/warn-Create_Panel.txt
+build/Create_Panel/xref-Create_Panel.html
+build/Create_Panel/localpycs/pyimod01_archive.pyc
+build/Create_Panel/localpycs/pyimod02_importers.pyc
+build/Create_Panel/localpycs/pyimod03_ctypes.pyc
+build/Create_Panel/localpycs/pyimod04_pywin32.pyc
+build/Create_Panel/localpycs/struct.pyc
+CMDS/CMDS.psd
+for ZIP/alpha_data.json
+for ZIP/Create_Jason_File.py
+for ZIP/Create_Panel.py
+for ZIP/DBSimData.py
+for ZIP/Delete_Update.py
+for ZIP/InitValues.json
+for ZIP/Panel list.txt
+for ZIP/PctureClass.py
+for ZIP/Util.py
+for ZIP/DB/IOToHost.lrux
+for ZIP/DB/MTC2_DB_Switch.json
+for ZIP/DB/MTC2_DB_Switch.txt
+for ZIP/DB/PLAF_DB_switch.json

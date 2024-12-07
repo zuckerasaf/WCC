@@ -15,8 +15,14 @@ def Update_Data_FromDBSIM(picture, root,tempData,DBSIM_Mapping_entry,DBSIM_Eleme
     if tempData.DBSIM_Default_file != "No DBSIM selected yet": 
         if not(tempData.DBSIM_panel == "none" or tempData.DBSIM_panel == "No DBSIM panel selected"or tempData.DBSIM_panel == ""):
             tree = etree.parse(tempData.DBSIM_Default_file)
-            switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{tempData.DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
-            elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+            try:
+
+                switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{tempData.DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+                elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+            except:
+                elements = ["none"]
+                messagebox.showwarning("Warning", "No switches was found for this panel in the DBSIM file")
+                return
         else:
             elements = ["none"] 
             messagebox.showwarning("Warning", "No Panel from DBSIM selected yet \n first update DBSIM panel name in main window")
@@ -132,8 +138,8 @@ def Switch_name_listbox(root):
     # Create a Scrollbar widget
     scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=Switch_name_listbox.yview)
     Switch_name_listbox.config(yscrollcommand=scrollbar.set)
-    Switch_name_listbox.grid(row=2, column=1, padx=5, pady=5,sticky="w")#, sticky="nsew")
-    scrollbar.grid(row=2, column=2, sticky="w")
+    Switch_name_listbox.grid(row=4, column=1, padx=5, pady=5,sticky="w")#, sticky="nsew")
+    scrollbar.grid(row=4, column=2, sticky="w")
 
     # update the backend names to the listbox
     Switch_name_listbox.delete(0, tk.END)
@@ -490,10 +496,16 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     cNum = 0 #relative column number
     # Create a label to display the selected panel name
     Label(alpha_form, text="switch name :").grid(row=rNum, column=0)
-    switch_name_entry = Entry(alpha_form)
+    switch_name_entry = Entry(alpha_form,width=15)
     switch_name_entry.grid(row=rNum, column=1)
     switch_name_entry.insert(0, picture.imageName)
     switch_name_entry.config(background='grey')
+
+    Label(alpha_form, text="in panel  :").grid(row=rNum, column=2)
+    panel_name_entry = Entry(alpha_form,width=15)
+    panel_name_entry.grid(row=rNum, column=3)
+    panel_name_entry.insert(0, picture.panelName)
+    panel_name_entry.config(background='grey')
 
     rNum += 1
     Label(alpha_form, text="Image Size:").grid(row=rNum, column=0)
@@ -579,7 +591,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     Update_DBSim_Button.grid(row=rNum, column=0)
     rNum += 1
     Label(alpha_form, text="DBSIM Element:").grid(row=rNum, column=0)
-    DBSIM_Element_entry = Entry(alpha_form)
+    DBSIM_Element_entry = Entry(alpha_form, width=15)
     DBSIM_Element_entry.grid(row=rNum, column=1)
     DBSIM_Element_entry.insert(0, str(picture.DBSIM_Element))  
     DBSIM_Element_entry.config(background='grey')
@@ -596,7 +608,7 @@ def open_alpha_form(root,add_Switch,tempData, picture):
     DBSIM_Mapping_entry.config(background='grey')
     rNum += 1
     Label(alpha_form, text="DBSIM Element type:").grid(row=rNum, column=0)
-    DBSIM_Element_Type_entry = Entry(alpha_form)
+    DBSIM_Element_Type_entry = Entry(alpha_form, width=15)
     DBSIM_Element_Type_entry.grid(row=rNum, column=1)
     DBSIM_Element_Type_entry.insert(0, str(picture.DBSimelementType))  
     DBSIM_Element_Type_entry.config(background='grey')

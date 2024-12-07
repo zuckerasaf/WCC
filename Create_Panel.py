@@ -23,6 +23,10 @@ def show_panel(image_label):
     img_tk = ImageTk.PhotoImage(img)
     image_label.config(image=img_tk)
     image_label.image = img_tk  # Keep a reference to avoid garbage collection
+    def update_scroll_region(event=None):
+        Imagecanvas.configure(scrollregion=Imagecanvas.bbox("all"))
+
+    image_label.bind("<Configure>", update_scroll_region)
     
     file_name = os.path.basename(json_file_path)
     info_label.config(text=f"Image ID: {file_name}\nFile Path: {json_file_path}")
@@ -167,8 +171,12 @@ def browse_image(DB_file_path,DBSIM_file_Path,image_label,Imagecanvas):
 def list_of_DBSIM_elemnt (DBSIM_panel,DBSIM_file_Path):
     if DBSIM_panel !="" and DBSIM_panel != "No DBSIM panel selected" and DBSIM_panel != "none":
         tree = etree.parse(DBSIM_file_Path)
-        switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
-        elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+        try:
+            switch_type = tree.xpath(f'//MessageDefinitions/MessageDefinition [@Name="{DBSIM_panel}"]/Elements/Element/TypeDefinition')[0].text
+            elements = tree.xpath(f'//Types/TypeDefinition[@Name="{switch_type}"]/Elements/Element/@Name')
+        except:
+            elements = ["none"]
+            messagebox.showwarning("Warning", "No elements for the selected panel")
     else:
        elements = ["none"] 
     return elements
@@ -253,9 +261,9 @@ def select_switch_name(DB_file_path,panel_name, switch,elements,DBSIM_file_Path)
 
 def Update_Panel_DBSIM_Name():
     global tempData, switch
-    if tempData.DBSIM_Default_file == "No DBSIM selected yet" or tempData.DBSIM_Default_file == "" or tempData.DBSIM_Default_file == "none":
-        messagebox.showwarning("Warning", "No Panel selected yet")
-        return
+    # if tempData.DBSIM_Default_file == "No DBSIM selected yet" or tempData.DBSIM_Default_file == "" or tempData.DBSIM_Default_file == "none":
+    #     messagebox.showwarning("Warning", "No Panel selected yet")
+    #     return
     tree = etree.parse(tempData.DBSIM_Default_file)
     #root = tree.getroot()
 
@@ -494,6 +502,10 @@ def add_Switch(DB_file_path,panel,update,panelName,DBSIM_file_Path, DBSIM_panel,
 #    
      # up date switch data  in  exsit  panel in json_file_path
     elif update==2 or update==3:
+
+        tempData.new_scale = 1.0
+        tempData.new_image_position = (0, 0)
+        tempData.rotation_angle = 0
        
         selected_name = ""
         json_file_path = ""
